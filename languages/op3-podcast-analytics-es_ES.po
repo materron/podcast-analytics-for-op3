@@ -1,0 +1,211 @@
+# Spanish translation for OP3 Podcast Analytics
+# Copyright (C) 2024 Miguel Ángel Terrón
+# This file is distributed under the same license as the OP3 Podcast Analytics plugin.
+# Miguel Ángel Terrón <mterronbote@gmail.com>, 2024.
+msgid ""
+msgstr ""
+"Project-Id-Version: OP3 Podcast Analytics 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/op3-podcast-analytics\n"
+"POT-Creation-Date: 2024-01-01 00:00:00+00:00\n"
+"PO-Revision-Date: 2024-01-01 00:00:00+0000\n"
+"Last-Translator: Miguel Ángel Terrón <mterronbote@gmail.com>\n"
+"Language-Team: Spanish <es@li.org>\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: manually\n"
+"X-Domain: op3-podcast-analytics\n"
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 Podcast Analytics"
+msgstr "OP3 Podcast Analytics"
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 Analytics"
+msgstr "OP3 Analytics"
+
+#: includes/class-op3pa-admin.php
+msgid "Settings"
+msgstr "Ajustes"
+
+#: includes/class-op3pa-admin.php
+msgid "Statistics"
+msgstr "Estadísticas"
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 settings saved."
+msgstr "Ajustes de OP3 guardados."
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 Podcast Analytics — Settings"
+msgstr "OP3 Podcast Analytics — Ajustes"
+
+#: includes/class-op3pa-admin.php
+msgid "Enable OP3 prefix"
+msgstr "Activar prefijo OP3"
+
+#: includes/class-op3pa-admin.php
+msgid "Add the OP3 prefix to all audio URLs in the RSS feed"
+msgstr "Añadir el prefijo OP3 a todas las URLs de audio del feed RSS"
+
+#: includes/class-op3pa-admin.php
+msgid "When enabled, audio enclosures in your feed will be rewritten from https://yoursite.com/audio.mp3 to https://op3.dev/e/yoursite.com/audio.mp3."
+msgstr "Al activarlo, los enclosures de audio de tu feed se reescribirán de https://tudominio.com/audio.mp3 a https://op3.dev/e/tudominio.com/audio.mp3."
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 API Key"
+msgstr "Bearer token de OP3"
+
+#: includes/class-op3pa-admin.php
+msgid "Get your API key at %s after signing in."
+msgstr "Obtén tu bearer token en %s. Es diferente a la API Key — búscalo en la sección «Manage an existing API Key»."
+
+#: includes/class-op3pa-admin.php
+msgid "Show UUID"
+msgstr "UUID del programa"
+
+#: includes/class-op3pa-admin.php
+msgid "The UUID that OP3 assigns to your show. You can find it in the OP3 dashboard or in your public stats URL: https://op3.dev/show/{uuid}."
+msgstr "El UUID que OP3 asigna a tu programa. Lo encontrarás en la URL de tu página pública de estadísticas: https://op3.dev/show/{uuid}."
+
+#: includes/class-op3pa-admin.php
+msgid "Podcast GUID (optional)"
+msgstr "GUID del podcast (opcional)"
+
+#: includes/class-op3pa-admin.php
+msgid "The <podcast:guid> of your show (from your RSS feed). Including it speeds up attribution in OP3 — useful but not required."
+msgstr "El <podcast:guid> de tu programa (del feed RSS). Incluirlo acelera la atribución en OP3 — útil pero no obligatorio."
+
+#: includes/class-op3pa-admin.php
+msgid "Save Settings"
+msgstr "Guardar ajustes"
+
+#: includes/class-op3pa-admin.php
+msgid "Feed Check"
+msgstr "Verificación del feed"
+
+#: includes/class-op3pa-admin.php
+msgid "Your feed URL: %s"
+msgstr "URL de tu feed: %s"
+
+#: includes/class-op3pa-admin.php
+msgid "Open your feed after saving and verify that audio URLs start with https://op3.dev/e/."
+msgstr "Abre tu feed después de guardar y verifica que las URLs de audio comiencen por https://op3.dev/e/."
+
+#: includes/class-op3pa-admin.php
+msgid "↗ View public stats page on OP3"
+msgstr "↗ Ver página de estadísticas pública en OP3"
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 Podcast Analytics — Statistics"
+msgstr "OP3 Podcast Analytics — Estadísticas"
+
+#: includes/class-op3pa-admin.php
+msgid "Please configure your Show UUID in the %s first."
+msgstr "Primero configura el UUID del programa en la %s."
+
+#: includes/class-op3pa-admin.php
+msgid "Settings page"
+msgstr "página de ajustes"
+
+#: includes/class-op3pa-admin.php
+msgid "Last 30 days"
+msgstr "Últimos 30 días"
+
+#: includes/class-op3pa-admin.php
+msgid "Last 7 days"
+msgstr "Últimos 7 días"
+
+#: includes/class-op3pa-admin.php
+msgid "Last 24h"
+msgstr "Últimas 24 h"
+
+#: includes/class-op3pa-admin.php
+msgid "Refresh"
+msgstr "Actualizar"
+
+#: includes/class-op3pa-admin.php
+msgid "↗ Full stats on OP3"
+msgstr "↗ Estadísticas completas en OP3"
+
+#: includes/class-op3pa-admin.php
+msgid "Loading stats…"
+msgstr "Cargando estadísticas…"
+
+#: includes/class-op3pa-admin.php
+msgid "No download data available yet."
+msgstr "Aún no hay datos de descargas disponibles."
+
+#: includes/class-op3pa-admin.php
+msgid "Episode"
+msgstr "Episodio"
+
+#: includes/class-op3pa-admin.php
+msgid "Downloads"
+msgstr "Descargas"
+
+#: includes/class-op3pa-admin.php
+msgid "(unknown)"
+msgstr "(desconocido)"
+
+#: includes/class-op3pa-admin.php
+msgid "Total"
+msgstr "Total"
+
+#: includes/class-op3pa-admin.php
+msgid "Data cached for 1 hour. %s"
+msgstr "Datos en caché durante 1 hora. %s"
+
+#: includes/class-op3pa-admin.php
+msgid "View detailed breakdown on OP3 →"
+msgstr "Ver desglose completo en OP3 →"
+
+#: includes/class-op3pa-admin.php
+msgid "Access denied."
+msgstr "Acceso denegado."
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 Podcast Downloads"
+msgstr "Descargas de podcast OP3"
+
+#: includes/class-op3pa-admin.php
+msgid "Configure your Show UUID in the %s."
+msgstr "Configura el UUID del programa en la %s."
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 settings"
+msgstr "ajustes de OP3"
+
+#: includes/class-op3pa-admin.php
+msgid "downloads in the last 7 days"
+msgstr "descargas en los últimos 7 días"
+
+#: includes/class-op3pa-admin.php
+msgid "View all stats →"
+msgstr "Ver todas las estadísticas →"
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 dashboard ↗"
+msgstr "Panel de OP3 ↗"
+
+#: includes/class-op3pa-api.php
+msgid "No Show UUID configured."
+msgstr "No se ha configurado ningún UUID de programa."
+
+#: includes/class-op3pa-api.php
+msgid "Invalid API key. Check your OP3 settings."
+msgstr "Bearer token no válido. Comprueba los ajustes de OP3."
+
+#: includes/class-op3pa-api.php
+msgid "Show not found. Check your Show UUID."
+msgstr "Programa no encontrado. Comprueba el UUID del programa."
+
+#: includes/class-op3pa-api.php
+msgid "OP3 API returned status %d."
+msgstr "La API de OP3 ha devuelto el estado %d."
+
+#: includes/class-op3pa-api.php
+msgid "Could not parse OP3 API response."
+msgstr "No se ha podido interpretar la respuesta de la API de OP3."
