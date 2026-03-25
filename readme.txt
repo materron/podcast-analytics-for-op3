@@ -1,10 +1,10 @@
-=== OP3 Podcast Analytics ===
+=== Podcast Analytics for OP3 ===
 Contributors: materron
 Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,9 @@ This plugin sends data to the external service **op3.dev** in two ways:
 No data is collected from your site's visitors beyond what OP3 records as part of the redirect.
 
 == Changelog ==
+
+= 1.0.1 =
+* Renamed plugin to "Podcast Analytics for OP3" to clarify it is a community integration, not an official OP3 product.
 
 = 1.0.0 =
 * Initial release.

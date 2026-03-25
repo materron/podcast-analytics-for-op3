@@ -35,7 +35,7 @@ class OP3PA_Api {
 	public static function get_download_counts( int $days = 30, int $podcast_i = 0 ): array|WP_Error {
 		$podcast = op3pa_get_podcast( $podcast_i );
 		if ( empty( $podcast['show_uuid'] ) ) {
-			return new WP_Error( 'op3pa_no_uuid', __( 'No Show UUID configured.', 'op3-podcast-analytics' ) );
+			return new WP_Error( 'op3pa_no_uuid', __( 'No Show UUID configured.', 'podcast-analytics-for-op3' ) );
 		}
 
 		$cache_key = 'op3pa_downloads_' . $podcast_i . '_' . $days . 'd';
@@ -101,7 +101,7 @@ class OP3PA_Api {
 	public static function get_show( int $podcast_i = 0 ): array|WP_Error {
 		$podcast = op3pa_get_podcast( $podcast_i );
 		if ( empty( $podcast['show_uuid'] ) ) {
-			return new WP_Error( 'op3pa_no_uuid', __( 'No Show UUID configured.', 'op3-podcast-analytics' ) );
+			return new WP_Error( 'op3pa_no_uuid', __( 'No Show UUID configured.', 'podcast-analytics-for-op3' ) );
 		}
 
 		$cache_key = 'op3pa_show_' . $podcast_i;
@@ -184,24 +184,24 @@ class OP3PA_Api {
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( 401 === $code ) {
-			return new WP_Error( 'op3pa_unauthorized', __( 'Invalid API key. Check your OP3 settings.', 'op3-podcast-analytics' ) );
+			return new WP_Error( 'op3pa_unauthorized', __( 'Invalid API key. Check your OP3 settings.', 'podcast-analytics-for-op3' ) );
 		}
 
 		if ( 404 === $code ) {
-			return new WP_Error( 'op3pa_not_found', __( 'Show not found. Check your Show UUID.', 'op3-podcast-analytics' ) );
+			return new WP_Error( 'op3pa_not_found', __( 'Show not found. Check your Show UUID.', 'podcast-analytics-for-op3' ) );
 		}
 
 		if ( $code < 200 || $code >= 300 ) {
 			return new WP_Error(
 				'op3pa_api_error',
 				/* translators: %d: HTTP status code */
-				sprintf( __( 'OP3 API returned status %d.', 'op3-podcast-analytics' ), $code )
+				sprintf( __( 'OP3 API returned status %d.', 'podcast-analytics-for-op3' ), $code )
 			);
 		}
 
 		$data = json_decode( $body, true );
 		if ( ! is_array( $data ) ) {
-			return new WP_Error( 'op3pa_parse_error', __( 'Could not parse OP3 API response.', 'op3-podcast-analytics' ) );
+			return new WP_Error( 'op3pa_parse_error', __( 'Could not parse OP3 API response.', 'podcast-analytics-for-op3' ) );
 		}
 
 		return $data;

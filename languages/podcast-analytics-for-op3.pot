@@ -1,0 +1,209 @@
+# Copyright (C) 2024 Miguel Ángel Terrón
+# This file is distributed under the same license as the OP3 Podcast Analytics plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: OP3 Podcast Analytics 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/podcast-analytics-for-op3\n"
+"POT-Creation-Date: 2024-01-01 00:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2024-01-01 00:00:00+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: WP-CLI 2.x\n"
+"X-Domain: podcast-analytics-for-op3\n"
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 Podcast Analytics"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 Analytics"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Settings"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Statistics"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 settings saved."
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 Podcast Analytics — Settings"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Enable OP3 prefix"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Add the OP3 prefix to all audio URLs in the RSS feed"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "When enabled, audio enclosures in your feed will be rewritten from https://yoursite.com/audio.mp3 to https://op3.dev/e/yoursite.com/audio.mp3."
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 API Key"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Get your API key at %s after signing in."
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Show UUID"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "The UUID that OP3 assigns to your show. You can find it in the OP3 dashboard or in your public stats URL: https://op3.dev/show/{uuid}."
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Podcast GUID (optional)"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "The <podcast:guid> of your show (from your RSS feed). Including it speeds up attribution in OP3 — useful but not required."
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Save Settings"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Feed Check"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Your feed URL: %s"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Open your feed after saving and verify that audio URLs start with https://op3.dev/e/."
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "↗ View public stats page on OP3"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 Podcast Analytics — Statistics"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Please configure your Show UUID in the %s first."
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Settings page"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Last 30 days"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Last 7 days"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Last 24h"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Refresh"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "↗ Full stats on OP3"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Loading stats…"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "No download data available yet."
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Episode"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Downloads"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "(unknown)"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Total"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Data cached for 1 hour. %s"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "View detailed breakdown on OP3 →"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Access denied."
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 Podcast Downloads"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "Configure your Show UUID in the %s."
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 settings"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "downloads in the last 7 days"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "View all stats →"
+msgstr ""
+
+#: includes/class-op3pa-admin.php
+msgid "OP3 dashboard ↗"
+msgstr ""
+
+#: includes/class-op3pa-api.php
+msgid "No Show UUID configured."
+msgstr ""
+
+#: includes/class-op3pa-api.php
+msgid "Invalid API key. Check your OP3 settings."
+msgstr ""
+
+#: includes/class-op3pa-api.php
+msgid "Show not found. Check your Show UUID."
+msgstr ""
+
+#: includes/class-op3pa-api.php
+msgid "OP3 API returned status %d."
+msgstr ""
+
+#: includes/class-op3pa-api.php
+msgid "Could not parse OP3 API response."
+msgstr ""

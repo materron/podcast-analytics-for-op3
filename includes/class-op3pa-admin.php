@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class OP3PA_Admin {
 
-	private const MENU_SLUG  = 'op3-podcast-analytics';
+	private const MENU_SLUG  = 'podcast-analytics-for-op3';
 	private const NONCE_KEY  = 'op3pa_settings_nonce';
 	private const NONCE_ACTION = 'op3pa_save_settings';
 
@@ -29,8 +29,8 @@ class OP3PA_Admin {
 
 	public static function register_menu(): void {
 		add_menu_page(
-			__( 'OP3 Podcast Analytics', 'op3-podcast-analytics' ),
-			__( 'OP3 Analytics', 'op3-podcast-analytics' ),
+			__( 'OP3 Podcast Analytics', 'podcast-analytics-for-op3' ),
+			__( 'OP3 Analytics', 'podcast-analytics-for-op3' ),
 			'manage_options',
 			self::MENU_SLUG,
 			[ __CLASS__, 'render_settings_page' ],
@@ -40,8 +40,8 @@ class OP3PA_Admin {
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'Settings', 'op3-podcast-analytics' ),
-			__( 'Settings', 'op3-podcast-analytics' ),
+			__( 'Settings', 'podcast-analytics-for-op3' ),
+			__( 'Settings', 'podcast-analytics-for-op3' ),
 			'manage_options',
 			self::MENU_SLUG,
 			[ __CLASS__, 'render_settings_page' ]
@@ -49,8 +49,8 @@ class OP3PA_Admin {
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'Statistics', 'op3-podcast-analytics' ),
-			__( 'Statistics', 'op3-podcast-analytics' ),
+			__( 'Statistics', 'podcast-analytics-for-op3' ),
+			__( 'Statistics', 'podcast-analytics-for-op3' ),
 			'manage_options',
 			self::MENU_SLUG . '-stats',
 			[ __CLASS__, 'render_stats_page' ]
@@ -91,8 +91,8 @@ class OP3PA_Admin {
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'nonce'   => wp_create_nonce( 'op3pa_ajax' ),
 			'strings' => [
-				'refreshing' => __( 'Refreshing…', 'op3-podcast-analytics' ),
-				'error'      => __( 'Could not load stats. Try again later.', 'op3-podcast-analytics' ),
+				'refreshing' => __( 'Refreshing…', 'podcast-analytics-for-op3' ),
+				'error'      => __( 'Could not load stats. Try again later.', 'podcast-analytics-for-op3' ),
 			],
 		] );
 	}
@@ -109,7 +109,7 @@ class OP3PA_Admin {
 		check_admin_referer( self::NONCE_ACTION, self::NONCE_KEY );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Access denied.', 'op3-podcast-analytics' ) );
+			wp_die( esc_html__( 'Access denied.', 'podcast-analytics-for-op3' ) );
 		}
 
 		$data = [
@@ -129,7 +129,7 @@ class OP3PA_Admin {
 
 	public static function notice_saved(): void {
 		echo '<div class="notice notice-success is-dismissible"><p>'
-			. esc_html__( 'OP3 settings saved.', 'op3-podcast-analytics' )
+			. esc_html__( 'OP3 settings saved.', 'podcast-analytics-for-op3' )
 			. '</p></div>';
 	}
 
@@ -144,7 +144,7 @@ class OP3PA_Admin {
 		<div class="wrap op3pa-wrap">
 			<h1>
 				<span class="op3pa-logo">OP3</span>
-				<?php esc_html_e( 'Podcast Analytics — Settings', 'op3-podcast-analytics' ); ?>
+				<?php esc_html_e( 'Podcast Analytics — Settings', 'podcast-analytics-for-op3' ); ?>
 			</h1>
 
 			<form method="post" action="">
@@ -152,18 +152,18 @@ class OP3PA_Admin {
 
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Enable OP3 prefix', 'op3-podcast-analytics' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Enable OP3 prefix', 'podcast-analytics-for-op3' ); ?></th>
 						<td>
 							<label>
 								<input type="checkbox" name="op3pa_enabled" value="1"
 									<?php checked( $podcast['enabled'] ); ?> />
-								<?php esc_html_e( 'Add the OP3 prefix to all audio URLs in the RSS feed', 'op3-podcast-analytics' ); ?>
+								<?php esc_html_e( 'Add the OP3 prefix to all audio URLs in the RSS feed', 'podcast-analytics-for-op3' ); ?>
 							</label>
 							<p class="description">
 								<?php
 								esc_html_e(
 									'When enabled, audio enclosures in your feed will be rewritten from https://yoursite.com/audio.mp3 to https://op3.dev/e/yoursite.com/audio.mp3.',
-									'op3-podcast-analytics'
+									'podcast-analytics-for-op3'
 								);
 								?>
 							</p>
@@ -172,7 +172,7 @@ class OP3PA_Admin {
 
 					<tr>
 						<th scope="row">
-							<label for="op3pa_api_key"><?php esc_html_e( 'OP3 API Key', 'op3-podcast-analytics' ); ?></label>
+							<label for="op3pa_api_key"><?php esc_html_e( 'OP3 API Key', 'podcast-analytics-for-op3' ); ?></label>
 						</th>
 						<td>
 							<input type="password" id="op3pa_api_key" name="op3pa_api_key"
@@ -182,7 +182,7 @@ class OP3PA_Admin {
 								<?php
 								printf(
 									/* translators: %s: link to op3.dev */
-									esc_html__( 'Get your API key at %s after signing in.', 'op3-podcast-analytics' ),
+									esc_html__( 'Get your API key at %s after signing in.', 'podcast-analytics-for-op3' ),
 									'<a href="https://op3.dev" target="_blank" rel="noopener">op3.dev</a>'
 								);
 								?>
@@ -192,7 +192,7 @@ class OP3PA_Admin {
 
 					<tr>
 						<th scope="row">
-							<label for="op3pa_show_uuid"><?php esc_html_e( 'Show UUID', 'op3-podcast-analytics' ); ?></label>
+							<label for="op3pa_show_uuid"><?php esc_html_e( 'Show UUID', 'podcast-analytics-for-op3' ); ?></label>
 						</th>
 						<td>
 							<input type="text" id="op3pa_show_uuid" name="op3pa_show_uuid"
@@ -202,7 +202,7 @@ class OP3PA_Admin {
 								<?php
 								esc_html_e(
 									'The UUID that OP3 assigns to your show. You can find it in the OP3 dashboard or in your public stats URL: https://op3.dev/show/{uuid}.',
-									'op3-podcast-analytics'
+									'podcast-analytics-for-op3'
 								);
 								?>
 							</p>
@@ -211,7 +211,7 @@ class OP3PA_Admin {
 
 					<tr>
 						<th scope="row">
-							<label for="op3pa_guid"><?php esc_html_e( 'Podcast GUID (optional)', 'op3-podcast-analytics' ); ?></label>
+							<label for="op3pa_guid"><?php esc_html_e( 'Podcast GUID (optional)', 'podcast-analytics-for-op3' ); ?></label>
 						</th>
 						<td>
 							<input type="text" id="op3pa_guid" name="op3pa_guid"
@@ -221,7 +221,7 @@ class OP3PA_Admin {
 								<?php
 								esc_html_e(
 									'The <podcast:guid> of your show (from your RSS feed). Including it speeds up attribution in OP3 — useful but not required.',
-									'op3-podcast-analytics'
+									'podcast-analytics-for-op3'
 								);
 								?>
 							</p>
@@ -229,17 +229,17 @@ class OP3PA_Admin {
 					</tr>
 				</table>
 
-				<?php submit_button( __( 'Save Settings', 'op3-podcast-analytics' ) ); ?>
+				<?php submit_button( __( 'Save Settings', 'podcast-analytics-for-op3' ) ); ?>
 			</form>
 
 			<hr />
 
-			<h2><?php esc_html_e( 'Feed Check', 'op3-podcast-analytics' ); ?></h2>
+			<h2><?php esc_html_e( 'Feed Check', 'podcast-analytics-for-op3' ); ?></h2>
 			<p>
 				<?php
 				printf(
 					/* translators: %s: feed URL */
-					esc_html__( 'Your feed URL: %s', 'op3-podcast-analytics' ),
+					esc_html__( 'Your feed URL: %s', 'podcast-analytics-for-op3' ),
 					'<a href="' . esc_url( $feed_url ) . '" target="_blank" rel="noopener">' . esc_html( $feed_url ) . '</a>'
 				);
 				?>
@@ -248,7 +248,7 @@ class OP3PA_Admin {
 				<?php
 				esc_html_e(
 					'Open your feed after saving and verify that audio URLs start with https://op3.dev/e/.',
-					'op3-podcast-analytics'
+					'podcast-analytics-for-op3'
 				);
 				?>
 			</p>
@@ -256,7 +256,7 @@ class OP3PA_Admin {
 			<?php if ( ! empty( $podcast['show_uuid'] ) ) : ?>
 			<p>
 				<a href="<?php echo esc_url( OP3PA_Api::get_stats_page_url() ); ?>" target="_blank" rel="noopener" class="button button-secondary">
-					<?php esc_html_e( '↗ View public stats page on OP3', 'op3-podcast-analytics' ); ?>
+					<?php esc_html_e( '↗ View public stats page on OP3', 'podcast-analytics-for-op3' ); ?>
 				</a>
 			</p>
 			<?php endif; ?>
@@ -278,7 +278,7 @@ class OP3PA_Admin {
 		<div class="wrap op3pa-wrap">
 			<h1>
 				<span class="op3pa-logo">OP3</span>
-				<?php esc_html_e( 'Podcast Analytics — Statistics', 'op3-podcast-analytics' ); ?>
+				<?php esc_html_e( 'Podcast Analytics — Statistics', 'podcast-analytics-for-op3' ); ?>
 			</h1>
 
 			<?php if ( empty( $podcast['show_uuid'] ) ) : ?>
@@ -287,9 +287,9 @@ class OP3PA_Admin {
 						<?php
 						printf(
 							/* translators: %s: link to settings page */
-							esc_html__( 'Please configure your Show UUID in the %s first.', 'op3-podcast-analytics' ),
+							esc_html__( 'Please configure your Show UUID in the %s first.', 'podcast-analytics-for-op3' ),
 							'<a href="' . esc_url( admin_url( 'admin.php?page=' . self::MENU_SLUG ) ) . '">'
-							. esc_html__( 'Settings page', 'op3-podcast-analytics' ) . '</a>'
+							. esc_html__( 'Settings page', 'podcast-analytics-for-op3' ) . '</a>'
 						);
 						?>
 					</p>
@@ -300,26 +300,26 @@ class OP3PA_Admin {
 			<div class="op3pa-stats-header">
 				<div class="op3pa-period-tabs">
 					<button class="op3pa-period-btn active" data-days="30">
-						<?php esc_html_e( 'Last 30 days', 'op3-podcast-analytics' ); ?>
+						<?php esc_html_e( 'Last 30 days', 'podcast-analytics-for-op3' ); ?>
 					</button>
 					<button class="op3pa-period-btn" data-days="7">
-						<?php esc_html_e( 'Last 7 days', 'op3-podcast-analytics' ); ?>
+						<?php esc_html_e( 'Last 7 days', 'podcast-analytics-for-op3' ); ?>
 					</button>
 					<button class="op3pa-period-btn" data-days="1">
-						<?php esc_html_e( 'Last 24h', 'op3-podcast-analytics' ); ?>
+						<?php esc_html_e( 'Last 24h', 'podcast-analytics-for-op3' ); ?>
 					</button>
 				</div>
 				<button id="op3pa-refresh" class="button button-secondary">
-					⟳ <?php esc_html_e( 'Refresh', 'op3-podcast-analytics' ); ?>
+					⟳ <?php esc_html_e( 'Refresh', 'podcast-analytics-for-op3' ); ?>
 				</button>
 				<a href="<?php echo esc_url( OP3PA_Api::get_stats_page_url() ); ?>"
 					target="_blank" rel="noopener" class="button button-secondary">
-					↗ <?php esc_html_e( 'Full stats on OP3', 'op3-podcast-analytics' ); ?>
+					↗ <?php esc_html_e( 'Full stats on OP3', 'podcast-analytics-for-op3' ); ?>
 				</a>
 			</div>
 
 			<div id="op3pa-stats-container" data-days="30">
-				<div class="op3pa-loading"><?php esc_html_e( 'Loading stats…', 'op3-podcast-analytics' ); ?></div>
+				<div class="op3pa-loading"><?php esc_html_e( 'Loading stats…', 'podcast-analytics-for-op3' ); ?></div>
 			</div>
 		</div>
 		<?php
@@ -348,20 +348,20 @@ class OP3PA_Admin {
 		?>
 		<div id="op3pa-stats-table-wrap">
 			<?php if ( empty( $rows ) ) : ?>
-				<p><?php esc_html_e( 'No download data available yet.', 'op3-podcast-analytics' ); ?></p>
+				<p><?php esc_html_e( 'No download data available yet.', 'podcast-analytics-for-op3' ); ?></p>
 			<?php else : ?>
 				<table class="wp-list-table widefat fixed striped op3pa-table">
 					<thead>
 						<tr>
-							<th class="column-episode"><?php esc_html_e( 'Episode', 'op3-podcast-analytics' ); ?></th>
-							<th class="column-downloads"><?php esc_html_e( 'Downloads', 'op3-podcast-analytics' ); ?></th>
+							<th class="column-episode"><?php esc_html_e( 'Episode', 'podcast-analytics-for-op3' ); ?></th>
+							<th class="column-downloads"><?php esc_html_e( 'Downloads', 'podcast-analytics-for-op3' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php foreach ( $rows as $row ) :
 							$count    = isset( $row['downloads'] ) ? (int) $row['downloads'] : 0;
 							$total   += $count;
-							$ep_title = $row['episodeTitle'] ?? $row['episodeUrl'] ?? __( '(unknown)', 'op3-podcast-analytics' );
+							$ep_title = $row['episodeTitle'] ?? $row['episodeUrl'] ?? __( '(unknown)', 'podcast-analytics-for-op3' );
 							$ep_url   = $row['episodeUrl'] ?? '';
 						?>
 							<tr>
@@ -383,7 +383,7 @@ class OP3PA_Admin {
 					</tbody>
 					<tfoot>
 						<tr>
-							<th><?php esc_html_e( 'Total', 'op3-podcast-analytics' ); ?></th>
+							<th><?php esc_html_e( 'Total', 'podcast-analytics-for-op3' ); ?></th>
 							<th><strong><?php echo esc_html( number_format_i18n( $total ) ); ?></strong></th>
 						</tr>
 					</tfoot>
@@ -392,9 +392,9 @@ class OP3PA_Admin {
 					<?php
 					printf(
 						/* translators: %s: link to full OP3 stats */
-						esc_html__( 'Data cached for 1 hour. %s', 'op3-podcast-analytics' ),
+						esc_html__( 'Data cached for 1 hour. %s', 'podcast-analytics-for-op3' ),
 						'<a href="' . esc_url( OP3PA_Api::get_stats_page_url() ) . '" target="_blank" rel="noopener">'
-						. esc_html__( 'View detailed breakdown on OP3 →', 'op3-podcast-analytics' )
+						. esc_html__( 'View detailed breakdown on OP3 →', 'podcast-analytics-for-op3' )
 						. '</a>'
 					);
 					?>
@@ -418,7 +418,7 @@ class OP3PA_Admin {
 		check_ajax_referer( 'op3pa_ajax', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( [ 'message' => __( 'Access denied.', 'op3-podcast-analytics' ) ], 403 );
+			wp_send_json_error( [ 'message' => __( 'Access denied.', 'podcast-analytics-for-op3' ) ], 403 );
 		}
 
 		$days = absint( $_POST['days'] ?? 30 );
@@ -447,7 +447,7 @@ class OP3PA_Admin {
 
 		wp_add_dashboard_widget(
 			'op3pa_dashboard_widget',
-			__( 'OP3 Podcast Downloads', 'op3-podcast-analytics' ),
+			__( 'OP3 Podcast Downloads', 'podcast-analytics-for-op3' ),
 			[ __CLASS__, 'render_dashboard_widget' ]
 		);
 	}
@@ -459,9 +459,9 @@ class OP3PA_Admin {
 			echo '<p>';
 			printf(
 				/* translators: %s: settings link */
-				esc_html__( 'Configure your Show UUID in the %s.', 'op3-podcast-analytics' ),
+				esc_html__( 'Configure your Show UUID in the %s.', 'podcast-analytics-for-op3' ),
 				'<a href="' . esc_url( admin_url( 'admin.php?page=' . self::MENU_SLUG ) ) . '">'
-				. esc_html__( 'OP3 settings', 'op3-podcast-analytics' ) . '</a>'
+				. esc_html__( 'OP3 settings', 'podcast-analytics-for-op3' ) . '</a>'
 			);
 			echo '</p>';
 			return;
@@ -481,7 +481,7 @@ class OP3PA_Admin {
 		<div class="op3pa-widget">
 			<div class="op3pa-widget-total">
 				<span class="op3pa-widget-number"><?php echo esc_html( number_format_i18n( (int) $total ) ); ?></span>
-				<span class="op3pa-widget-label"><?php esc_html_e( 'downloads in the last 7 days', 'op3-podcast-analytics' ); ?></span>
+				<span class="op3pa-widget-label"><?php esc_html_e( 'downloads in the last 7 days', 'podcast-analytics-for-op3' ); ?></span>
 			</div>
 
 			<?php if ( ! empty( $rows ) ) : ?>
@@ -502,11 +502,11 @@ class OP3PA_Admin {
 
 			<p class="op3pa-widget-footer">
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::MENU_SLUG . '-stats' ) ); ?>">
-					<?php esc_html_e( 'View all stats →', 'op3-podcast-analytics' ); ?>
+					<?php esc_html_e( 'View all stats →', 'podcast-analytics-for-op3' ); ?>
 				</a>
 				&nbsp;·&nbsp;
 				<a href="<?php echo esc_url( OP3PA_Api::get_stats_page_url() ); ?>" target="_blank" rel="noopener">
-					<?php esc_html_e( 'OP3 dashboard ↗', 'op3-podcast-analytics' ); ?>
+					<?php esc_html_e( 'OP3 dashboard ↗', 'podcast-analytics-for-op3' ); ?>
 				</a>
 			</p>
 		</div>
