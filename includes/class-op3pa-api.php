@@ -2,9 +2,7 @@
 /**
  * OP3 API client.
  *
- * Wraps calls to https://op3.dev/api/1/ and caches results as transients.
- *
- * @package OP3_Podcast_Analytics
+ * @package Podcast_Analytics_For_OP3
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -13,24 +11,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class OP3PA_Api {
 
-	private const API_BASE    = 'https://op3.dev/api/1/';
-	private const CACHE_TTL   = HOUR_IN_SECONDS;
-	private const TIMEOUT     = 15;
-
-	/** Preview token for testing without a real API key. */
-	private const PREVIEW_TOKEN = 'preview07ce';
+	private const API_BASE  = 'https://op3.dev/api/1/';
+	private const CACHE_TTL = HOUR_IN_SECONDS;
+	private const TIMEOUT   = 15;
 
 	/**
 	 * Fetches download counts for the configured show grouped by episode.
 	 *
-	 * Uses GET /api/1/downloads/show/{uuid} — the fully public endpoint that
-	 * works with any valid API key, no show claiming required.
-	 * Fetches up to 1000 raw download records for the requested period and
-	 * aggregates them by episode URL.
-	 *
 	 * @param int $days      1, 7, or 30.
 	 * @param int $podcast_i Podcast index.
-	 * @return array|WP_Error Normalised array with 'rows' key.
+	 * @return array|WP_Error
 	 */
 	public static function get_download_counts( int $days = 30, int $podcast_i = 0 ): array|WP_Error {
 		$podcast = op3pa_get_podcast( $podcast_i );
@@ -44,10 +34,8 @@ class OP3PA_Api {
 			return $cached;
 		}
 
-		// Build start time: "-Xd" relative notation supported by OP3.
 		$start = '-' . $days . 'd';
-
-		$url = add_query_arg(
+		$url   = add_query_arg(
 			[
 				'start'  => $start,
 				'limit'  => 1000,
@@ -70,10 +58,9 @@ class OP3PA_Api {
 				continue;
 			}
 			if ( ! isset( $by_episode[ $url_key ] ) ) {
-				// Strip OP3 prefix to get a readable episode URL for display.
 				$display_url = preg_replace( '#^https://op3\.dev/e[^/]*/(?:https?/)?#', 'https://', $url_key );
-				// Use the last path segment as a fallback title.
-				$filename = basename( (string) wp_parse_url( $display_url, PHP_URL_PATH ) );
+				$filename    = basename( (string) wp_parse_url( $display_url, PHP_URL_PATH ) );
+
 				$by_episode[ $url_key ] = [
 					'episodeTitle' => $filename ?: $display_url,
 					'episodeUrl'   => $display_url,
@@ -83,7 +70,6 @@ class OP3PA_Api {
 			$by_episode[ $url_key ]['downloads']++;
 		}
 
-		// Sort by downloads descending.
 		$rows = array_values( $by_episode );
 		usort( $rows, fn( $a, $b ) => $b['downloads'] <=> $a['downloads'] );
 
@@ -121,22 +107,6 @@ class OP3PA_Api {
 	}
 
 	/**
-	 * Verifies that the current API key is valid by hitting /api/1/keys.
-	 *
-	 * @param string $api_key API key to verify.
-	 * @return true|WP_Error
-	 */
-	public static function verify_api_key( string $api_key ): true|WP_Error {
-		$podcast = [ 'api_key' => $api_key ];
-		$url     = self::API_BASE . 'keys';
-		$result  = self::request( $url, $podcast );
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-		return true;
-	}
-
-	/**
 	 * Returns the OP3 public stats page URL for the configured show.
 	 *
 	 * @param int $podcast_i Podcast index.
@@ -150,19 +120,15 @@ class OP3PA_Api {
 		return 'https://op3.dev/show/' . rawurlencode( $podcast['show_uuid'] );
 	}
 
-	// -------------------------------------------------------------------------
-	// Private helpers
-	// -------------------------------------------------------------------------
-
 	/**
 	 * Makes an authenticated GET request to the OP3 API.
 	 *
 	 * @param string $url     Full URL.
 	 * @param array  $podcast Podcast settings array (needs 'api_key').
-	 * @return array|WP_Error Decoded response body or error.
+	 * @return array|WP_Error
 	 */
 	private static function request( string $url, array $podcast ): array|WP_Error {
-		$token = ! empty( $podcast['api_key'] ) ? $podcast['api_key'] : self::PREVIEW_TOKEN;
+		$token = ! empty( $podcast['api_key'] ) ? $podcast['api_key'] : '';
 
 		$response = wp_remote_get(
 			$url,
@@ -171,7 +137,7 @@ class OP3PA_Api {
 				'headers' => [
 					'Authorization' => 'Bearer ' . $token,
 					'Accept'        => 'application/json',
-					'User-Agent'    => 'OP3 Podcast Analytics WordPress Plugin/' . OP3PA_VERSION,
+					'User-Agent'    => 'Podcast Analytics for OP3 WordPress Plugin/' . OP3PA_VERSION,
 				],
 			]
 		);
@@ -184,7 +150,7 @@ class OP3PA_Api {
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( 401 === $code ) {
-			return new WP_Error( 'op3pa_unauthorized', __( 'Invalid API key. Check your OP3 settings.', 'podcast-analytics-for-op3' ) );
+			return new WP_Error( 'op3pa_unauthorized', __( 'Invalid bearer token. Check your OP3 settings.', 'podcast-analytics-for-op3' ) );
 		}
 
 		if ( 404 === $code ) {

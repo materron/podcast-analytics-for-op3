@@ -1,29 +1,23 @@
-/* OP3 Podcast Analytics — Admin JS */
+/* Podcast Analytics for OP3 — Admin JS */
 /* global op3paData, jQuery */
 
 ( function ( $ ) {
 	'use strict';
 
-	// ── Stats page: period switcher + refresh ───────────────────────────────
-
 	$( document ).on( 'click', '.op3pa-period-btn', function () {
-		var $btn  = $( this );
-		var days  = parseInt( $btn.data( 'days' ), 10 );
-
+		var $btn = $( this );
+		var days = parseInt( $btn.data( 'days' ), 10 );
 		$( '.op3pa-period-btn' ).removeClass( 'active' );
 		$btn.addClass( 'active' );
-
 		loadStats( days );
 	} );
 
 	$( '#op3pa-refresh' ).on( 'click', function () {
 		var days = parseInt( $( '.op3pa-period-btn.active' ).data( 'days' ) || 30, 10 );
-		loadStats( days, true );
+		loadStats( days );
 	} );
 
-	function loadStats( days, forceRefresh ) {
-		var $container = $( '#op3pa-stats-table-wrap, .op3pa-loading' );
-
+	function loadStats( days ) {
 		$( '#op3pa-stats-container' ).html(
 			'<div class="op3pa-loading">' + op3paData.strings.refreshing + '</div>'
 		);

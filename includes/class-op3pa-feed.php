@@ -2,12 +2,12 @@
 /**
  * Handles adding the OP3 prefix to all audio enclosure URLs in the RSS feed.
  *
- * Strategy: buffer the entire RSS2 feed output, then apply a regex replacement
- * on every audio URL found in <enclosure>, <media:content>, and <itunes:*> tags.
- * This approach is plugin-agnostic and works with PowerPress, Seriously Simple
- * Podcasting, Podlove, or plain WordPress.
+ * Strategy: buffer the entire RSS2 feed output with ob_start(), then close
+ * the buffer explicitly on the 'shutdown' action using ob_get_clean(), rewrite
+ * the audio URLs and echo the result. This approach is plugin-agnostic and
+ * works with PowerPress, Seriously Simple Podcasting, Podlove, or plain WordPress.
  *
- * @package OP3_Podcast_Analytics
+ * @package Podcast_Analytics_For_OP3
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,7 +28,6 @@ class OP3PA_Feed {
 			return;
 		}
 
-		// Buffer the entire feed output via template_redirect for maximum compatibility.
 		add_action( 'template_redirect', [ __CLASS__, 'maybe_hook_feed' ], 1 );
 	}
 
@@ -39,11 +38,25 @@ class OP3PA_Feed {
 		if ( ! is_feed() ) {
 			return;
 		}
-		ob_start( [ __CLASS__, 'rewrite_feed' ] );
+		ob_start();
+		add_action( 'shutdown', [ __CLASS__, 'flush_feed_buffer' ], 0 );
 	}
 
 	/**
-	 * Output buffer callback: receives the full RSS XML and rewrites audio URLs.
+	 * Closes the buffer explicitly, rewrites the feed XML and sends it.
+	 * Hooked on 'shutdown' with priority 0 so it runs before WordPress flushes anything.
+	 */
+	public static function flush_feed_buffer(): void {
+		$feed_xml = ob_get_clean();
+		if ( false === $feed_xml ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- feed XML output, not HTML.
+		echo self::rewrite_feed( $feed_xml );
+	}
+
+	/**
+	 * Rewrites audio URLs in the feed XML adding the OP3 prefix.
 	 *
 	 * @param string $feed_xml Full RSS XML output.
 	 * @return string Modified XML.
@@ -54,8 +67,8 @@ class OP3PA_Feed {
 			return $feed_xml;
 		}
 
-		$ext     = self::AUDIO_EXTENSIONS;
-		$prefix  = self::OP3_PREFIX;
+		$ext    = self::AUDIO_EXTENSIONS;
+		$prefix = self::OP3_PREFIX;
 
 		// Optional: append podcast GUID parameter for faster OP3 attribution.
 		$guid_param = '';
@@ -63,21 +76,6 @@ class OP3PA_Feed {
 			$guid_param = '?_from=' . rawurlencode( $podcast['guid'] );
 		}
 
-		/**
-		 * Match audio URLs in:
-		 *   <enclosure url="https://..." />
-		 *   <media:content url="https://..." />
-		 *   <itunes:image href="..." /> — excluded intentionally (images, not audio)
-		 *   Any other attribute containing an https?:// audio URL.
-		 *
-		 * The regex captures:
-		 *   Group 1: everything up to and including the opening quote of the URL value
-		 *   Group 2: https:// or http://
-		 *   Group 3: the rest of the URL (host + path)
-		 *   Group 4: file extension
-		 *   Group 5: optional query string
-		 *   Group 6: the closing quote
-		 */
 		$feed_xml = preg_replace_callback(
 			'/(url=["\'])(https?:\/\/)([^\s"\']+?\.(' . $ext . ')(\?[^"\']*)?)(["\'"])/i',
 			function ( array $m ) use ( $prefix, $guid_param ): string {
@@ -86,8 +84,7 @@ class OP3PA_Feed {
 					return $m[0];
 				}
 
-				$original_url = $m[2] . $m[3];  // https://host/path.mp3(?query)
-				// Strip protocol: https://host/path → host/path
+				$original_url     = $m[2] . $m[3];
 				$without_protocol = preg_replace( '#^https?://#', '', $original_url );
 
 				return $m[1] . $prefix . $without_protocol . $guid_param . $m[6];
@@ -100,7 +97,6 @@ class OP3PA_Feed {
 
 	/**
 	 * Given a plain audio URL, returns the OP3-prefixed version.
-	 * Useful for testing or for display in the admin.
 	 *
 	 * @param string $url Original audio URL.
 	 * @return string Prefixed URL.

@@ -2,7 +2,7 @@
 /**
  * Admin UI: settings page, statistics subpage, and dashboard widget.
  *
- * @package OP3_Podcast_Analytics
+ * @package Podcast_Analytics_For_OP3
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -11,8 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class OP3PA_Admin {
 
-	private const MENU_SLUG  = 'podcast-analytics-for-op3';
-	private const NONCE_KEY  = 'op3pa_settings_nonce';
+	private const MENU_SLUG    = 'op3-podcast-analytics';
+	private const NONCE_KEY    = 'op3pa_settings_nonce';
 	private const NONCE_ACTION = 'op3pa_save_settings';
 
 	public static function init(): void {
@@ -29,7 +29,7 @@ class OP3PA_Admin {
 
 	public static function register_menu(): void {
 		add_menu_page(
-			__( 'OP3 Podcast Analytics', 'podcast-analytics-for-op3' ),
+			__( 'Podcast Analytics for OP3', 'podcast-analytics-for-op3' ),
 			__( 'OP3 Analytics', 'podcast-analytics-for-op3' ),
 			'manage_options',
 			self::MENU_SLUG,
@@ -120,8 +120,6 @@ class OP3PA_Admin {
 		];
 
 		op3pa_save_podcast( $data );
-
-		// Clear cache when settings change.
 		OP3PA_Api::clear_cache();
 
 		add_action( 'admin_notices', [ __CLASS__, 'notice_saved' ] );
@@ -160,19 +158,14 @@ class OP3PA_Admin {
 								<?php esc_html_e( 'Add the OP3 prefix to all audio URLs in the RSS feed', 'podcast-analytics-for-op3' ); ?>
 							</label>
 							<p class="description">
-								<?php
-								esc_html_e(
-									'When enabled, audio enclosures in your feed will be rewritten from https://yoursite.com/audio.mp3 to https://op3.dev/e/yoursite.com/audio.mp3.',
-									'podcast-analytics-for-op3'
-								);
-								?>
+								<?php esc_html_e( 'When enabled, audio enclosures in your feed will be rewritten from https://yoursite.com/audio.mp3 to https://op3.dev/e/yoursite.com/audio.mp3.', 'podcast-analytics-for-op3' ); ?>
 							</p>
 						</td>
 					</tr>
 
 					<tr>
 						<th scope="row">
-							<label for="op3pa_api_key"><?php esc_html_e( 'OP3 API Key', 'podcast-analytics-for-op3' ); ?></label>
+							<label for="op3pa_api_key"><?php esc_html_e( 'OP3 Bearer Token', 'podcast-analytics-for-op3' ); ?></label>
 						</th>
 						<td>
 							<input type="password" id="op3pa_api_key" name="op3pa_api_key"
@@ -182,8 +175,8 @@ class OP3PA_Admin {
 								<?php
 								printf(
 									/* translators: %s: link to op3.dev */
-									esc_html__( 'Get your API key at %s after signing in.', 'podcast-analytics-for-op3' ),
-									'<a href="https://op3.dev" target="_blank" rel="noopener">op3.dev</a>'
+									esc_html__( 'Get your bearer token at %s (different from the API Key — use the token shown after clicking «Regenerate token»).', 'podcast-analytics-for-op3' ),
+									'<a href="https://op3.dev/api/keys" target="_blank" rel="noopener">op3.dev/api/keys</a>'
 								);
 								?>
 							</p>
@@ -199,12 +192,7 @@ class OP3PA_Admin {
 								value="<?php echo esc_attr( $podcast['show_uuid'] ); ?>"
 								class="regular-text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
 							<p class="description">
-								<?php
-								esc_html_e(
-									'The UUID that OP3 assigns to your show. You can find it in the OP3 dashboard or in your public stats URL: https://op3.dev/show/{uuid}.',
-									'podcast-analytics-for-op3'
-								);
-								?>
+								<?php esc_html_e( 'The UUID that OP3 assigns to your show. You can find it in your public stats URL: https://op3.dev/show/{uuid}.', 'podcast-analytics-for-op3' ); ?>
 							</p>
 						</td>
 					</tr>
@@ -218,12 +206,7 @@ class OP3PA_Admin {
 								value="<?php echo esc_attr( $podcast['guid'] ); ?>"
 								class="regular-text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
 							<p class="description">
-								<?php
-								esc_html_e(
-									'The <podcast:guid> of your show (from your RSS feed). Including it speeds up attribution in OP3 — useful but not required.',
-									'podcast-analytics-for-op3'
-								);
-								?>
+								<?php esc_html_e( 'The <podcast:guid> of your show (from your RSS feed). Including it speeds up attribution in OP3 — useful but not required.', 'podcast-analytics-for-op3' ); ?>
 							</p>
 						</td>
 					</tr>
@@ -245,12 +228,7 @@ class OP3PA_Admin {
 				?>
 			</p>
 			<p class="description">
-				<?php
-				esc_html_e(
-					'Open your feed after saving and verify that audio URLs start with https://op3.dev/e/.',
-					'podcast-analytics-for-op3'
-				);
-				?>
+				<?php esc_html_e( 'Open your feed after saving and verify that audio URLs start with https://op3.dev/e/.', 'podcast-analytics-for-op3' ); ?>
 			</p>
 
 			<?php if ( ! empty( $podcast['show_uuid'] ) ) : ?>
@@ -323,13 +301,11 @@ class OP3PA_Admin {
 			</div>
 		</div>
 		<?php
-		// Server-side render the initial stats (30 days).
 		self::render_stats_table( 30 );
 	}
 
 	/**
-	 * Renders the stats table server-side for initial load.
-	 * The same data structure is used by the AJAX refresh.
+	 * Renders the stats table.
 	 *
 	 * @param int $days Period in days.
 	 */
@@ -404,14 +380,20 @@ class OP3PA_Admin {
 		<?php
 	}
 
-	/** Returns bar width percentage relative to the episode with most downloads. */
+	/**
+	 * Returns bar width percentage relative to the episode with most downloads.
+	 *
+	 * @param int   $count Current episode downloads.
+	 * @param array $rows  All rows.
+	 * @return int
+	 */
 	private static function bar_width( int $count, array $rows ): int {
 		$max = max( array_column( $rows, 'downloads' ) ?: [ 1 ] );
 		return $max > 0 ? (int) round( ( $count / $max ) * 100 ) : 0;
 	}
 
 	// -------------------------------------------------------------------------
-	// AJAX: refresh stats
+	// AJAX
 	// -------------------------------------------------------------------------
 
 	public static function ajax_refresh_stats(): void {
@@ -467,7 +449,6 @@ class OP3PA_Admin {
 			return;
 		}
 
-		// Show a quick 7-day summary.
 		$result = OP3PA_Api::get_download_counts( 7 );
 
 		if ( is_wp_error( $result ) ) {
@@ -475,7 +456,7 @@ class OP3PA_Admin {
 			return;
 		}
 
-		$rows  = array_slice( $result['rows'] ?? [], 0, 5 ); // Top 5 episodes
+		$rows  = array_slice( $result['rows'] ?? [], 0, 5 );
 		$total = array_sum( array_column( $result['rows'] ?? [], 'downloads' ) );
 		?>
 		<div class="op3pa-widget">

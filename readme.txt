@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,7 +45,7 @@ Your audio files are not modified or hosted anywhere else. Only the URL in the R
 
 == Installation ==
 
-1. Upload the `op3-podcast-analytics` folder to `/wp-content/plugins/`, or install via **Plugins → Add New → Upload Plugin**.
+1. Upload the `podcast-analytics-for-op3` folder to `/wp-content/plugins/`, or install via **Plugins → Add New → Upload Plugin**.
 2. Activate the plugin.
 3. Go to **OP3 Analytics → Settings** and:
    * Enable the OP3 prefix
@@ -71,10 +71,6 @@ On op3.dev, your API Key is your identity, but the credential used in API calls 
 
 No. The URL rewriting is a regex string replacement done in PHP memory before the feed is sent to the client. It adds no network latency.
 
-= Will this affect how my podcast sounds or plays? =
-
-No. OP3 redirects are instant (HTTP 302) and completely transparent to listeners and podcast apps.
-
 = Does OP3 store my listeners' IP addresses? =
 
 No. OP3 never stores raw IP addresses. It stores a rotating, salted hash of the IP that cannot be reversed, ensuring listener privacy.
@@ -97,6 +93,9 @@ This plugin sends data to the external service **op3.dev** in two ways:
 No data is collected from your site's visitors beyond what OP3 records as part of the redirect.
 
 == Changelog ==
+
+= 1.0.2 =
+* Fixed output buffer handling: ob_start() is now explicitly closed with ob_get_clean() on the shutdown action, ensuring correct buffer lifecycle management.
 
 = 1.0.1 =
 * Renamed plugin to "Podcast Analytics for OP3" to clarify it is a community integration, not an official OP3 product.
