@@ -123,6 +123,7 @@ class OP3PA_Admin {
 					__( 'Podcast %d', 'podcast-analytics-for-op3' ),
 					$i + 1
 				),
+				'color' => ! empty( $p['color'] ) ? $p['color'] : '#0066cc',
 			];
 		}
 
@@ -172,6 +173,7 @@ class OP3PA_Admin {
 					'name'      => sanitize_text_field( wp_unslash( $raw['name']      ?? '' ) ),
 					'show_uuid' => sanitize_text_field( wp_unslash( $raw['show_uuid'] ?? '' ) ),
 					'guid'      => sanitize_text_field( wp_unslash( $raw['guid']      ?? '' ) ),
+					'color'     => sanitize_hex_color( $raw['color'] ?? '' ) ?: '#0066cc',
 					'private'   => ! empty( $raw['private'] ),
 					'enabled'   => true,
 				];
@@ -246,6 +248,7 @@ class OP3PA_Admin {
 							<th><?php esc_html_e( 'Nombre', 'podcast-analytics-for-op3' ); ?></th>
 							<th><?php esc_html_e( 'Show UUID', 'podcast-analytics-for-op3' ); ?></th>
 							<th><?php esc_html_e( 'Podcast GUID (opcional)', 'podcast-analytics-for-op3' ); ?></th>
+							<th class="col-color"><?php esc_html_e( 'Color', 'podcast-analytics-for-op3' ); ?></th>
 							<th class="col-private"><?php esc_html_e( 'Privado', 'podcast-analytics-for-op3' ); ?></th>
 							<th class="col-remove"></th>
 						</tr>
@@ -292,12 +295,13 @@ class OP3PA_Admin {
 	 * @param array $podcast Podcast data.
 	 */
 	private static function render_podcast_row( int $i, array $podcast ): void {
+		$color = ! empty( $podcast['color'] ) ? $podcast['color'] : '#0066cc';
 		?>
 		<tr class="op3pa-podcast-row">
 			<td>
 				<input type="text" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][name]"
 					value="<?php echo esc_attr( $podcast['name'] ?? '' ); ?>"
-					class="regular-text" placeholder="<?php esc_attr_e( 'My Podcast', 'podcast-analytics-for-op3' ); ?>" />
+					class="regular-text" placeholder="<?php esc_attr_e( 'Mi Podcast', 'podcast-analytics-for-op3' ); ?>" />
 			</td>
 			<td>
 				<input type="text" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][show_uuid]"
@@ -307,14 +311,18 @@ class OP3PA_Admin {
 			<td>
 				<input type="text" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][guid]"
 					value="<?php echo esc_attr( $podcast['guid'] ?? '' ); ?>"
-					class="regular-text" placeholder="<?php esc_attr_e( 'optional', 'podcast-analytics-for-op3' ); ?>" />
+					class="regular-text" placeholder="<?php esc_attr_e( 'opcional', 'podcast-analytics-for-op3' ); ?>" />
+			</td>
+			<td class="col-color">
+				<input type="color" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][color]"
+					value="<?php echo esc_attr( $color ); ?>" />
 			</td>
 			<td class="col-private">
 				<input type="checkbox" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][private]" value="1"
 					<?php checked( ! empty( $podcast['private'] ) ); ?> />
 			</td>
 			<td class="col-remove">
-				<button type="button" class="button-link op3pa-remove-row" aria-label="<?php esc_attr_e( 'Remove', 'podcast-analytics-for-op3' ); ?>">✕</button>
+				<button type="button" class="button-link op3pa-remove-row" aria-label="<?php esc_attr_e( 'Eliminar', 'podcast-analytics-for-op3' ); ?>">✕</button>
 			</td>
 		</tr>
 		<?php
@@ -329,11 +337,12 @@ class OP3PA_Admin {
 		ob_start();
 		?>
 		<tr class="op3pa-podcast-row">
-			<td><input type="text" name="op3pa_podcasts[__INDEX__][name]" class="regular-text" placeholder="<?php esc_attr_e( 'My Podcast', 'podcast-analytics-for-op3' ); ?>" /></td>
+			<td><input type="text" name="op3pa_podcasts[__INDEX__][name]" class="regular-text" placeholder="<?php esc_attr_e( 'Mi Podcast', 'podcast-analytics-for-op3' ); ?>" /></td>
 			<td><input type="text" name="op3pa_podcasts[__INDEX__][show_uuid]" class="regular-text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></td>
-			<td><input type="text" name="op3pa_podcasts[__INDEX__][guid]" class="regular-text" placeholder="<?php esc_attr_e( 'optional', 'podcast-analytics-for-op3' ); ?>" /></td>
+			<td><input type="text" name="op3pa_podcasts[__INDEX__][guid]" class="regular-text" placeholder="<?php esc_attr_e( 'opcional', 'podcast-analytics-for-op3' ); ?>" /></td>
+			<td class="col-color"><input type="color" name="op3pa_podcasts[__INDEX__][color]" value="#0066cc" /></td>
 			<td class="col-private"><input type="checkbox" name="op3pa_podcasts[__INDEX__][private]" value="1" /></td>
-			<td class="col-remove"><button type="button" class="button-link op3pa-remove-row" aria-label="<?php esc_attr_e( 'Remove', 'podcast-analytics-for-op3' ); ?>">✕</button></td>
+			<td class="col-remove"><button type="button" class="button-link op3pa-remove-row" aria-label="<?php esc_attr_e( 'Eliminar', 'podcast-analytics-for-op3' ); ?>">✕</button></td>
 		</tr>
 		<?php
 		return ob_get_clean();
@@ -491,7 +500,10 @@ class OP3PA_Admin {
 				$all_episodes = [];
 				foreach ( $rows as $row ) {
 					foreach ( $row['episodes'] as $ep ) {
-						$all_episodes[] = array_merge( $ep, [ 'podcast_name' => $row['name'] ] );
+						$all_episodes[] = array_merge( $ep, [
+							'podcast_name'  => $row['name'],
+							'podcast_color' => $row['color'] ?? '#0066cc',
+						] );
 					}
 				}
 				usort( $all_episodes, fn( $a, $b ) => $b['downloads'] <=> $a['downloads'] );
@@ -514,14 +526,19 @@ class OP3PA_Admin {
 							$ep_title = $ep['episodeTitle'] ?? $ep['episodeUrl'] ?? __( '(unknown)', 'podcast-analytics-for-op3' );
 							$ep_url   = $ep['episodeUrl'] ?? '';
 							$pubdate  = $ep['episodePubdate'] ?? '';
+							$color    = $ep['podcast_color'] ?? '#0066cc';
 							if ( $pubdate ) {
 								$ts      = strtotime( $pubdate );
 								$pubdate = $ts ? date_i18n( get_option( 'date_format' ), $ts ) : $pubdate;
 							}
+							// Compute readable text color (white or dark) based on background luminance.
+							list( $r, $g, $b ) = sscanf( $color, '#%02x%02x%02x' );
+							$luminance  = ( 0.299 * $r + 0.587 * $g + 0.114 * $b ) / 255;
+							$text_color = $luminance > 0.5 ? '#1d2327' : '#ffffff';
 						?>
 						<tr>
 							<td class="column-podcast-tag">
-								<span class="op3pa-podcast-tag"><?php echo esc_html( $ep['podcast_name'] ); ?></span>
+								<span class="op3pa-podcast-tag" style="background:<?php echo esc_attr( $color ); ?>;color:<?php echo esc_attr( $text_color ); ?>"><?php echo esc_html( $ep['podcast_name'] ); ?></span>
 							</td>
 							<td class="column-episode">
 								<?php if ( $ep_url ) : ?>

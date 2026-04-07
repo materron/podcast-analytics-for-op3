@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.0.6
+Stable tag: 2.0.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -94,13 +94,36 @@ No data is collected from your site's visitors beyond what OP3 records as part o
 
 == Changelog ==
 
+= 2.0.6 =
+* Episode publish date now shown in statistics tables (formatted according to WordPress date settings).
+* Episode titles now resolved universally for all podcast hosts using the episodeId field from OP3 download data.
+* Fallback title resolution by itemGuid for PrestoCast-style hosts.
+
+= 2.0.5 =
+* Improved episode title resolution: cross-references OP3 episodeId from download rows with episode list from show endpoint, making titles work reliably for all podcast hosts.
+
+= 2.0.4 =
+* Episode titles now fetched from OP3 show endpoint and matched against audio filenames (itemGuid strategy for PrestoCast).
+
+= 2.0.3 =
+* Fixed dashboard widget pagination (left/right arrows between podcasts).
+* Added episode title enrichment from OP3 show info endpoint.
+
+= 2.0.2 =
+* Fixed statistics page rendering: initial table now renders inside #op3pa-stats-container so period/podcast changes correctly replace it via AJAX.
+
+= 2.0.1 =
+* Network view: episodes from all podcasts now shown in a single merged table sorted by downloads, with a Podcast column identifying each episode's show.
+* Network header now shows all podcast names with individual links to their OP3 stats pages.
+* Settings page texts improved with clearer Spanish descriptions for all fields.
+
 = 2.0.0 =
 * Multi-podcast support: configure any number of podcasts, each with name, Show UUID and optional Podcast GUID.
 * Global bearer token: a single token covers all configured podcasts.
 * Private podcast flag: private podcasts are excluded from the OP3 prefix and from statistics.
-* Network view: statistics page can aggregate downloads across all podcasts or a custom selection.
+* Automatic migration from v1.x settings (bearer token and podcast data preserved on update).
+* Network view: statistics page aggregates downloads across all podcasts or a custom selection.
 * Network ranking table: shows which podcast in the network gets the most downloads.
-* Per-podcast episode breakdown in the network view.
 * Dashboard widget with left/right pagination between podcasts when multiple are configured.
 * Print-friendly statistics page (Ctrl+P / Cmd+P generates a clean PDF report).
 
@@ -111,4 +134,4 @@ No data is collected from your site's visitors beyond what OP3 records as part o
 * Renamed plugin to "Podcast Analytics for OP3" to clarify it is a community integration, not an official OP3 product.
 
 = 1.0.0 =
-* Initial release.
+* Initial release: feed prefix, dashboard widget and statistics page with 1/7/30 day periods.

@@ -15,9 +15,12 @@ class OP3PA_Api {
 	private const CACHE_TTL = HOUR_IN_SECONDS;
 	private const TIMEOUT   = 15;
 
+	/** Maximum pages to fetch to avoid infinite loops. */
+	private const MAX_PAGES = 20;
+
 	/**
 	 * Fetches download counts for a single show, grouped by episode.
-	 * Episode titles are enriched from the show info endpoint when available.
+	 * Paginates through all results using continuationToken.
 	 *
 	 * @param int $days      1, 7, or 30.
 	 * @param int $podcast_i Podcast index.
@@ -35,25 +38,34 @@ class OP3PA_Api {
 			return $cached;
 		}
 
-		$url = add_query_arg(
-			[
-				'start'  => '-' . $days . 'd',
-				'limit'  => 1000,
-				'format' => 'json',
-				'bots'   => 'exclude',
-			],
-			self::API_BASE . 'downloads/show/' . rawurlencode( $podcast['show_uuid'] )
-		);
+		// Paginate through all results.
+		$all_rows          = [];
+		$continuation      = null;
+		$pages             = 0;
+		$base_params       = [
+			'start'  => '-' . $days . 'd',
+			'limit'  => 1000,
+			'format' => 'json',
+			'bots'   => 'exclude',
+		];
 
-		$response = self::request( $url );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
+		do {
+			$params = $base_params;
+			if ( $continuation ) {
+				$params['continuationToken'] = $continuation;
+			}
+			$url      = add_query_arg( $params, self::API_BASE . 'downloads/show/' . rawurlencode( $podcast['show_uuid'] ) );
+			$response = self::request( $url );
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+			$all_rows     = array_merge( $all_rows, $response['rows'] ?? [] );
+			$continuation = $response['continuationToken'] ?? null;
+			$pages++;
+		} while ( $continuation && $pages < self::MAX_PAGES );
 
-		// Fetch episode titles from the show info endpoint.
 		$episode_titles = self::get_episode_titles( $podcast['show_uuid'] );
-
-		$normalised = self::normalise_rows( $response['rows'] ?? [], $episode_titles );
+		$normalised     = self::normalise_rows( $all_rows, $episode_titles );
 		set_transient( $cache_key, $normalised, self::CACHE_TTL );
 		return $normalised;
 	}
@@ -100,6 +112,7 @@ class OP3PA_Api {
 					$i + 1
 				),
 				'show_uuid' => $podcast['show_uuid'],
+				'color'     => ! empty( $podcast['color'] ) ? $podcast['color'] : '#0066cc',
 				'downloads' => $show_total,
 				'episodes'  => $result['rows'],
 			];

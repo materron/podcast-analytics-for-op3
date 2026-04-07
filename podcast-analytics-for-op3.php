@@ -3,7 +3,7 @@
  * Plugin Name: Podcast Analytics for OP3
  * Plugin URI:  https://github.com/materron/podcast-analytics-for-op3
  * Description: Adds the OP3 prefix to your podcast feed enclosures and shows download statistics in the WordPress dashboard. Supports multiple podcasts and network-wide stats.
- * Version:     2.0.6
+ * Version:     2.0.7
  * Requires at least: 6.3
  * Requires PHP: 8.0
  * Author:      Miguel Ángel Terrón Bote
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OP3PA_VERSION', '2.0.6' );
+define( 'OP3PA_VERSION', '2.0.7' );
 define( 'OP3PA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OP3PA_URL', plugin_dir_url( __FILE__ ) );
 define( 'OP3PA_OPTION',       'op3pa_podcasts' );
