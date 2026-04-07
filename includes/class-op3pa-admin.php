@@ -504,6 +504,7 @@ class OP3PA_Admin {
 						<tr>
 							<th class="column-podcast-tag"><?php esc_html_e( 'Podcast', 'podcast-analytics-for-op3' ); ?></th>
 							<th class="column-episode"><?php esc_html_e( 'Episodio', 'podcast-analytics-for-op3' ); ?></th>
+							<th class="column-pubdate"><?php esc_html_e( 'Fecha', 'podcast-analytics-for-op3' ); ?></th>
 							<th class="column-downloads"><?php esc_html_e( 'Descargas', 'podcast-analytics-for-op3' ); ?></th>
 						</tr>
 					</thead>
@@ -512,6 +513,11 @@ class OP3PA_Admin {
 							$count    = (int) ( $ep['downloads'] ?? 0 );
 							$ep_title = $ep['episodeTitle'] ?? $ep['episodeUrl'] ?? __( '(unknown)', 'podcast-analytics-for-op3' );
 							$ep_url   = $ep['episodeUrl'] ?? '';
+							$pubdate  = $ep['episodePubdate'] ?? '';
+							if ( $pubdate ) {
+								$ts      = strtotime( $pubdate );
+								$pubdate = $ts ? date_i18n( get_option( 'date_format' ), $ts ) : $pubdate;
+							}
 						?>
 						<tr>
 							<td class="column-podcast-tag">
@@ -524,6 +530,7 @@ class OP3PA_Admin {
 									<?php echo esc_html( $ep_title ); ?>
 								<?php endif; ?>
 							</td>
+							<td class="column-pubdate"><?php echo esc_html( $pubdate ); ?></td>
 							<td class="column-downloads">
 								<strong><?php echo esc_html( number_format_i18n( $count ) ); ?></strong>
 								<div class="op3pa-bar" style="width:<?php echo esc_attr( $ep_max > 0 ? (int) round( $count / $ep_max * 100 ) : 0 ); ?>%"></div>
@@ -535,6 +542,7 @@ class OP3PA_Admin {
 						<tr>
 							<th></th>
 							<th><?php esc_html_e( 'Total', 'podcast-analytics-for-op3' ); ?></th>
+							<th></th>
 							<th><strong><?php echo esc_html( number_format_i18n( $ep_total ) ); ?></strong></th>
 						</tr>
 					</tfoot>
@@ -607,8 +615,9 @@ class OP3PA_Admin {
 		<table class="wp-list-table widefat fixed striped op3pa-table">
 			<thead>
 				<tr>
-					<th class="column-episode"><?php esc_html_e( 'Episode', 'podcast-analytics-for-op3' ); ?></th>
-					<th class="column-downloads"><?php esc_html_e( 'Downloads', 'podcast-analytics-for-op3' ); ?></th>
+					<th class="column-episode"><?php esc_html_e( 'Episodio', 'podcast-analytics-for-op3' ); ?></th>
+					<th class="column-pubdate"><?php esc_html_e( 'Fecha', 'podcast-analytics-for-op3' ); ?></th>
+					<th class="column-downloads"><?php esc_html_e( 'Descargas', 'podcast-analytics-for-op3' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -618,6 +627,12 @@ class OP3PA_Admin {
 					$count    = (int) ( $row['downloads'] ?? 0 );
 					$ep_title = $row['episodeTitle'] ?? $row['episodeUrl'] ?? __( '(unknown)', 'podcast-analytics-for-op3' );
 					$ep_url   = $row['episodeUrl'] ?? '';
+					$pubdate  = $row['episodePubdate'] ?? '';
+					// Format date to locale.
+					if ( $pubdate ) {
+						$ts      = strtotime( $pubdate );
+						$pubdate = $ts ? date_i18n( get_option( 'date_format' ), $ts ) : $pubdate;
+					}
 				?>
 				<tr>
 					<td class="column-episode">
@@ -627,6 +642,7 @@ class OP3PA_Admin {
 							<?php echo esc_html( $ep_title ); ?>
 						<?php endif; ?>
 					</td>
+					<td class="column-pubdate"><?php echo esc_html( $pubdate ); ?></td>
 					<td class="column-downloads">
 						<strong><?php echo esc_html( number_format_i18n( $count ) ); ?></strong>
 						<div class="op3pa-bar" style="width:<?php echo esc_attr( $max > 0 ? (int) round( $count / $max * 100 ) : 0 ); ?>%"></div>
@@ -637,6 +653,7 @@ class OP3PA_Admin {
 			<tfoot>
 				<tr>
 					<th><?php esc_html_e( 'Total', 'podcast-analytics-for-op3' ); ?></th>
+					<th></th>
 					<th><strong><?php echo esc_html( number_format_i18n( $total ) ); ?></strong></th>
 				</tr>
 			</tfoot>

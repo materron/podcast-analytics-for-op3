@@ -35,9 +35,10 @@
 .op3pa-show-op3-link { font-size: 12px; font-weight: 400; color: #0066cc; }
 
 /* ── Stats table ──────────────────────────────────── */
-.op3pa-table .column-podcast-tag { width: 120px; }
-.op3pa-table .column-episode  { width: 55%; }
-.op3pa-table .column-downloads { width: 30%; }
+.op3pa-table .column-podcast-tag { width: 110px; }
+.op3pa-table .column-episode    { width: 50%; }
+.op3pa-table .column-pubdate    { width: 100px; color: #646970; font-size: 12px; }
+.op3pa-table .column-downloads  { width: 25%; }
 .op3pa-network-table .column-podcast { width: 50%; }
 .op3pa-table .column-downloads strong { display: block; font-size: 14px; }
 .op3pa-bar { height: 4px; background: #0066cc; border-radius: 2px; margin-top: 4px; min-width: 2px; transition: width 0.4s ease; }

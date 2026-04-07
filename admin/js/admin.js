@@ -71,12 +71,14 @@
 	// ── Dashboard widget pagination ─────────────────────────────────────────
 
 	$( document ).on( 'click', '.op3pa-nav-next, .op3pa-nav-prev', function () {
-		var $widget  = $( this ).closest( '.op3pa-widget' );
+		var $btn     = $( this );
+		var $widget  = $btn.closest( '.op3pa-widget' );
 		var $slides  = $widget.find( '.op3pa-widget-slides' );
 		var $items   = $slides.find( '.op3pa-widget-slide' );
 		var total    = $items.length;
+		if ( total < 2 ) return;
 		var current  = parseInt( $slides.data( 'current' ) || 0, 10 );
-		var isNext   = $( this ).hasClass( 'op3pa-nav-next' );
+		var isNext   = $btn.hasClass( 'op3pa-nav-next' );
 
 		$items.eq( current ).hide();
 		current = isNext

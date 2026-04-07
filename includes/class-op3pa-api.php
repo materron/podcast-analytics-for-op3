@@ -17,6 +17,7 @@ class OP3PA_Api {
 
 	/**
 	 * Fetches download counts for a single show, grouped by episode.
+	 * Episode titles are enriched from the show info endpoint when available.
 	 *
 	 * @param int $days      1, 7, or 30.
 	 * @param int $podcast_i Podcast index.
@@ -49,7 +50,10 @@ class OP3PA_Api {
 			return $response;
 		}
 
-		$normalised = self::normalise_rows( $response['rows'] ?? [] );
+		// Fetch episode titles from the show info endpoint.
+		$episode_titles = self::get_episode_titles( $podcast['show_uuid'] );
+
+		$normalised = self::normalise_rows( $response['rows'] ?? [], $episode_titles );
 		set_transient( $cache_key, $normalised, self::CACHE_TTL );
 		return $normalised;
 	}
@@ -145,8 +149,9 @@ class OP3PA_Api {
 		global $wpdb;
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-				$wpdb->esc_like( '_transient_op3pa_network_' ) . '%'
+				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+				$wpdb->esc_like( '_transient_op3pa_network_' ) . '%',
+				$wpdb->esc_like( '_transient_op3pa_ep_titles_' ) . '%'
 			)
 		);
 	}
@@ -156,12 +161,56 @@ class OP3PA_Api {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Aggregates raw OP3 download rows by episode URL.
+	 * Fetches episode titles from the show info endpoint.
+	 * Returns a map of episode id (lowercase hex) → title.
 	 *
-	 * @param array $raw_rows Raw rows from OP3 API.
+	 * @param string $show_uuid OP3 show UUID.
+	 * @return array Map of episode id → title.
+	 */
+	private static function get_episode_titles( string $show_uuid ): array {
+		$cache_key = 'op3pa_ep_titles_' . md5( $show_uuid );
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$url      = self::API_BASE . 'shows/' . rawurlencode( $show_uuid ) . '?episodes=include';
+		$response = self::request( $url );
+
+		if ( is_wp_error( $response ) || empty( $response['episodes'] ) ) {
+			set_transient( $cache_key, [], self::CACHE_TTL );
+			return [];
+		}
+
+		$map = [];
+		foreach ( $response['episodes'] as $ep ) {
+			if ( empty( $ep['id'] ) || empty( $ep['title'] ) ) {
+				continue;
+			}
+			$entry = [
+				'title'   => $ep['title'],
+				'pubdate' => ! empty( $ep['pubdate'] ) ? substr( $ep['pubdate'], 0, 10 ) : '',
+			];
+			$map[ strtolower( $ep['id'] ) ] = $entry;
+			if ( ! empty( $ep['itemGuid'] ) ) {
+				$map[ strtolower( $ep['itemGuid'] ) ] = $entry;
+			}
+		}
+
+		set_transient( $cache_key, $map, self::CACHE_TTL );
+		return $map;
+	}
+
+	/**
+	 * Aggregates raw OP3 download rows by episode URL.
+	 * Uses episodeId field (present in download rows) to look up real titles.
+	 * Falls back to itemGuid filename match, then bare filename.
+	 *
+	 * @param array $raw_rows       Raw rows from OP3 API.
+	 * @param array $episode_titles Map of episode id / itemGuid → title.
 	 * @return array Normalised array with 'rows' key.
 	 */
-	private static function normalise_rows( array $raw_rows ): array {
+	private static function normalise_rows( array $raw_rows, array $episode_titles = [] ): array {
 		$by_episode = [];
 		foreach ( $raw_rows as $row ) {
 			$url_key = $row['url'] ?? '';
@@ -170,12 +219,29 @@ class OP3PA_Api {
 			}
 			if ( ! isset( $by_episode[ $url_key ] ) ) {
 				$display_url = preg_replace( '#^https://op3\.dev/e[^/]*/(?:https?/)?#', 'https://', $url_key );
-				$filename    = basename( (string) wp_parse_url( $display_url, PHP_URL_PATH ) );
+				$filename    = pathinfo( (string) wp_parse_url( $display_url, PHP_URL_PATH ), PATHINFO_FILENAME );
+
+				$title = basename( (string) wp_parse_url( $display_url, PHP_URL_PATH ) ) ?: $display_url;
+
+				if ( ! empty( $episode_titles ) ) {
+					$ep_id = strtolower( $row['episodeId'] ?? '' );
+					$entry = null;
+					if ( $ep_id && isset( $episode_titles[ $ep_id ] ) ) {
+						$entry = $episode_titles[ $ep_id ];
+					} elseif ( $filename && isset( $episode_titles[ strtolower( $filename ) ] ) ) {
+						$entry = $episode_titles[ strtolower( $filename ) ];
+					}
+					if ( $entry ) {
+						$title   = $entry['title'];
+						$pubdate = $entry['pubdate'];
+					}
+				}
 
 				$by_episode[ $url_key ] = [
-					'episodeTitle' => $filename ?: $display_url,
-					'episodeUrl'   => $display_url,
-					'downloads'    => 0,
+					'episodeTitle'   => $title,
+					'episodePubdate' => $pubdate ?? '',
+					'episodeUrl'     => $display_url,
+					'downloads'      => 0,
 				];
 			}
 			$by_episode[ $url_key ]['downloads']++;
