@@ -82,8 +82,9 @@ class OP3PA_Tracker {
 		}
 
 		OP3PA_DB::record_download( $podcast_index, $episode_id, [
-			'app_name' => self::detect_app( $_SERVER['HTTP_USER_AGENT'] ?? '' ),
-			'referer'  => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : null,
+			'app_name'     => self::detect_app( $_SERVER['HTTP_USER_AGENT'] ?? '' ),
+			'referer'      => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : null,
+			'country_code' => OP3PA_Geo::lookup_country( OP3PA_DB::get_client_ip() ),
 		] );
 
 		wp_redirect( $target_url, 302 ); // phpcs:ignore WordPress.Security.SafeRedirect -- target is the site's own known audio URL.

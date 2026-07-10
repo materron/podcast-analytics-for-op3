@@ -6,10 +6,28 @@
 
 	// ── Stats page ──────────────────────────────────────────────────────────
 
+	var customRange = null; // { start: 'Y-m-d', end: 'Y-m-d' } when a custom range is applied, else null.
+
 	$( document ).on( 'click', '.op3pa-period-btn', function () {
 		var $btn = $( this );
 		$( '.op3pa-period-btn' ).removeClass( 'active' );
 		$btn.addClass( 'active' );
+		customRange = null;
+		$( '.op3pa-date-range' ).removeClass( 'active' );
+		loadStats();
+	} );
+
+	$( '#op3pa-range-apply' ).on( 'click', function () {
+		var start = $( '#op3pa-range-start' ).val();
+		var end   = $( '#op3pa-range-end' ).val();
+
+		if ( ! start ) {
+			return;
+		}
+
+		customRange = { start: start, end: end || '' };
+		$( '.op3pa-period-btn' ).removeClass( 'active' );
+		$( '.op3pa-date-range' ).addClass( 'active' );
 		loadStats();
 	} );
 
@@ -34,23 +52,37 @@
 		return indexes;
 	}
 
+	var currentStatsRequest = null;
+
 	function loadStats( forceRefresh ) {
-		var days    = parseInt( $( '.op3pa-period-btn.active' ).data( 'days' ) || 30, 10 );
 		var indexes = getSelectedIndexes();
+		var payload = {
+			action:  'op3pa_refresh_stats',
+			nonce:   op3paData.nonce,
+			indexes: indexes,
+		};
+
+		if ( customRange ) {
+			payload.start = customRange.start;
+			payload.end   = customRange.end;
+		} else {
+			payload.days = parseInt( $( '.op3pa-period-btn.active' ).data( 'days' ) || 1, 10 );
+		}
+
+		// Abort any in-flight request so a slow earlier response can't overwrite
+		// the result of a newer selection (out-of-order AJAX race condition).
+		if ( currentStatsRequest ) {
+			currentStatsRequest.abort();
+		}
 
 		$( '#op3pa-stats-container' ).html(
 			'<div class="op3pa-loading">' + op3paData.strings.refreshing + '</div>'
 		);
 
-		$.ajax( {
+		currentStatsRequest = $.ajax( {
 			url:    op3paData.ajaxUrl,
 			method: 'POST',
-			data:   {
-				action:  'op3pa_refresh_stats',
-				nonce:   op3paData.nonce,
-				days:    days,
-				indexes: indexes,
-			},
+			data:   payload,
 			success: function ( response ) {
 				if ( response.success ) {
 					$( '#op3pa-stats-container' ).html( response.data.html );
@@ -60,13 +92,43 @@
 					);
 				}
 			},
-			error: function () {
+			error: function ( jqXHR, textStatus ) {
+				if ( 'abort' === textStatus ) {
+					return; // Superseded by a newer request; nothing to show.
+				}
 				$( '#op3pa-stats-container' ).html(
 					'<p class="op3pa-error">' + op3paData.strings.error + '</p>'
 				);
 			},
+			complete: function ( jqXHR ) {
+				if ( currentStatsRequest === jqXHR ) {
+					currentStatsRequest = null;
+				}
+			},
 		} );
 	}
+
+	// ── Country map tooltip ─────────────────────────────────────────────────
+
+	var $mapTooltip = $( '<div class="op3pa-map-tooltip"></div>' ).appendTo( 'body' ).hide();
+
+	$( document ).on( 'mouseenter', '.op3pa-country-map [data-op3pa-country]', function () {
+		var $el = $( this );
+		$mapTooltip
+			.html(
+				'<strong>' + $el.attr( 'data-op3pa-country' ) + '</strong>: ' +
+				$el.attr( 'data-op3pa-downloads' )
+			)
+			.show();
+	} );
+
+	$( document ).on( 'mousemove', '.op3pa-country-map [data-op3pa-country]', function ( e ) {
+		$mapTooltip.css( { top: e.pageY + 14, left: e.pageX + 14 } );
+	} );
+
+	$( document ).on( 'mouseleave', '.op3pa-country-map [data-op3pa-country]', function () {
+		$mapTooltip.hide();
+	} );
 
 	// ── Dashboard widget pagination ─────────────────────────────────────────
 

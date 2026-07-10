@@ -22,32 +22,141 @@ class OP3PA_Api {
 	 * Fetches download counts for a single show, grouped by episode.
 	 * Paginates through all results using continuationToken.
 	 *
-	 * @param int $days      1, 7, or 30.
-	 * @param int $podcast_i Podcast index.
+	 * @param int|array $period    Days back (1, 7, 30...), or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_i Podcast index.
 	 * @return array|WP_Error
 	 */
-	public static function get_download_counts( int $days = 30, int $podcast_i = 0 ): array|WP_Error {
+	public static function get_download_counts( int|array $period, int $podcast_i = 0 ): array|WP_Error {
 		$podcast = op3pa_get_podcast( $podcast_i );
 		if ( empty( $podcast['show_uuid'] ) ) {
 			return new WP_Error( 'op3pa_no_uuid', __( 'No Show UUID configured.', 'podcast-analytics-for-op3' ) );
 		}
 
-		$cache_key = 'op3pa_downloads_' . $podcast_i . '_' . $days . 'd';
+		$cache_key = 'op3pa_downloads_' . $podcast_i . '_' . self::period_cache_suffix( $period );
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;
 		}
 
-		// Paginate through all results.
-		$all_rows          = [];
-		$continuation      = null;
-		$pages             = 0;
-		$base_params       = [
-			'start'  => '-' . $days . 'd',
-			'limit'  => 1000,
-			'format' => 'json',
-			'bots'   => 'exclude',
-		];
+		$all_rows = self::get_raw_rows( $period, $podcast_i );
+		if ( is_wp_error( $all_rows ) ) {
+			return $all_rows;
+		}
+
+		$episode_titles = self::get_episode_titles( $podcast['show_uuid'] );
+		$normalised     = self::normalise_rows( $all_rows, $episode_titles );
+		set_transient( $cache_key, $normalised, self::CACHE_TTL );
+		return $normalised;
+	}
+
+	/**
+	 * Returns app/device breakdown for a public podcast within a period,
+	 * built from the same raw rows used for episode counts (no extra API calls).
+	 *
+	 * @param int|array $period    Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_i Podcast index.
+	 * @return array|WP_Error List of ['name'=>, 'downloads'=>], sorted descending.
+	 */
+	public static function get_app_breakdown( int|array $period, int $podcast_i ): array|WP_Error {
+		$cache_key = 'op3pa_apps_' . $podcast_i . '_' . self::period_cache_suffix( $period );
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$all_rows = self::get_raw_rows( $period, $podcast_i );
+		if ( is_wp_error( $all_rows ) ) {
+			return $all_rows;
+		}
+
+		$counts = [];
+		foreach ( $all_rows as $row ) {
+			$name             = $row['agentName'] ?? __( 'Unknown', 'podcast-analytics-for-op3' );
+			$counts[ $name ] = ( $counts[ $name ] ?? 0 ) + 1;
+		}
+		arsort( $counts );
+
+		$result = [];
+		foreach ( $counts as $name => $count ) {
+			$result[] = [ 'name' => $name, 'downloads' => $count ];
+		}
+
+		set_transient( $cache_key, $result, self::CACHE_TTL );
+		return $result;
+	}
+
+	/**
+	 * Returns country breakdown for a public podcast within a period, built
+	 * from the same raw rows used for episode counts (no extra API calls).
+	 *
+	 * @param int|array $period    Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_i Podcast index.
+	 * @return array|WP_Error List of ['code'=>ISO2, 'downloads'=>], sorted descending.
+	 */
+	public static function get_country_breakdown( int|array $period, int $podcast_i ): array|WP_Error {
+		$cache_key = 'op3pa_countries_' . $podcast_i . '_' . self::period_cache_suffix( $period );
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$all_rows = self::get_raw_rows( $period, $podcast_i );
+		if ( is_wp_error( $all_rows ) ) {
+			return $all_rows;
+		}
+
+		$counts = [];
+		foreach ( $all_rows as $row ) {
+			$code = strtoupper( (string) ( $row['countryCode'] ?? '' ) );
+			if ( '' === $code ) {
+				continue;
+			}
+			$counts[ $code ] = ( $counts[ $code ] ?? 0 ) + 1;
+		}
+		arsort( $counts );
+
+		$result = [];
+		foreach ( $counts as $code => $count ) {
+			$result[] = [ 'code' => $code, 'downloads' => $count ];
+		}
+
+		set_transient( $cache_key, $result, self::CACHE_TTL );
+		return $result;
+	}
+
+	/**
+	 * Fetches and caches raw (unaggregated) download rows for a podcast/period,
+	 * paginating through OP3's continuationToken. Shared by any aggregation
+	 * (episode counts, app breakdown, geo, time-of-day...) to avoid duplicate
+	 * API calls for the same podcast/period.
+	 *
+	 * @param int|array $period    Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_i Podcast index.
+	 * @return array|WP_Error
+	 */
+	private static function get_raw_rows( int|array $period, int $podcast_i ): array|WP_Error {
+		$podcast = op3pa_get_podcast( $podcast_i );
+		if ( empty( $podcast['show_uuid'] ) ) {
+			return new WP_Error( 'op3pa_no_uuid', __( 'No Show UUID configured.', 'podcast-analytics-for-op3' ) );
+		}
+
+		$cache_key = 'op3pa_raw_' . $podcast_i . '_' . self::period_cache_suffix( $period );
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$all_rows     = [];
+		$continuation = null;
+		$pages        = 0;
+		$base_params  = array_merge(
+			[
+				'limit'  => 1000,
+				'format' => 'json',
+				'bots'   => 'exclude',
+			],
+			self::period_to_api_params( $period )
+		);
 
 		do {
 			$params = $base_params;
@@ -64,20 +173,48 @@ class OP3PA_Api {
 			$pages++;
 		} while ( $continuation && $pages < self::MAX_PAGES );
 
-		$episode_titles = self::get_episode_titles( $podcast['show_uuid'] );
-		$normalised     = self::normalise_rows( $all_rows, $episode_titles );
-		set_transient( $cache_key, $normalised, self::CACHE_TTL );
-		return $normalised;
+		set_transient( $cache_key, $all_rows, self::CACHE_TTL );
+		return $all_rows;
+	}
+
+	/**
+	 * Converts a period (days-back or explicit range) into OP3 API query params.
+	 *
+	 * @param int|array $period Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @return array
+	 */
+	private static function period_to_api_params( int|array $period ): array {
+		if ( is_array( $period ) ) {
+			$params = [ 'start' => $period['start'] ];
+			if ( ! empty( $period['end'] ) ) {
+				$params['end'] = $period['end'];
+			}
+			return $params;
+		}
+		return [ 'start' => '-' . $period . 'd' ];
+	}
+
+	/**
+	 * Builds a stable cache-key suffix for a period.
+	 *
+	 * @param int|array $period Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @return string
+	 */
+	private static function period_cache_suffix( int|array $period ): string {
+		if ( is_array( $period ) ) {
+			return 'range_' . md5( ( $period['start'] ?? '' ) . '|' . ( $period['end'] ?? '' ) );
+		}
+		return $period . 'd';
 	}
 
 	/**
 	 * Fetches and aggregates download counts across multiple shows (network view).
 	 *
-	 * @param int   $days    1, 7, or 30.
-	 * @param array $indexes Podcast indexes to include. Empty = all active.
+	 * @param int|array $period  Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param array     $indexes Podcast indexes to include. Empty = all active.
 	 * @return array|WP_Error Array with 'rows' (per show totals) and 'total'.
 	 */
-	public static function get_network_counts( int $days = 30, array $indexes = [] ): array|WP_Error {
+	public static function get_network_counts( int|array $period = 30, array $indexes = [] ): array|WP_Error {
 		$active = op3pa_get_active_podcasts();
 		if ( empty( $active ) ) {
 			return new WP_Error( 'op3pa_no_podcasts', __( 'No active podcasts configured.', 'podcast-analytics-for-op3' ) );
@@ -88,7 +225,7 @@ class OP3PA_Api {
 		}
 
 		$sort_key  = implode( '-', array_keys( $active ) );
-		$cache_key = 'op3pa_network_' . $days . 'd_' . md5( $sort_key );
+		$cache_key = 'op3pa_network_' . self::period_cache_suffix( $period ) . '_' . md5( $sort_key );
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;
@@ -98,7 +235,7 @@ class OP3PA_Api {
 		$total = 0;
 
 		foreach ( $active as $i => $podcast ) {
-			$result = self::get_download_counts( $days, $i );
+			$result = self::get_download_counts( $period, $i );
 			if ( is_wp_error( $result ) ) {
 				continue;
 			}
@@ -151,20 +288,33 @@ class OP3PA_Api {
 			foreach ( array_keys( op3pa_get_podcasts() ) as $i ) {
 				foreach ( $days as $d ) {
 					delete_transient( 'op3pa_downloads_' . $i . '_' . $d );
+					delete_transient( 'op3pa_raw_' . $i . '_' . $d );
+					delete_transient( 'op3pa_apps_' . $i . '_' . $d );
+					delete_transient( 'op3pa_countries_' . $i . '_' . $d );
 				}
 			}
 		} else {
 			foreach ( $days as $d ) {
 				delete_transient( 'op3pa_downloads_' . $podcast_i . '_' . $d );
+				delete_transient( 'op3pa_raw_' . $podcast_i . '_' . $d );
+				delete_transient( 'op3pa_apps_' . $podcast_i . '_' . $d );
+				delete_transient( 'op3pa_countries_' . $podcast_i . '_' . $d );
 			}
 		}
 
+		// Range-based caches use an md5 hash suffix (can't be enumerated by day), so
+		// clear them by LIKE pattern instead — along with network/episode-title caches.
 		global $wpdb;
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s
+				 OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s",
 				$wpdb->esc_like( '_transient_op3pa_network_' ) . '%',
-				$wpdb->esc_like( '_transient_op3pa_ep_titles_' ) . '%'
+				$wpdb->esc_like( '_transient_op3pa_ep_titles_' ) . '%',
+				$wpdb->esc_like( '_transient_op3pa_downloads_' ) . '%_range_%',
+				$wpdb->esc_like( '_transient_op3pa_raw_' ) . '%_range_%',
+				$wpdb->esc_like( '_transient_op3pa_apps_' ) . '%_range_%',
+				$wpdb->esc_like( '_transient_op3pa_countries_' ) . '%_range_%'
 			)
 		);
 	}

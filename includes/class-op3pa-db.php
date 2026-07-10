@@ -88,19 +88,51 @@ class OP3PA_DB {
 	}
 
 	/**
+	 * Converts a period (days-back or explicit range) into a [since, until] pair
+	 * of MySQL datetime strings. $until is null when using a rolling days-back window.
+	 *
+	 * @param int|array $period Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @return array{0: string, 1: string|null}
+	 */
+	private static function period_to_range( int|array $period ): array {
+		if ( is_array( $period ) ) {
+			$since = gmdate( 'Y-m-d 00:00:00', strtotime( $period['start'] ) );
+			$until = ! empty( $period['end'] ) ? gmdate( 'Y-m-d 23:59:59', strtotime( $period['end'] ) ) : null;
+			return [ $since, $until ];
+		}
+		return [ gmdate( 'Y-m-d H:i:s', time() - $period * DAY_IN_SECONDS ), null ];
+	}
+
+	/**
 	 * Returns per-episode download counts for a podcast within a period.
 	 *
-	 * @param int $podcast_index Podcast index.
-	 * @param int $days          Period in days.
+	 * @param int       $podcast_index Podcast index.
+	 * @param int|array $period        Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
 	 * @return array List of ['episode_id' => string, 'downloads' => int].
 	 */
-	public static function get_episode_counts( int $podcast_index, int $days ): array {
+	public static function get_episode_counts( int $podcast_index, int|array $period ): array {
 		global $wpdb;
 		$table = self::table();
 
-		$since = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+		[ $since, $until ] = self::period_to_range( $period );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, values are prepared.
+		if ( null !== $until ) {
+			return $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT episode_id, COUNT(*) as downloads
+					 FROM {$table}
+					 WHERE podcast_index = %d AND downloaded_at BETWEEN %s AND %s
+					 GROUP BY episode_id
+					 ORDER BY downloads DESC",
+					$podcast_index,
+					$since,
+					$until
+				),
+				ARRAY_A
+			);
+		}
+
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT episode_id, COUNT(*) as downloads
@@ -120,12 +152,12 @@ class OP3PA_DB {
 	 * like OP3PA_Api::get_download_counts() so the admin UI can render both
 	 * public and private podcasts with the same table markup.
 	 *
-	 * @param int $days          Period in days.
-	 * @param int $podcast_index Podcast index.
+	 * @param int|array $period        Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_index Podcast index.
 	 * @return array ['rows' => [ ['episodeTitle'=>, 'episodePubdate'=>, 'episodeUrl'=>, 'downloads'=>], ... ]]
 	 */
-	public static function get_download_counts( int $days, int $podcast_index ): array {
-		$counts = self::get_episode_counts( $podcast_index, $days );
+	public static function get_download_counts( int|array $period, int $podcast_index ): array {
+		$counts = self::get_episode_counts( $podcast_index, $period );
 		$titles = self::resolve_episode_titles( wp_list_pluck( $counts, 'episode_id' ) );
 
 		$rows = [];
@@ -148,17 +180,17 @@ class OP3PA_DB {
 	 * Returns aggregated download counts across multiple private podcasts,
 	 * shaped exactly like OP3PA_Api::get_network_counts().
 	 *
-	 * @param int   $days    Period in days.
-	 * @param array $indexes Podcast indexes to include (private ones only).
+	 * @param int|array $period  Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param array     $indexes Podcast indexes to include (private ones only).
 	 * @return array ['rows' => [ ['index'=>,'name'=>,'color'=>,'downloads'=>,'episodes'=>[...]] ], 'total' => int]
 	 */
-	public static function get_network_counts( int $days, array $indexes ): array {
+	public static function get_network_counts( int|array $period, array $indexes ): array {
 		$rows  = [];
 		$total = 0;
 
 		foreach ( $indexes as $i ) {
 			$podcast = op3pa_get_podcast( $i );
-			$result  = self::get_download_counts( $days, $i );
+			$result  = self::get_download_counts( $period, $i );
 			$sum     = array_sum( array_column( $result['rows'], 'downloads' ) );
 			$total  += $sum;
 
@@ -178,6 +210,81 @@ class OP3PA_DB {
 		usort( $rows, fn( $a, $b ) => $b['downloads'] <=> $a['downloads'] );
 
 		return compact( 'rows', 'total' );
+	}
+
+	/**
+	 * Returns app breakdown for a private podcast within a period, shaped like
+	 * OP3PA_Api::get_app_breakdown() so both can be combined in the same report.
+	 *
+	 * @param int|array $period        Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_index Podcast index.
+	 * @return array List of ['name'=>, 'downloads'=>], sorted descending.
+	 */
+	public static function get_app_breakdown( int|array $period, int $podcast_index ): array {
+		global $wpdb;
+		$table = self::table();
+		[ $since, $until ] = self::period_to_range( $period );
+
+		$where_date = null !== $until
+			? $wpdb->prepare( 'downloaded_at BETWEEN %s AND %s', $since, $until )
+			: $wpdb->prepare( 'downloaded_at >= %s', $since );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT COALESCE(app_name, %s) as name, COUNT(*) as downloads
+				 FROM {$table}
+				 WHERE podcast_index = %d AND {$where_date}
+				 GROUP BY name
+				 ORDER BY downloads DESC",
+				__( 'Unknown', 'podcast-analytics-for-op3' ),
+				$podcast_index
+			),
+			ARRAY_A
+		);
+
+		return array_map(
+			static fn( $row ) => [ 'name' => $row['name'], 'downloads' => (int) $row['downloads'] ],
+			$rows
+		);
+	}
+
+	/**
+	 * Returns country breakdown for a private podcast within a period, shaped
+	 * like OP3PA_Api::get_country_breakdown(). Requires MaxMind GeoLite2 to be
+	 * configured (see OP3PA_Geo) — downloads recorded before that returns no
+	 * country_code and are excluded here (grouped as NULL, filtered out).
+	 *
+	 * @param int|array $period        Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_index Podcast index.
+	 * @return array List of ['code'=>ISO2, 'downloads'=>], sorted descending.
+	 */
+	public static function get_country_breakdown( int|array $period, int $podcast_index ): array {
+		global $wpdb;
+		$table = self::table();
+		[ $since, $until ] = self::period_to_range( $period );
+
+		$where_date = null !== $until
+			? $wpdb->prepare( 'downloaded_at BETWEEN %s AND %s', $since, $until )
+			: $wpdb->prepare( 'downloaded_at >= %s', $since );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT country_code as code, COUNT(*) as downloads
+				 FROM {$table}
+				 WHERE podcast_index = %d AND country_code IS NOT NULL AND {$where_date}
+				 GROUP BY code
+				 ORDER BY downloads DESC",
+				$podcast_index
+			),
+			ARRAY_A
+		);
+
+		return array_map(
+			static fn( $row ) => [ 'code' => $row['code'], 'downloads' => (int) $row['downloads'] ],
+			$rows
+		);
 	}
 
 	/**
@@ -223,10 +330,12 @@ class OP3PA_DB {
 
 	/**
 	 * Returns the client's real IP address, respecting common reverse-proxy headers.
+	 * Public so OP3PA_Tracker can reuse it for the GeoLite2 lookup (which needs
+	 * the raw IP once, before it gets hashed here and discarded).
 	 *
 	 * @return string
 	 */
-	private static function get_client_ip(): string {
+	public static function get_client_ip(): string {
 		foreach ( [ 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' ] as $key ) {
 			if ( ! empty( $_SERVER[ $key ] ) ) {
 				$ip = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );

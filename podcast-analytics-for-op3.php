@@ -3,7 +3,7 @@
  * Plugin Name: Podcast Analytics for OP3
  * Plugin URI:  https://github.com/materron/podcast-analytics-for-op3
  * Description: Adds the OP3 prefix to your podcast feed enclosures and shows download statistics in the WordPress dashboard. Supports multiple podcasts and network-wide stats.
- * Version:     2.1.0
+ * Version:     2.1.1-dev8
  * Requires at least: 6.3
  * Requires PHP: 8.0
  * Author:      Miguel Ángel Terrón Bote
@@ -18,17 +18,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OP3PA_VERSION', '2.1.0' );
+define( 'OP3PA_VERSION', '2.1.1-dev8' );
 define( 'OP3PA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OP3PA_URL', plugin_dir_url( __FILE__ ) );
-define( 'OP3PA_OPTION',       'op3pa_podcasts' );
-define( 'OP3PA_OPTION_TOKEN', 'op3pa_bearer_token' );
+define( 'OP3PA_OPTION',              'op3pa_podcasts' );
+define( 'OP3PA_OPTION_TOKEN',        'op3pa_bearer_token' );
+define( 'OP3PA_OPTION_MAXMIND_KEY',  'op3pa_maxmind_license_key' );
 
 require_once OP3PA_DIR . 'includes/class-op3pa-feed.php';
 require_once OP3PA_DIR . 'includes/class-op3pa-api.php';
 require_once OP3PA_DIR . 'includes/class-op3pa-admin.php';
 require_once OP3PA_DIR . 'includes/class-op3pa-db.php';
 require_once OP3PA_DIR . 'includes/class-op3pa-tracker.php';
+require_once OP3PA_DIR . 'includes/class-op3pa-geo.php';
+
+/**
+ * Adds a "weekly" interval for the GeoLite2 database refresh cron event.
+ *
+ * @param array $schedules Existing cron schedules.
+ * @return array
+ */
+function op3pa_add_weekly_cron_schedule( array $schedules ): array {
+	if ( ! isset( $schedules['weekly'] ) ) {
+		$schedules['weekly'] = [
+			'interval' => WEEK_IN_SECONDS,
+			'display'  => __( 'Once Weekly', 'podcast-analytics-for-op3' ),
+		];
+	}
+	return $schedules;
+}
+add_filter( 'cron_schedules', 'op3pa_add_weekly_cron_schedule' );
 
 /**
  * Returns the global bearer token.
@@ -119,11 +138,71 @@ function op3pa_get_active_all_podcasts(): array {
 	return op3pa_get_active_podcasts() + op3pa_get_active_private_podcasts();
 }
 
+/**
+ * Returns a human-readable country name for an ISO 3166-1 alpha-2 code.
+ * Covers the countries present in the bundled world map (admin/img/world-map.svg).
+ *
+ * @param string $code Two-letter uppercase country code.
+ * @return string
+ */
+function op3pa_country_name( string $code ): string {
+	static $names = null;
+	if ( null === $names ) {
+		$names = [
+			'AF' => 'Afganistán', 'AL' => 'Albania', 'DZ' => 'Argelia', 'AO' => 'Angola',
+			'AR' => 'Argentina', 'AM' => 'Armenia', 'AU' => 'Australia', 'AT' => 'Austria',
+			'AZ' => 'Azerbaiyán', 'BS' => 'Bahamas', 'BD' => 'Bangladés', 'BY' => 'Bielorrusia',
+			'BE' => 'Bélgica', 'BZ' => 'Belice', 'BJ' => 'Benín', 'BT' => 'Bután',
+			'BO' => 'Bolivia', 'BA' => 'Bosnia y Herzegovina', 'BW' => 'Botsuana', 'BR' => 'Brasil',
+			'BN' => 'Brunéi', 'BG' => 'Bulgaria', 'BF' => 'Burkina Faso', 'BI' => 'Burundi',
+			'KH' => 'Camboya', 'CM' => 'Camerún', 'CA' => 'Canadá', 'CF' => 'República Centroafricana',
+			'TD' => 'Chad', 'CL' => 'Chile', 'CN' => 'China', 'CO' => 'Colombia',
+			'CG' => 'Congo', 'CR' => 'Costa Rica', 'CI' => 'Costa de Marfil', 'HR' => 'Croacia',
+			'CU' => 'Cuba', 'CY' => 'Chipre', 'CZ' => 'República Checa', 'CD' => 'RD del Congo',
+			'DK' => 'Dinamarca', 'DJ' => 'Yibuti', 'DO' => 'República Dominicana', 'EC' => 'Ecuador',
+			'EG' => 'Egipto', 'SV' => 'El Salvador', 'GQ' => 'Guinea Ecuatorial', 'ER' => 'Eritrea',
+			'EE' => 'Estonia', 'ET' => 'Etiopía', 'FJ' => 'Fiyi', 'FI' => 'Finlandia',
+			'FR' => 'Francia', 'GA' => 'Gabón', 'GM' => 'Gambia', 'GE' => 'Georgia',
+			'DE' => 'Alemania', 'GH' => 'Ghana', 'GR' => 'Grecia', 'GL' => 'Groenlandia',
+			'GT' => 'Guatemala', 'GN' => 'Guinea', 'GW' => 'Guinea-Bisáu', 'GY' => 'Guyana',
+			'HT' => 'Haití', 'HN' => 'Honduras', 'HU' => 'Hungría', 'IS' => 'Islandia',
+			'IN' => 'India', 'ID' => 'Indonesia', 'IR' => 'Irán', 'IQ' => 'Irak',
+			'IE' => 'Irlanda', 'IL' => 'Israel', 'IT' => 'Italia', 'JM' => 'Jamaica',
+			'JP' => 'Japón', 'JO' => 'Jordania', 'KZ' => 'Kazajistán', 'KE' => 'Kenia',
+			'KW' => 'Kuwait', 'KG' => 'Kirguistán', 'LA' => 'Laos', 'LV' => 'Letonia',
+			'LB' => 'Líbano', 'LS' => 'Lesoto', 'LR' => 'Liberia', 'LY' => 'Libia',
+			'LT' => 'Lituania', 'LU' => 'Luxemburgo', 'MK' => 'Macedonia del Norte', 'MG' => 'Madagascar',
+			'MW' => 'Malaui', 'MY' => 'Malasia', 'ML' => 'Malí', 'MT' => 'Malta',
+			'MR' => 'Mauritania', 'MX' => 'México', 'MD' => 'Moldavia', 'MN' => 'Mongolia',
+			'ME' => 'Montenegro', 'MA' => 'Marruecos', 'MZ' => 'Mozambique', 'MM' => 'Birmania',
+			'NA' => 'Namibia', 'NP' => 'Nepal', 'NL' => 'Países Bajos', 'NZ' => 'Nueva Zelanda',
+			'NI' => 'Nicaragua', 'NE' => 'Níger', 'NG' => 'Nigeria', 'KP' => 'Corea del Norte',
+			'NO' => 'Noruega', 'OM' => 'Omán', 'PK' => 'Pakistán', 'PS' => 'Palestina',
+			'PA' => 'Panamá', 'PG' => 'Papúa Nueva Guinea', 'PY' => 'Paraguay', 'PE' => 'Perú',
+			'PH' => 'Filipinas', 'PL' => 'Polonia', 'PT' => 'Portugal', 'PR' => 'Puerto Rico',
+			'QA' => 'Catar', 'RO' => 'Rumanía', 'RU' => 'Rusia', 'RW' => 'Ruanda',
+			'SA' => 'Arabia Saudí', 'SN' => 'Senegal', 'RS' => 'Serbia', 'SL' => 'Sierra Leona',
+			'SG' => 'Singapur', 'SK' => 'Eslovaquia', 'SI' => 'Eslovenia', 'SB' => 'Islas Salomón',
+			'SO' => 'Somalia', 'ZA' => 'Sudáfrica', 'KR' => 'Corea del Sur', 'SS' => 'Sudán del Sur',
+			'ES' => 'España', 'LK' => 'Sri Lanka', 'SD' => 'Sudán', 'SR' => 'Surinam',
+			'SZ' => 'Esuatini', 'SE' => 'Suecia', 'CH' => 'Suiza', 'SY' => 'Siria',
+			'TW' => 'Taiwán', 'TJ' => 'Tayikistán', 'TZ' => 'Tanzania', 'TH' => 'Tailandia',
+			'TL' => 'Timor Oriental', 'TG' => 'Togo', 'TT' => 'Trinidad y Tobago', 'TN' => 'Túnez',
+			'TR' => 'Turquía', 'TM' => 'Turkmenistán', 'UG' => 'Uganda', 'UA' => 'Ucrania',
+			'AE' => 'Emiratos Árabes Unidos', 'GB' => 'Reino Unido', 'US' => 'Estados Unidos', 'UY' => 'Uruguay',
+			'UZ' => 'Uzbekistán', 'VU' => 'Vanuatu', 'VE' => 'Venezuela', 'VN' => 'Vietnam',
+			'YE' => 'Yemen', 'ZM' => 'Zambia', 'ZW' => 'Zimbabue',
+		];
+	}
+	return $names[ strtoupper( $code ) ] ?? strtoupper( $code );
+}
+
 // Bootstrap.
 add_action( 'plugins_loaded', [ 'OP3PA_Feed', 'init' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_Admin', 'init' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_Tracker', 'init' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_DB', 'maybe_upgrade' ] );
+add_action( 'plugins_loaded', [ 'OP3PA_Geo', 'init' ] );
 add_action( 'plugins_loaded', 'op3pa_maybe_migrate' );
 
 register_activation_hook( __FILE__, 'op3pa_activate' );
@@ -182,6 +261,7 @@ function op3pa_maybe_migrate(): void {
 }
 
 function op3pa_deactivate(): void {
+	wp_clear_scheduled_hook( 'op3pa_geoip_refresh' );
 	for ( $op3pa_i = 0; $op3pa_i < 20; $op3pa_i++ ) {
 		delete_transient( 'op3pa_downloads_' . $op3pa_i . '_1d' );
 		delete_transient( 'op3pa_downloads_' . $op3pa_i . '_7d' );

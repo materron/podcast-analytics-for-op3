@@ -30,6 +30,10 @@
 .op3pa-period-btn { background: #f6f7f7; border: 1px solid #c3c4c7; border-radius: 4px; padding: 5px 12px; cursor: pointer; font-size: 13px; color: #2c3338; transition: background 0.15s; }
 .op3pa-period-btn:hover { background: #e0e0e0; }
 .op3pa-period-btn.active { background: #0066cc; border-color: #0066cc; color: #fff; }
+.op3pa-date-range { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border: 1px solid transparent; border-radius: 4px; }
+.op3pa-date-range.active { border-color: #0066cc; background: #eaf2fc; }
+.op3pa-date-range label { display: flex; align-items: center; gap: 4px; font-size: 13px; color: #2c3338; }
+.op3pa-date-range input[type="date"] { font-size: 13px; padding: 3px 6px; }
 
 /* ── Network header ───────────────────────────────── */
 .op3pa-network-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 12px 0 16px; border-bottom: 1px solid #dcdcde; margin-bottom: 16px; }
@@ -52,6 +56,27 @@
 .op3pa-network-table .column-podcast { width: 50%; }
 .op3pa-table .column-downloads strong { display: block; font-size: 14px; }
 .op3pa-bar { height: 4px; background: #0066cc; border-radius: 2px; margin-top: 4px; min-width: 2px; transition: width 0.4s ease; }
+.op3pa-apps-table .column-app-name { width: 40%; }
+.op3pa-apps-table .column-app-downloads strong { font-size: 14px; }
+.op3pa-app-pct { color: #646970; font-size: 12px; margin-left: 6px; }
+.op3pa-country-map { max-width: 780px; margin: 10px 0 16px; }
+.op3pa-country-map svg { display: block; width: 100%; height: auto; }
+.op3pa-country-map svg [style*="fill"] { cursor: default; transition: opacity 0.15s; }
+.op3pa-country-map svg [style*="fill"]:hover { opacity: 0.8; }
+.op3pa-country-map svg [data-op3pa-country] { cursor: pointer; }
+.op3pa-map-tooltip {
+	position: absolute;
+	z-index: 9999;
+	background: #1d2327;
+	color: #fff;
+	font-size: 12px;
+	padding: 4px 10px;
+	border-radius: 4px;
+	pointer-events: none;
+	white-space: nowrap;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.op3pa-map-tooltip strong { font-weight: 600; }
 .op3pa-podcast-tag { display: inline-block; font-size: 11px; border-radius: 3px; padding: 2px 6px; white-space: nowrap; font-weight: 600; }
 .op3pa-cache-note { color: #646970; font-size: 12px; margin-top: 8px; }
 .op3pa-loading { padding: 20px 0; color: #646970; font-style: italic; }
