@@ -125,6 +125,70 @@ class OP3PA_Api {
 	}
 
 	/**
+	 * Returns downloads grouped by hour-of-day (0-23) and by weekday (0=Sun..6=Sat),
+	 * converted to the site's configured timezone so it reflects the publisher's
+	 * own clock, not UTC.
+	 *
+	 * @param int|array $period    Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_i Podcast index.
+	 * @return array|WP_Error ['by_hour' => [0..23 => count], 'by_weekday' => [0..6 => count]]
+	 */
+	public static function get_time_distribution( int|array $period, int $podcast_i ): array|WP_Error {
+		$cache_key = 'op3pa_time_' . $podcast_i . '_' . self::period_cache_suffix( $period );
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$all_rows = self::get_raw_rows( $period, $podcast_i );
+		if ( is_wp_error( $all_rows ) ) {
+			return $all_rows;
+		}
+
+		$tz        = wp_timezone();
+		$by_hour   = array_fill( 0, 24, 0 );
+		$by_weekday = array_fill( 0, 7, 0 );
+
+		foreach ( $all_rows as $row ) {
+			$time = $row['time'] ?? '';
+			if ( ! $time ) {
+				continue;
+			}
+			try {
+				$dt = new DateTime( $time, new DateTimeZone( 'UTC' ) );
+				$dt->setTimezone( $tz );
+			} catch ( Exception $e ) {
+				continue;
+			}
+			$by_hour[ (int) $dt->format( 'G' ) ]++;
+			$by_weekday[ (int) $dt->format( 'w' ) ]++;
+		}
+
+		$result = [ 'by_hour' => $by_hour, 'by_weekday' => $by_weekday ];
+		set_transient( $cache_key, $result, self::CACHE_TTL );
+		return $result;
+	}
+
+	/**
+	 * Returns the count of unique listeners (distinct audienceId) for a public
+	 * podcast within a period. OP3's audienceId is a stable rotating-salt hash,
+	 * accurate across the whole period (unlike our own per-day IP hash for
+	 * private podcasts — see OP3PA_DB::get_unique_listeners()).
+	 *
+	 * @param int|array $period    Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_i Podcast index.
+	 * @return int|WP_Error
+	 */
+	public static function get_unique_listeners( int|array $period, int $podcast_i ): int|WP_Error {
+		$all_rows = self::get_raw_rows( $period, $podcast_i );
+		if ( is_wp_error( $all_rows ) ) {
+			return $all_rows;
+		}
+		$ids = array_filter( array_column( $all_rows, 'audienceId' ) );
+		return count( array_unique( $ids ) );
+	}
+
+	/**
 	 * Fetches and caches raw (unaggregated) download rows for a podcast/period,
 	 * paginating through OP3's continuationToken. Shared by any aggregation
 	 * (episode counts, app breakdown, geo, time-of-day...) to avoid duplicate
@@ -291,6 +355,7 @@ class OP3PA_Api {
 					delete_transient( 'op3pa_raw_' . $i . '_' . $d );
 					delete_transient( 'op3pa_apps_' . $i . '_' . $d );
 					delete_transient( 'op3pa_countries_' . $i . '_' . $d );
+					delete_transient( 'op3pa_time_' . $i . '_' . $d );
 				}
 			}
 		} else {
@@ -299,6 +364,7 @@ class OP3PA_Api {
 				delete_transient( 'op3pa_raw_' . $podcast_i . '_' . $d );
 				delete_transient( 'op3pa_apps_' . $podcast_i . '_' . $d );
 				delete_transient( 'op3pa_countries_' . $podcast_i . '_' . $d );
+				delete_transient( 'op3pa_time_' . $podcast_i . '_' . $d );
 			}
 		}
 
@@ -308,13 +374,15 @@ class OP3PA_Api {
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s
-				 OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s",
+				 OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s
+				 OR option_name LIKE %s",
 				$wpdb->esc_like( '_transient_op3pa_network_' ) . '%',
 				$wpdb->esc_like( '_transient_op3pa_ep_titles_' ) . '%',
 				$wpdb->esc_like( '_transient_op3pa_downloads_' ) . '%_range_%',
 				$wpdb->esc_like( '_transient_op3pa_raw_' ) . '%_range_%',
 				$wpdb->esc_like( '_transient_op3pa_apps_' ) . '%_range_%',
-				$wpdb->esc_like( '_transient_op3pa_countries_' ) . '%_range_%'
+				$wpdb->esc_like( '_transient_op3pa_countries_' ) . '%_range_%',
+				$wpdb->esc_like( '_transient_op3pa_time_' ) . '%_range_%'
 			)
 		);
 	}

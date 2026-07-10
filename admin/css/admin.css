@@ -43,6 +43,22 @@
 .op3pa-network-links { display: flex; gap: 8px; flex-wrap: wrap; }
 .op3pa-network-link { font-size: 13px; color: #0066cc; text-decoration: none; border: 1px solid #b8d0ef; border-radius: 4px; padding: 3px 8px; }
 .op3pa-network-link:hover { background: #e8f0fb; }
+.op3pa-network-total-secondary .op3pa-net-number { font-size: 24px; color: #2c3338; }
+.op3pa-network-total-secondary .op3pa-net-label { font-size: 13px; }
+.op3pa-unique-listeners { color: #2c3338; font-size: 13px; margin: -4px 0 12px; }
+.op3pa-unique-listeners strong { font-size: 15px; }
+
+/* ── Time-of-day / weekday charts ─────────────────── */
+.op3pa-time-charts { display: flex; gap: 24px; flex-wrap: wrap; margin: 10px 0 20px; }
+.op3pa-time-chart { flex: 1; min-width: 260px; }
+.op3pa-time-chart-label { font-size: 12px; color: #646970; margin: 0 0 6px; }
+.op3pa-hbar-chart { display: flex; align-items: flex-end; gap: 2px; height: 100px; border-bottom: 1px solid #dcdcde; }
+.op3pa-hbar-chart-week .op3pa-hbar { flex: 1; }
+.op3pa-hbar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 6px; }
+.op3pa-hbar-fill { width: 100%; background: #0066cc; border-radius: 2px 2px 0 0; min-height: 1px; transition: height 0.3s ease, opacity 0.15s; }
+.op3pa-hbar:hover .op3pa-hbar-fill { opacity: 0.75; }
+.op3pa-show-more-row td { text-align: center; padding: 10px 0; }
+.op3pa-hbar-label { font-size: 10px; color: #646970; margin-top: 4px; height: 12px; }
 
 /* ── Show heading ─────────────────────────────────── */
 .op3pa-show-heading { font-size: 15px; margin: 20px 0 8px; display: flex; align-items: center; gap: 8px; }

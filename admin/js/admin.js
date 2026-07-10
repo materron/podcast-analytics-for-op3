@@ -130,6 +130,29 @@
 		$mapTooltip.hide();
 	} );
 
+	// ── Generic floating tooltip (time-of-day / weekday bar charts, etc.) ────
+
+	$( document ).on( 'mouseenter', '[data-op3pa-tooltip]', function () {
+		$mapTooltip.html( $( this ).attr( 'data-op3pa-tooltip' ) ).show();
+	} );
+
+	$( document ).on( 'mousemove', '[data-op3pa-tooltip]', function ( e ) {
+		$mapTooltip.css( { top: e.pageY + 14, left: e.pageX + 14 } );
+	} );
+
+	$( document ).on( 'mouseleave', '[data-op3pa-tooltip]', function () {
+		$mapTooltip.hide();
+	} );
+
+	// ── Show more / show less episode rows ────────────────────────────────
+
+	$( document ).on( 'click', '.op3pa-show-more-btn', function () {
+		var $btn   = $( this );
+		var $table = $btn.closest( 'table' );
+		$table.find( '.op3pa-row-extra' ).show();
+		$btn.closest( '.op3pa-show-more-row' ).remove();
+	} );
+
 	// ── Dashboard widget pagination ─────────────────────────────────────────
 
 	$( document ).on( 'click', '.op3pa-nav-next, .op3pa-nav-prev', function () {

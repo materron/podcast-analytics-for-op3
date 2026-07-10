@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 7.0.1
 Requires PHP: 8.0
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,8 @@ Integrate OP3 open podcast analytics with WordPress: prefix your feed automatica
 * **Apps & devices breakdown** — See which podcast apps (Spotify, Apple Podcasts, Overcast...) your listeners use, for both public and private podcasts.
 * **Country map** — A world map colored by download volume, plus a ranked country list, for both public and private podcasts (private podcasts require a free MaxMind GeoLite2 license key).
 * **Custom date range** — Pick any "from/to" range for your stats, in addition to the quick 24h/7d/30d tabs.
+* **Best time to publish** — Charts showing downloads by hour of day and by weekday, in your site's own timezone.
+* **Unique listeners** — A deduplicated listener count, for both public and private podcasts.
 
 = How the OP3 prefix works =
 
@@ -128,6 +130,12 @@ No data is collected from your site's visitors beyond what is described in the E
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.3.0 (2026-07-10) =
+* New: downloads by hour-of-day and by weekday charts ("best time to publish"), converted to your site's own timezone, for both public and private podcasts.
+* New: unique listeners count, shown next to the total downloads. Exact for public podcasts (OP3's stable audience identifier) and for private podcasts within a 24h period; approximate for private podcasts over longer periods, since the privacy-preserving IP hash rotates daily.
+* Changed: the episode list now shows the top 10 by default, with a "Ver todos" button to expand the rest — much less scrolling to reach the charts below.
+* Fixed: the country map's floating tooltip could get covered by the bundled SVG's own native browser tooltip ("Simple World Map") on small countries.
 
 = 2.2.0 (2026-07-10) =
 * New: apps & devices breakdown, for both public podcasts (from OP3's per-download data) and private ones (detected from the User-Agent).

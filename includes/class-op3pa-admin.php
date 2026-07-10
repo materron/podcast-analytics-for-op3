@@ -731,6 +731,153 @@ class OP3PA_Admin {
 	}
 
 	/**
+	 * Returns downloads by hour-of-day / weekday for a single podcast, routed
+	 * to the OP3 API for public podcasts or the local database for private ones.
+	 *
+	 * @param int       $podcast_i Podcast index.
+	 * @param int|array $period    Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @return array|WP_Error ['by_hour'=>[0..23=>count], 'by_weekday'=>[0..6=>count]]
+	 */
+	private static function get_time_distribution_for_podcast( int $podcast_i, int|array $period ): array|WP_Error {
+		$podcast = op3pa_get_podcast( $podcast_i );
+		return ! empty( $podcast['private'] )
+			? OP3PA_DB::get_time_distribution( $period, $podcast_i )
+			: OP3PA_Api::get_time_distribution( $period, $podcast_i );
+	}
+
+	/**
+	 * Aggregates hour/weekday download distribution across multiple podcasts.
+	 *
+	 * @param int|array $period  Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param array     $indexes Podcast indexes to include. Empty = all active.
+	 * @return array ['by_hour'=>[0..23=>count], 'by_weekday'=>[0..6=>count]]
+	 */
+	private static function get_combined_time_distribution( int|array $period, array $indexes = [] ): array {
+		$active = op3pa_get_active_all_podcasts();
+		if ( ! empty( $indexes ) ) {
+			$active = array_intersect_key( $active, array_flip( $indexes ) );
+		}
+
+		$by_hour    = array_fill( 0, 24, 0 );
+		$by_weekday = array_fill( 0, 7, 0 );
+
+		foreach ( array_keys( $active ) as $i ) {
+			$result = self::get_time_distribution_for_podcast( $i, $period );
+			if ( is_wp_error( $result ) ) {
+				continue;
+			}
+			foreach ( $result['by_hour'] as $h => $count ) {
+				$by_hour[ $h ] += $count;
+			}
+			foreach ( $result['by_weekday'] as $w => $count ) {
+				$by_weekday[ $w ] += $count;
+			}
+		}
+
+		return [ 'by_hour' => $by_hour, 'by_weekday' => $by_weekday ];
+	}
+
+	/**
+	 * Renders "Downloads by hour" and "Downloads by weekday" as two compact
+	 * CSS bar charts side by side.
+	 *
+	 * @param array $distribution ['by_hour'=>[0..23=>count], 'by_weekday'=>[0..6=>count]]
+	 */
+	private static function render_time_distribution( array $distribution ): void {
+		$by_hour    = $distribution['by_hour']    ?? [];
+		$by_weekday = $distribution['by_weekday'] ?? [];
+		if ( empty( array_filter( $by_hour ) ) && empty( array_filter( $by_weekday ) ) ) {
+			return;
+		}
+
+		$weekday_labels = [
+			__( 'Dom', 'podcast-analytics-for-op3' ),
+			__( 'Lun', 'podcast-analytics-for-op3' ),
+			__( 'Mar', 'podcast-analytics-for-op3' ),
+			__( 'Mié', 'podcast-analytics-for-op3' ),
+			__( 'Jue', 'podcast-analytics-for-op3' ),
+			__( 'Vie', 'podcast-analytics-for-op3' ),
+			__( 'Sáb', 'podcast-analytics-for-op3' ),
+		];
+
+		$hour_max    = max( array_merge( $by_hour, [ 1 ] ) );
+		$weekday_max = max( array_merge( $by_weekday, [ 1 ] ) );
+		?>
+		<h3 class="op3pa-show-heading"><?php esc_html_e( 'Mejor hora y día', 'podcast-analytics-for-op3' ); ?></h3>
+		<div class="op3pa-time-charts">
+			<div class="op3pa-time-chart">
+				<p class="op3pa-time-chart-label"><?php esc_html_e( 'Por hora del día', 'podcast-analytics-for-op3' ); ?></p>
+				<div class="op3pa-hbar-chart">
+					<?php foreach ( $by_hour as $hour => $count ) : ?>
+						<div class="op3pa-hbar" data-op3pa-tooltip="<?php echo esc_attr( sprintf( '<strong>%02d:00</strong>: %s', $hour, number_format_i18n( $count ) ) ); ?>">
+							<div class="op3pa-hbar-fill" style="height:<?php echo esc_attr( $hour_max > 0 ? (int) round( $count / $hour_max * 100 ) : 0 ); ?>%"></div>
+							<span class="op3pa-hbar-label"><?php echo esc_html( 0 === $hour % 6 ? sprintf( '%02d', $hour ) : '' ); ?></span>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+			<div class="op3pa-time-chart">
+				<p class="op3pa-time-chart-label"><?php esc_html_e( 'Por día de la semana', 'podcast-analytics-for-op3' ); ?></p>
+				<div class="op3pa-hbar-chart op3pa-hbar-chart-week">
+					<?php foreach ( $by_weekday as $w => $count ) : ?>
+						<div class="op3pa-hbar" data-op3pa-tooltip="<?php echo esc_attr( '<strong>' . $weekday_labels[ $w ] . '</strong>: ' . number_format_i18n( $count ) ); ?>">
+							<div class="op3pa-hbar-fill" style="height:<?php echo esc_attr( $weekday_max > 0 ? (int) round( $count / $weekday_max * 100 ) : 0 ); ?>%"></div>
+							<span class="op3pa-hbar-label"><?php echo esc_html( $weekday_labels[ $w ] ); ?></span>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Returns unique-listener count for a single podcast, routed to the OP3 API
+	 * for public podcasts or the local database for private ones.
+	 *
+	 * @param int       $podcast_i Podcast index.
+	 * @param int|array $period    Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @return int|WP_Error
+	 */
+	private static function get_unique_listeners_for_podcast( int $podcast_i, int|array $period ): int|WP_Error {
+		$podcast = op3pa_get_podcast( $podcast_i );
+		return ! empty( $podcast['private'] )
+			? OP3PA_DB::get_unique_listeners( $period, $podcast_i )
+			: OP3PA_Api::get_unique_listeners( $period, $podcast_i );
+	}
+
+	/**
+	 * Sums unique-listener counts across multiple podcasts (not cross-podcast
+	 * deduplicated — a listener of two shows counts once per show).
+	 *
+	 * @param int|array $period  Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param array     $indexes Podcast indexes to include. Empty = all active.
+	 * @return array ['total' => int, 'has_private' => bool]
+	 */
+	private static function get_combined_unique_listeners( int|array $period, array $indexes = [] ): array {
+		$active = op3pa_get_active_all_podcasts();
+		if ( ! empty( $indexes ) ) {
+			$active = array_intersect_key( $active, array_flip( $indexes ) );
+		}
+
+		$total       = 0;
+		$has_private = false;
+
+		foreach ( $active as $i => $podcast ) {
+			$result = self::get_unique_listeners_for_podcast( $i, $period );
+			if ( is_wp_error( $result ) ) {
+				continue;
+			}
+			$total += $result;
+			if ( ! empty( $podcast['private'] ) ) {
+				$has_private = true;
+			}
+		}
+
+		return [ 'total' => $total, 'has_private' => $has_private ];
+	}
+
+	/**
 	 * Loads the bundled world map SVG and colors each country by its share of
 	 * downloads relative to the busiest country (linear scale, brand blue).
 	 * Countries with no data get a neutral gray fill.
@@ -824,11 +971,23 @@ class OP3PA_Admin {
 		<div id="op3pa-stats-table-wrap">
 
 			<!-- Header: total + all podcast links -->
+			<?php $unique = self::get_combined_unique_listeners( $period, $indexes ); ?>
 			<div class="op3pa-network-header">
 				<div class="op3pa-network-total">
 					<span class="op3pa-net-number"><?php echo esc_html( number_format_i18n( (int) $total ) ); ?></span>
 					<span class="op3pa-net-label"><?php esc_html_e( 'descargas totales', 'podcast-analytics-for-op3' ); ?></span>
 				</div>
+				<?php if ( $unique['total'] > 0 ) : ?>
+				<div class="op3pa-network-total op3pa-network-total-secondary">
+					<span class="op3pa-net-number"><?php echo esc_html( number_format_i18n( $unique['total'] ) ); ?></span>
+					<span class="op3pa-net-label">
+						<?php esc_html_e( 'oyentes únicos', 'podcast-analytics-for-op3' ); ?>
+						<?php if ( $unique['has_private'] ) : ?>
+							<span title="<?php esc_attr_e( 'Aproximado para podcasts privados en periodos superiores a 24h.', 'podcast-analytics-for-op3' ); ?>">*</span>
+						<?php endif; ?>
+					</span>
+				</div>
+				<?php endif; ?>
 				<div class="op3pa-network-links no-print">
 					<?php foreach ( $rows as $row ) : ?>
 						<?php $row_podcast = op3pa_get_podcast( (int) $row['index'] ); ?>
@@ -903,7 +1062,7 @@ class OP3PA_Admin {
 						</tr>
 					</thead>
 					<tbody>
-						<?php foreach ( $all_episodes as $ep ) :
+						<?php foreach ( $all_episodes as $i => $ep ) :
 							$count    = (int) ( $ep['downloads'] ?? 0 );
 							$ep_title = $ep['episodeTitle'] ?? $ep['episodeUrl'] ?? __( '(unknown)', 'podcast-analytics-for-op3' );
 							$ep_url   = $ep['episodeUrl'] ?? '';
@@ -918,7 +1077,7 @@ class OP3PA_Admin {
 							$luminance  = ( 0.299 * $r + 0.587 * $g + 0.114 * $b ) / 255;
 							$text_color = $luminance > 0.5 ? '#1d2327' : '#ffffff';
 						?>
-						<tr>
+						<tr<?php echo $i >= 10 ? ' class="op3pa-row-extra" style="display:none"' : ''; ?>>
 							<td class="column-podcast-tag">
 								<span class="op3pa-podcast-tag" style="background:<?php echo esc_attr( $color ); ?>;color:<?php echo esc_attr( $text_color ); ?>"><?php echo esc_html( $ep['podcast_name'] ); ?></span>
 							</td>
@@ -936,6 +1095,21 @@ class OP3PA_Admin {
 							</td>
 						</tr>
 						<?php endforeach; ?>
+						<?php if ( count( $all_episodes ) > 10 ) : ?>
+						<tr class="op3pa-show-more-row no-print">
+							<td colspan="4">
+								<button type="button" class="button button-secondary op3pa-show-more-btn">
+									<?php
+									printf(
+										/* translators: %d: number of remaining episodes */
+										esc_html__( 'Ver todos (%d más)', 'podcast-analytics-for-op3' ),
+										count( $all_episodes ) - 10
+									);
+									?>
+								</button>
+							</td>
+						</tr>
+						<?php endif; ?>
 					</tbody>
 					<tfoot>
 						<tr>
@@ -949,6 +1123,7 @@ class OP3PA_Admin {
 
 				<?php self::render_app_breakdown( self::get_combined_app_breakdown( $period, $indexes ) ); ?>
 				<?php self::render_country_breakdown( self::get_combined_country_breakdown( $period, $indexes ) ); ?>
+				<?php self::render_time_distribution( self::get_combined_time_distribution( $period, $indexes ) ); ?>
 
 				<p class="op3pa-cache-note no-print">
 					<?php esc_html_e( 'Datos en caché durante 1 hora.', 'podcast-analytics-for-op3' ); ?>
@@ -989,9 +1164,22 @@ class OP3PA_Admin {
 			<?php if ( empty( $rows ) ) : ?>
 				<p><?php esc_html_e( 'No download data available yet.', 'podcast-analytics-for-op3' ); ?></p>
 			<?php else : ?>
+				<?php
+				$unique = self::get_unique_listeners_for_podcast( $podcast_i, $period );
+				if ( ! is_wp_error( $unique ) && $unique > 0 ) :
+					?>
+					<p class="op3pa-unique-listeners">
+						<strong><?php echo esc_html( number_format_i18n( $unique ) ); ?></strong>
+						<?php esc_html_e( 'oyentes únicos', 'podcast-analytics-for-op3' ); ?>
+						<?php if ( ! empty( $podcast['private'] ) ) : ?>
+							<span title="<?php esc_attr_e( 'Aproximado en periodos superiores a 24h.', 'podcast-analytics-for-op3' ); ?>">*</span>
+						<?php endif; ?>
+					</p>
+				<?php endif; ?>
 				<?php self::render_episodes_table( $rows, $total ); ?>
 				<?php self::render_app_breakdown( self::get_app_breakdown_for_podcast( $podcast_i, $period ) ); ?>
 				<?php self::render_country_breakdown( self::get_country_breakdown_for_podcast( $podcast_i, $period ) ); ?>
+				<?php self::render_time_distribution( self::get_time_distribution_for_podcast( $podcast_i, $period ) ); ?>
 				<?php if ( ! empty( $podcast['private'] ) ) : ?>
 					<p class="op3pa-cache-note no-print">
 						<?php esc_html_e( 'Live data from your own tracking endpoint (not cached).', 'podcast-analytics-for-op3' ); ?>
@@ -1033,7 +1221,7 @@ class OP3PA_Admin {
 			<tbody>
 				<?php
 				$max = max( array_column( $rows, 'downloads' ) ?: [ 1 ] );
-				foreach ( $rows as $row ) :
+				foreach ( $rows as $i => $row ) :
 					$count    = (int) ( $row['downloads'] ?? 0 );
 					$ep_title = $row['episodeTitle'] ?? $row['episodeUrl'] ?? __( '(unknown)', 'podcast-analytics-for-op3' );
 					$ep_url   = $row['episodeUrl'] ?? '';
@@ -1044,7 +1232,7 @@ class OP3PA_Admin {
 						$pubdate = $ts ? date_i18n( get_option( 'date_format' ), $ts ) : $pubdate;
 					}
 				?>
-				<tr>
+				<tr<?php echo $i >= 10 ? ' class="op3pa-row-extra" style="display:none"' : ''; ?>>
 					<td class="column-episode">
 						<?php if ( $ep_url ) : ?>
 							<a href="<?php echo esc_url( $ep_url ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $ep_title ); ?></a>
@@ -1059,6 +1247,21 @@ class OP3PA_Admin {
 					</td>
 				</tr>
 				<?php endforeach; ?>
+				<?php if ( count( $rows ) > 10 ) : ?>
+				<tr class="op3pa-show-more-row no-print">
+					<td colspan="3">
+						<button type="button" class="button button-secondary op3pa-show-more-btn">
+							<?php
+							printf(
+								/* translators: %d: number of remaining episodes */
+								esc_html__( 'Ver todos (%d más)', 'podcast-analytics-for-op3' ),
+								count( $rows ) - 10
+							);
+							?>
+						</button>
+					</td>
+				</tr>
+				<?php endif; ?>
 			</tbody>
 			<tfoot>
 				<tr>

@@ -288,6 +288,78 @@ class OP3PA_DB {
 	}
 
 	/**
+	 * Returns downloads grouped by hour-of-day (0-23) and weekday (0=Sun..6=Sat)
+	 * for a private podcast, converted to the site's configured timezone.
+	 * Shaped like OP3PA_Api::get_time_distribution().
+	 *
+	 * @param int|array $period        Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_index Podcast index.
+	 * @return array ['by_hour' => [0..23 => count], 'by_weekday' => [0..6 => count]]
+	 */
+	public static function get_time_distribution( int|array $period, int $podcast_index ): array {
+		global $wpdb;
+		$table = self::table();
+		[ $since, $until ] = self::period_to_range( $period );
+
+		$where_date = null !== $until
+			? $wpdb->prepare( 'downloaded_at BETWEEN %s AND %s', $since, $until )
+			: $wpdb->prepare( 'downloaded_at >= %s', $since );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
+		$timestamps = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT downloaded_at FROM {$table} WHERE podcast_index = %d AND {$where_date}",
+				$podcast_index
+			)
+		);
+
+		$tz         = wp_timezone();
+		$by_hour    = array_fill( 0, 24, 0 );
+		$by_weekday = array_fill( 0, 7, 0 );
+
+		foreach ( $timestamps as $ts ) {
+			try {
+				$dt = new DateTime( $ts, new DateTimeZone( 'UTC' ) );
+				$dt->setTimezone( $tz );
+			} catch ( Exception $e ) {
+				continue;
+			}
+			$by_hour[ (int) $dt->format( 'G' ) ]++;
+			$by_weekday[ (int) $dt->format( 'w' ) ]++;
+		}
+
+		return [ 'by_hour' => $by_hour, 'by_weekday' => $by_weekday ];
+	}
+
+	/**
+	 * Returns the count of unique listeners (distinct IP hash) for a private
+	 * podcast within a period. The hash rotates daily for privacy, so this is
+	 * exact for a 1-day period but may overcount for longer ones (the same
+	 * listener across different days gets a different hash each day).
+	 *
+	 * @param int|array $period        Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_index Podcast index.
+	 * @return int
+	 */
+	public static function get_unique_listeners( int|array $period, int $podcast_index ): int {
+		global $wpdb;
+		$table = self::table();
+		[ $since, $until ] = self::period_to_range( $period );
+
+		$where_date = null !== $until
+			? $wpdb->prepare( 'downloaded_at BETWEEN %s AND %s', $since, $until )
+			: $wpdb->prepare( 'downloaded_at >= %s', $since );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT ip_hash) FROM {$table} WHERE podcast_index = %d AND {$where_date}",
+				$podcast_index
+			)
+		);
+	}
+
+	/**
 	 * Resolves episode titles/URLs/dates by matching the tracked filename-derived
 	 * episode_id against this site's own posts (via their PowerPress 'enclosure'
 	 * postmeta), since we're tracking our own site's episodes, not an external feed.
