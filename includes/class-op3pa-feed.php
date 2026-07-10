@@ -1,10 +1,16 @@
 <?php
 /**
- * Handles adding the OP3 prefix to all audio enclosure URLs in the RSS feed.
+ * Handles rewriting audio enclosure URLs in podcast RSS feeds.
  *
- * The prefix is applied to ALL feeds on the site that contain audio enclosures,
- * regardless of how many podcasts are configured. Private podcasts are excluded
- * by checking their show_uuid against the enclosure URL patterns (best effort).
+ * Public podcasts get the OP3 prefix (https://op3.dev/e/...) for open analytics.
+ * Private podcasts (restricted feeds OP3 cannot access) get rewritten to our own
+ * self-hosted tracking endpoint instead (see OP3PA_Tracker).
+ *
+ * When a podcast has a 'feed_slug' configured, rewriting is scoped strictly to
+ * the matching feed (WordPress's /feed/{slug}/ custom feed, exposed via the
+ * 'feed' query var) — this is required for private podcasts, so their tracking
+ * URLs never leak into other feeds and vice versa. Podcasts without a feed_slug
+ * fall back to the original site-wide behaviour for backward compatibility.
  *
  * @package Podcast_Analytics_For_OP3
  */
@@ -19,11 +25,8 @@ class OP3PA_Feed {
 	private const AUDIO_EXTENSIONS = 'mp3|m4a|ogg|oga|opus|aac|wav|flac';
 
 	public static function init(): void {
-		// With no podcasts configured the prefix still applies to all audio feeds
-		// (bootstrap case: the prefix must exist before OP3 registration is possible).
-		// Skip only when every configured podcast is explicitly marked private.
 		$podcasts = op3pa_get_podcasts();
-		if ( ! empty( $podcasts ) && empty( self::get_prefixable_podcasts() ) ) {
+		if ( ! empty( $podcasts ) && empty( self::get_prefixable_podcasts() ) && empty( self::get_scoped_podcasts() ) ) {
 			return;
 		}
 
@@ -31,16 +34,33 @@ class OP3PA_Feed {
 	}
 
 	/**
-	 * Returns podcasts that should receive the OP3 prefix (not private).
-	 * show_uuid is NOT required — prefix must work before OP3 registration.
+	 * Returns podcasts without a feed_slug that should receive the site-wide
+	 * OP3 prefix fallback (legacy behaviour, not private).
 	 *
 	 * @return array
 	 */
 	private static function get_prefixable_podcasts(): array {
 		return array_filter(
 			op3pa_get_podcasts(),
-			static fn( $p ) => empty( $p['private'] )
+			static fn( $p ) => empty( $p['private'] ) && empty( $p['feed_slug'] )
 		);
+	}
+
+	/**
+	 * Returns podcasts that have a feed_slug configured, keyed by slug.
+	 * These are matched exactly to the current feed request.
+	 *
+	 * @return array
+	 */
+	private static function get_scoped_podcasts(): array {
+		$scoped = [];
+		foreach ( op3pa_get_podcasts() as $i => $podcast ) {
+			if ( ! empty( $podcast['feed_slug'] ) ) {
+				$podcast['index']              = $i;
+				$scoped[ $podcast['feed_slug'] ] = $podcast;
+			}
+		}
+		return $scoped;
 	}
 
 	/**
@@ -62,36 +82,52 @@ class OP3PA_Feed {
 		if ( false === $feed_xml ) {
 			return;
 		}
+		$current_feed_slug = (string) get_query_var( 'feed' );
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- feed XML, not HTML.
-		echo self::rewrite_feed( $feed_xml );
+		echo self::rewrite_feed( $feed_xml, $current_feed_slug );
 	}
 
 	/**
-	 * Rewrites audio URLs in the feed XML adding the OP3 prefix.
+	 * Rewrites audio URLs in the feed XML.
 	 *
-	 * @param string $feed_xml Full RSS XML output.
+	 * @param string $feed_xml           Full RSS XML output.
+	 * @param string $current_feed_slug  The 'feed' query var for this request (e.g. "premiumpp"), or '' for the default feed.
 	 * @return string Modified XML.
 	 */
-	public static function rewrite_feed( string $feed_xml ): string {
-		$podcasts = op3pa_get_podcasts();
-		$prefixable = self::get_prefixable_podcasts();
+	public static function rewrite_feed( string $feed_xml, string $current_feed_slug = '' ): string {
+		$scoped = self::get_scoped_podcasts();
 
-		// Skip only when podcasts are explicitly configured and all are private.
+		// A podcast explicitly claims this feed slug: handle it exclusively (public or private).
+		if ( '' !== $current_feed_slug && isset( $scoped[ $current_feed_slug ] ) ) {
+			$podcast = $scoped[ $current_feed_slug ];
+			return ! empty( $podcast['private'] )
+				? self::rewrite_to_tracker( $feed_xml, (int) $podcast['index'] )
+				: self::rewrite_to_op3( $feed_xml, $podcast['guid'] ?? '' );
+		}
+
+		// This feed isn't claimed by any scoped podcast: legacy site-wide fallback.
+		$prefixable = self::get_prefixable_podcasts();
+		$podcasts   = op3pa_get_podcasts();
 		if ( ! empty( $podcasts ) && empty( $prefixable ) ) {
 			return $feed_xml;
 		}
+		$first = ! empty( $prefixable ) ? reset( $prefixable ) : [];
+		return self::rewrite_to_op3( $feed_xml, $first['guid'] ?? '' );
+	}
 
-		// Use the GUID of the first non-private podcast for attribution (if available).
-		$first   = ! empty( $prefixable ) ? reset( $prefixable ) : [];
-		$guid    = $first['guid'] ?? '';
-		$prefix  = self::OP3_PREFIX;
-		$ext     = self::AUDIO_EXTENSIONS;
+	/**
+	 * Rewrites enclosure URLs with the public OP3 prefix.
+	 *
+	 * @param string $feed_xml Feed XML.
+	 * @param string $guid     Podcast GUID for OP3 attribution (optional).
+	 * @return string
+	 */
+	private static function rewrite_to_op3( string $feed_xml, string $guid ): string {
+		$prefix     = self::OP3_PREFIX;
+		$ext        = self::AUDIO_EXTENSIONS;
+		$guid_param = ! empty( $guid ) ? '?_from=' . rawurlencode( $guid ) : '';
 
-		$guid_param = ! empty( $guid )
-			? '?_from=' . rawurlencode( $guid )
-			: '';
-
-		$feed_xml = preg_replace_callback(
+		return preg_replace_callback(
 			'/(url=["\'])(https?:\/\/)([^\s"\']+?\.(' . $ext . ')(\?[^"\']*)?)(["\'"])/i',
 			function ( array $m ) use ( $prefix, $guid_param ): string {
 				if ( str_contains( $m[2] . $m[3], 'op3.dev/e/' ) ) {
@@ -102,8 +138,42 @@ class OP3PA_Feed {
 			},
 			$feed_xml
 		);
+	}
 
-		return $feed_xml;
+	/**
+	 * Rewrites enclosure URLs to our own tracking endpoint (private podcasts).
+	 *
+	 * @param string $feed_xml      Feed XML.
+	 * @param int    $podcast_index Podcast index, embedded in the tracked URL.
+	 * @return string
+	 */
+	private static function rewrite_to_tracker( string $feed_xml, int $podcast_index ): string {
+		$ext = self::AUDIO_EXTENSIONS;
+
+		return preg_replace_callback(
+			'/(url=["\'])(https?:\/\/)([^\s"\']+?\.(' . $ext . ')(\?[^"\']*)?)(["\'"])/i',
+			function ( array $m ) use ( $podcast_index ): string {
+				$original_url = $m[2] . $m[3];
+				if ( str_contains( $original_url, '/op3-dl/' ) ) {
+					return $m[0];
+				}
+				$episode_id = self::derive_episode_id( $original_url );
+				$tracked    = OP3PA_Tracker::build_tracked_url( $podcast_index, $episode_id, $original_url );
+				return $m[1] . $tracked . $m[6];
+			},
+			$feed_xml
+		);
+	}
+
+	/**
+	 * Derives a stable episode identifier from the audio filename.
+	 *
+	 * @param string $url Original audio URL.
+	 * @return string
+	 */
+	private static function derive_episode_id( string $url ): string {
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+		return strtolower( pathinfo( $path, PATHINFO_FILENAME ) );
 	}
 
 	/**

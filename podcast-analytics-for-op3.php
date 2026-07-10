@@ -27,6 +27,8 @@ define( 'OP3PA_OPTION_TOKEN', 'op3pa_bearer_token' );
 require_once OP3PA_DIR . 'includes/class-op3pa-feed.php';
 require_once OP3PA_DIR . 'includes/class-op3pa-api.php';
 require_once OP3PA_DIR . 'includes/class-op3pa-admin.php';
+require_once OP3PA_DIR . 'includes/class-op3pa-db.php';
+require_once OP3PA_DIR . 'includes/class-op3pa-tracker.php';
 
 /**
  * Returns the global bearer token.
@@ -60,6 +62,7 @@ function op3pa_get_podcast( int $index = 0 ): array {
 		'private'   => false,
 		'guid'      => '',
 		'show_uuid' => '',
+		'feed_slug' => '',
 	];
 	return wp_parse_args( $podcasts[ $index ] ?? [], $defaults );
 }
@@ -85,9 +88,42 @@ function op3pa_get_active_podcasts(): array {
 	return $active;
 }
 
+/**
+ * Returns only podcasts that are private and self-tracked (feed_slug configured).
+ * Their stats come from the local database instead of the OP3 API.
+ *
+ * @return array  Keys are original indexes.
+ */
+function op3pa_get_active_private_podcasts(): array {
+	$active = [];
+	foreach ( op3pa_get_podcasts() as $i => $podcast ) {
+		$p = wp_parse_args( $podcast, [
+			'name'      => '',
+			'enabled'   => false,
+			'private'   => false,
+			'feed_slug' => '',
+		] );
+		if ( ! empty( $p['private'] ) && ! empty( $p['feed_slug'] ) ) {
+			$active[ $i ] = $p;
+		}
+	}
+	return $active;
+}
+
+/**
+ * Returns all active podcasts, public and private, keyed by their original index.
+ *
+ * @return array
+ */
+function op3pa_get_active_all_podcasts(): array {
+	return op3pa_get_active_podcasts() + op3pa_get_active_private_podcasts();
+}
+
 // Bootstrap.
 add_action( 'plugins_loaded', [ 'OP3PA_Feed', 'init' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_Admin', 'init' ] );
+add_action( 'plugins_loaded', [ 'OP3PA_Tracker', 'init' ] );
+add_action( 'plugins_loaded', [ 'OP3PA_DB', 'maybe_upgrade' ] );
 add_action( 'plugins_loaded', 'op3pa_maybe_migrate' );
 
 register_activation_hook( __FILE__, 'op3pa_activate' );
@@ -98,6 +134,7 @@ function op3pa_activate(): void {
 		add_option( OP3PA_OPTION, [] );
 	}
 	op3pa_maybe_migrate();
+	OP3PA_DB::maybe_upgrade();
 }
 
 /**

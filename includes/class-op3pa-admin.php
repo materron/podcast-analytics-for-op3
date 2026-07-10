@@ -113,7 +113,7 @@ class OP3PA_Admin {
 			true
 		);
 
-		$active   = op3pa_get_active_podcasts();
+		$active   = op3pa_get_active_all_podcasts();
 		$podcasts = [];
 		foreach ( $active as $i => $p ) {
 			$podcasts[] = [
@@ -173,6 +173,7 @@ class OP3PA_Admin {
 					'name'      => sanitize_text_field( wp_unslash( $raw['name']      ?? '' ) ),
 					'show_uuid' => sanitize_text_field( wp_unslash( $raw['show_uuid'] ?? '' ) ),
 					'guid'      => sanitize_text_field( wp_unslash( $raw['guid']      ?? '' ) ),
+					'feed_slug' => sanitize_title( wp_unslash( $raw['feed_slug']  ?? '' ) ),
 					'color'     => sanitize_hex_color( $raw['color'] ?? '' ) ?: '#0066cc',
 					'private'   => ! empty( $raw['private'] ),
 					'enabled'   => true,
@@ -202,7 +203,7 @@ class OP3PA_Admin {
 
 		// Ensure at least one empty row for new installs.
 		if ( empty( $podcasts ) ) {
-			$podcasts = [ [ 'name' => '', 'show_uuid' => '', 'guid' => '', 'private' => false, 'enabled' => true ] ];
+			$podcasts = [ [ 'name' => '', 'show_uuid' => '', 'guid' => '', 'feed_slug' => '', 'private' => false, 'enabled' => true ] ];
 		}
 		?>
 		<div class="wrap op3pa-wrap">
@@ -239,7 +240,7 @@ class OP3PA_Admin {
 
 				<h2><?php esc_html_e( 'Podcasts', 'podcast-analytics-for-op3' ); ?></h2>
 				<p class="description">
-					<?php esc_html_e( 'Añade una fila por cada podcast. El Show UUID lo encontrarás en la URL de tu página de estadísticas en OP3 (https://op3.dev/show/{uuid}). El Podcast GUID es opcional y acelera la atribución. Los podcasts marcados como privados no tendrán el prefijo OP3 y no aparecerán en las estadísticas.', 'podcast-analytics-for-op3' ); ?>
+					<?php esc_html_e( 'Añade una fila por cada podcast. El Show UUID lo encontrarás en la URL de tu página de estadísticas en OP3 (https://op3.dev/show/{uuid}). El Podcast GUID es opcional y acelera la atribución. El Feed slug (ej. "premiumpp" para /feed/premiumpp/) es obligatorio para podcasts privados, y opcional para públicos con más de un canal. Los podcasts marcados como privados no tendrán el prefijo OP3, sino un endpoint propio de seguimiento, y sus estadísticas se calculan desde tu propia base de datos.', 'podcast-analytics-for-op3' ); ?>
 				</p>
 
 				<table class="wp-list-table widefat fixed op3pa-podcasts-table" id="op3pa-podcasts-table">
@@ -248,6 +249,7 @@ class OP3PA_Admin {
 							<th><?php esc_html_e( 'Nombre', 'podcast-analytics-for-op3' ); ?></th>
 							<th><?php esc_html_e( 'Show UUID', 'podcast-analytics-for-op3' ); ?></th>
 							<th><?php esc_html_e( 'Podcast GUID (opcional)', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Feed slug', 'podcast-analytics-for-op3' ); ?></th>
 							<th class="col-color"><?php esc_html_e( 'Color', 'podcast-analytics-for-op3' ); ?></th>
 							<th class="col-private"><?php esc_html_e( 'Privado', 'podcast-analytics-for-op3' ); ?></th>
 							<th class="col-remove"></th>
@@ -313,6 +315,11 @@ class OP3PA_Admin {
 					value="<?php echo esc_attr( $podcast['guid'] ?? '' ); ?>"
 					class="regular-text" placeholder="<?php esc_attr_e( 'opcional', 'podcast-analytics-for-op3' ); ?>" />
 			</td>
+			<td>
+				<input type="text" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][feed_slug]"
+					value="<?php echo esc_attr( $podcast['feed_slug'] ?? '' ); ?>"
+					class="regular-text" placeholder="premiumpp" />
+			</td>
 			<td class="col-color">
 				<input type="color" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][color]"
 					value="<?php echo esc_attr( $color ); ?>" />
@@ -340,6 +347,7 @@ class OP3PA_Admin {
 			<td><input type="text" name="op3pa_podcasts[__INDEX__][name]" class="regular-text" placeholder="<?php esc_attr_e( 'Mi Podcast', 'podcast-analytics-for-op3' ); ?>" /></td>
 			<td><input type="text" name="op3pa_podcasts[__INDEX__][show_uuid]" class="regular-text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></td>
 			<td><input type="text" name="op3pa_podcasts[__INDEX__][guid]" class="regular-text" placeholder="<?php esc_attr_e( 'opcional', 'podcast-analytics-for-op3' ); ?>" /></td>
+			<td><input type="text" name="op3pa_podcasts[__INDEX__][feed_slug]" class="regular-text" placeholder="premiumpp" /></td>
 			<td class="col-color"><input type="color" name="op3pa_podcasts[__INDEX__][color]" value="#0066cc" /></td>
 			<td class="col-private"><input type="checkbox" name="op3pa_podcasts[__INDEX__][private]" value="1" /></td>
 			<td class="col-remove"><button type="button" class="button-link op3pa-remove-row" aria-label="<?php esc_attr_e( 'Eliminar', 'podcast-analytics-for-op3' ); ?>">✕</button></td>
@@ -357,7 +365,7 @@ class OP3PA_Admin {
 			return;
 		}
 
-		$active = op3pa_get_active_podcasts();
+		$active = op3pa_get_active_all_podcasts();
 		?>
 		<div class="wrap op3pa-wrap" id="op3pa-stats-wrap">
 			<h1>
@@ -430,13 +438,71 @@ class OP3PA_Admin {
 	}
 
 	/**
+	 * Returns episode counts for a single podcast, routed to the OP3 API for
+	 * public podcasts or to the local database for private (self-tracked) ones.
+	 *
+	 * @param int $podcast_i Podcast index.
+	 * @param int $days      Period in days.
+	 * @return array|WP_Error
+	 */
+	private static function get_counts_for_podcast( int $podcast_i, int $days ): array|WP_Error {
+		$podcast = op3pa_get_podcast( $podcast_i );
+		return ! empty( $podcast['private'] )
+			? OP3PA_DB::get_download_counts( $days, $podcast_i )
+			: OP3PA_Api::get_download_counts( $days, $podcast_i );
+	}
+
+	/**
+	 * Aggregates counts across public and private podcasts alike, routing each
+	 * to the correct backend. Shaped like OP3PA_Api::get_network_counts().
+	 *
+	 * @param int   $days    Period in days.
+	 * @param array $indexes Podcast indexes to include. Empty = all active (public + private).
+	 * @return array ['rows' => [...], 'total' => int]
+	 */
+	private static function get_combined_network( int $days, array $indexes = [] ): array {
+		$active = op3pa_get_active_all_podcasts();
+		if ( ! empty( $indexes ) ) {
+			$active = array_intersect_key( $active, array_flip( $indexes ) );
+		}
+
+		$rows  = [];
+		$total = 0;
+
+		foreach ( $active as $i => $podcast ) {
+			$result = self::get_counts_for_podcast( $i, $days );
+			if ( is_wp_error( $result ) ) {
+				continue;
+			}
+			$sum    = array_sum( array_column( $result['rows'], 'downloads' ) );
+			$total += $sum;
+
+			$rows[] = [
+				'index'     => $i,
+				'name'      => $podcast['name'] ?: sprintf(
+					/* translators: %d: podcast number */
+					__( 'Podcast %d', 'podcast-analytics-for-op3' ),
+					$i + 1
+				),
+				'color'     => ! empty( $podcast['color'] ) ? $podcast['color'] : '#0066cc',
+				'downloads' => $sum,
+				'episodes'  => $result['rows'],
+			];
+		}
+
+		usort( $rows, fn( $a, $b ) => $b['downloads'] <=> $a['downloads'] );
+
+		return compact( 'rows', 'total' );
+	}
+
+	/**
 	 * Renders the network (multi-podcast aggregate) stats table.
 	 *
 	 * @param int   $days    Period in days.
 	 * @param array $indexes Podcast indexes to include. Empty = all.
 	 */
 	private static function render_network_table( int $days, array $indexes = [] ): void {
-		$result = OP3PA_Api::get_network_counts( $days, $indexes );
+		$result = self::get_combined_network( $days, $indexes );
 
 		if ( is_wp_error( $result ) ) {
 			echo '<div class="notice notice-error inline"><p>' . esc_html( $result->get_error_message() ) . '</p></div>';
@@ -456,9 +522,16 @@ class OP3PA_Admin {
 				</div>
 				<div class="op3pa-network-links no-print">
 					<?php foreach ( $rows as $row ) : ?>
-					<a href="<?php echo esc_url( OP3PA_Api::get_stats_page_url( (int) $row['index'] ) ); ?>" target="_blank" rel="noopener" class="op3pa-network-link">
-						<?php echo esc_html( $row['name'] ); ?> ↗OP3
-					</a>
+						<?php $row_podcast = op3pa_get_podcast( (int) $row['index'] ); ?>
+						<?php if ( ! empty( $row_podcast['private'] ) ) : ?>
+						<span class="op3pa-network-link op3pa-network-link-private">
+							<?php echo esc_html( $row['name'] ); ?> 🔒
+						</span>
+						<?php else : ?>
+						<a href="<?php echo esc_url( OP3PA_Api::get_stats_page_url( (int) $row['index'] ) ); ?>" target="_blank" rel="noopener" class="op3pa-network-link">
+							<?php echo esc_html( $row['name'] ); ?> ↗OP3
+						</a>
+						<?php endif; ?>
 					<?php endforeach; ?>
 				</div>
 			</div>
@@ -580,7 +653,7 @@ class OP3PA_Admin {
 	 * @param int $podcast_i Podcast index.
 	 */
 	private static function render_single_table( int $days, int $podcast_i ): void {
-		$result = OP3PA_Api::get_download_counts( $days, $podcast_i );
+		$result = self::get_counts_for_podcast( $podcast_i, $days );
 
 		if ( is_wp_error( $result ) ) {
 			echo '<div class="notice notice-error inline"><p>' . esc_html( $result->get_error_message() ) . '</p></div>';
@@ -605,17 +678,23 @@ class OP3PA_Admin {
 				<p><?php esc_html_e( 'No download data available yet.', 'podcast-analytics-for-op3' ); ?></p>
 			<?php else : ?>
 				<?php self::render_episodes_table( $rows, $total ); ?>
-				<p class="op3pa-cache-note no-print">
-					<?php
-					printf(
-						/* translators: %s: link to OP3 */
-						esc_html__( 'Data cached for 1 hour. %s', 'podcast-analytics-for-op3' ),
-						'<a href="' . esc_url( OP3PA_Api::get_stats_page_url( $podcast_i ) ) . '" target="_blank" rel="noopener">'
-						. esc_html__( 'View detailed breakdown on OP3 →', 'podcast-analytics-for-op3' )
-						. '</a>'
-					);
-					?>
-				</p>
+				<?php if ( ! empty( $podcast['private'] ) ) : ?>
+					<p class="op3pa-cache-note no-print">
+						<?php esc_html_e( 'Live data from your own tracking endpoint (not cached).', 'podcast-analytics-for-op3' ); ?>
+					</p>
+				<?php else : ?>
+					<p class="op3pa-cache-note no-print">
+						<?php
+						printf(
+							/* translators: %s: link to OP3 */
+							esc_html__( 'Data cached for 1 hour. %s', 'podcast-analytics-for-op3' ),
+							'<a href="' . esc_url( OP3PA_Api::get_stats_page_url( $podcast_i ) ) . '" target="_blank" rel="noopener">'
+							. esc_html__( 'View detailed breakdown on OP3 →', 'podcast-analytics-for-op3' )
+							. '</a>'
+						);
+						?>
+					</p>
+				<?php endif; ?>
 			<?php endif; ?>
 		</div>
 		<?php
@@ -726,7 +805,7 @@ class OP3PA_Admin {
 	// -------------------------------------------------------------------------
 
 	public static function register_dashboard_widget(): void {
-		$active = op3pa_get_active_podcasts();
+		$active = op3pa_get_active_all_podcasts();
 		if ( empty( $active ) ) {
 			return;
 		}
@@ -739,7 +818,7 @@ class OP3PA_Admin {
 	}
 
 	public static function render_dashboard_widget(): void {
-		$active = op3pa_get_active_podcasts();
+		$active = op3pa_get_active_all_podcasts();
 
 		if ( empty( $active ) ) {
 			printf(
@@ -754,7 +833,7 @@ class OP3PA_Admin {
 			return;
 		}
 
-		$result = OP3PA_Api::get_network_counts( 7 );
+		$result = self::get_combined_network( 7 );
 		if ( is_wp_error( $result ) ) {
 			echo '<p class="op3pa-error">' . esc_html( $result->get_error_message() ) . '</p>';
 			return;
