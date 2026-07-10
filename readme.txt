@@ -2,7 +2,7 @@
 Contributors: materron
 Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
-Tested up to: 6.9
+Tested up to: 7.0.1
 Requires PHP: 8.0
 Stable tag: 2.2.0
 License: GPLv2 or later
