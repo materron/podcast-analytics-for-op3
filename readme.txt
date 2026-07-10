@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,9 @@ Integrate OP3 open podcast analytics with WordPress: prefix your feed automatica
 * **Dashboard widget** — Shows your podcast's downloads for the last 7 days directly on the WordPress dashboard.
 * **Statistics page** — A dedicated admin page with download counts per episode, switchable between last 24 hours, 7 days, and 30 days.
 * **Private podcast support** — Podcasts behind a restricted/password-protected feed (e.g. with Restrict Content Pro) get their own self-hosted download-tracking endpoint instead of the OP3 prefix, since OP3 cannot access authenticated feeds by design. Statistics for private podcasts are calculated from your own database and shown alongside your public podcasts.
+* **Apps & devices breakdown** — See which podcast apps (Spotify, Apple Podcasts, Overcast...) your listeners use, for both public and private podcasts.
+* **Country map** — A world map colored by download volume, plus a ranked country list, for both public and private podcasts (private podcasts require a free MaxMind GeoLite2 license key).
+* **Custom date range** — Pick any "from/to" range for your stats, in addition to the quick 24h/7d/30d tabs.
 
 = How the OP3 prefix works =
 
@@ -88,16 +91,50 @@ Yes, if you own all the podcasts. The bearer token is tied to your OP3 identity,
 
 Yes, since v2.1.0. Mark the podcast as "Privado" in the settings and set its Feed slug (the `/feed/{slug}/` part of your restricted feed's URL). The plugin will route its downloads through a self-hosted tracking endpoint on your own site instead of the OP3 prefix, and its statistics will appear alongside your public podcasts. Downloads are logged without ever storing raw IP addresses (only a daily-rotating salted hash).
 
+= Does the country map work for private podcasts too? =
+
+Yes, but it requires a free MaxMind GeoLite2 license key (sign up at [maxmind.com/en/geolite2/signup](https://www.maxmind.com/en/geolite2/signup)), added in **OP3 Analytics → Settings**. Public podcasts get country data directly from the OP3 API and don't need this. The plugin never stores raw IP addresses — it resolves the country at the moment of the download and discards the IP immediately.
+
+== External Services ==
+
+This plugin connects to two external services. Both are optional in the sense that the plugin's core feature (the feed prefix) works without any account, but statistics require them.
+
+= OP3 (op3.dev) =
+
+Used for public podcasts: the feed prefix and the statistics API.
+
+* **What it's for:** Adds an anonymous download-tracking prefix to your public podcast feed enclosures, and retrieves the resulting download counts, per-episode data, apps/devices, and country/region breakdown for the Statistics page and Dashboard widget.
+* **What is sent and when:** When a listener downloads a podcast episode, their request passes through `op3.dev` before reaching your audio file — OP3 logs anonymised request data (no raw IP addresses are stored by OP3). Separately, when you view the Statistics page or Dashboard widget, the plugin makes an authenticated request to the OP3 API (`op3.dev/api/1/`) using your bearer token to retrieve this data. No personal data from your WordPress site (user accounts, post content, etc.) is sent to OP3.
+* **Service URL:** [https://op3.dev](https://op3.dev)
+* **Terms of Service:** [https://op3.dev/terms](https://op3.dev/terms)
+* **Privacy Policy:** [https://op3.dev/privacy](https://op3.dev/privacy)
+
+= MaxMind GeoLite2 (optional, private podcasts only) =
+
+Only used if you mark a podcast as private AND enter a MaxMind license key in the plugin settings. Public podcasts never use this service (they already get country data from OP3).
+
+* **What it's for:** Resolves the country of a private podcast's listeners from their IP address, using a local country-ranges database built from MaxMind's free GeoLite2 data.
+* **What is sent and when:** Once (and periodically, weekly, to keep the data current), the plugin downloads the GeoLite2 Country CSV database from MaxMind's servers using your license key. No visitor data is ever sent to MaxMind — the lookup happens entirely on your own server against the locally stored database, and the raw IP address is never stored, only a country code and a daily-rotating salted hash used to deduplicate listeners.
+* **Service URL:** [https://www.maxmind.com](https://www.maxmind.com)
+* **Terms of Service:** [https://www.maxmind.com/en/end-user-license-agreement](https://www.maxmind.com/en/end-user-license-agreement)
+* **Privacy Policy:** [https://www.maxmind.com/en/privacy-policy](https://www.maxmind.com/en/privacy-policy)
+
 == Privacy Policy ==
 
-This plugin sends data to the external service **op3.dev** in two ways:
+No data is collected from your site's visitors beyond what is described in the External Services section above. IP addresses are never stored in raw form by this plugin — only a daily-rotating salted hash (for private-podcast unique-listener deduplication) and, when GeoLite2 is configured, a resolved country code.
 
-1. **Feed prefix** — When a listener downloads a podcast episode, their request passes through `op3.dev` before reaching your audio file. OP3 logs anonymised request data (no raw IP addresses). See [OP3 Privacy Policy](https://op3.dev/privacy).
-2. **Statistics API** — When you view the Statistics page or Dashboard widget, the plugin makes an authenticated request to the OP3 API (`op3.dev/api/1/`) to retrieve download counts for your show. No user data from your WordPress site is sent to OP3.
+== Credits ==
 
-No data is collected from your site's visitors beyond what OP3 records as part of the redirect.
+The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.2.0 =
+* New: apps & devices breakdown, for both public podcasts (from OP3's per-download data) and private ones (detected from the User-Agent).
+* New: country map and ranked list, colored by download volume. Public podcasts get country data directly from OP3; private podcasts need a free MaxMind GeoLite2 license key (added in Settings).
+* New: custom date range picker (desde/hasta) alongside the 24h/7d/30d tabs, for both public and private podcasts.
+* Changed: default statistics period is now 24h instead of 30 days, so the page loads faster by default.
+* Fixed: an AJAX race condition where rapidly toggling the podcast selector could show a stale result if an earlier request resolved after a newer one.
 
 = 2.1.0 =
 * New: private podcast support. Podcasts behind a restricted/password-protected feed (e.g. Restrict Content Pro) can now be marked as private with a Feed slug, routing their downloads through a self-hosted tracking endpoint instead of the OP3 prefix (which cannot access authenticated feeds). Statistics for private podcasts are calculated from your own database, with episode titles resolved from your own posts, and shown alongside your public podcasts in the same network view.
