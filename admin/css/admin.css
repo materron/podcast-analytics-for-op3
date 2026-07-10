@@ -7,12 +7,20 @@
 
 /* ── Settings — podcasts table ───────────────────── */
 .op3pa-podcasts-table th, .op3pa-podcasts-table td { vertical-align: middle; }
+.op3pa-podcasts-table input[type="text"] { width: 100%; box-sizing: border-box; }
 .op3pa-podcasts-table .col-color   { width: 60px; text-align: center; }
 .op3pa-podcasts-table .col-private { width: 70px; text-align: center; }
 .op3pa-podcasts-table .col-remove  { width: 40px; text-align: center; }
 .op3pa-podcasts-table input[type="color"] { width: 40px; height: 28px; padding: 2px; border: 1px solid #c3c4c7; border-radius: 4px; cursor: pointer; }
 .op3pa-remove-row { color: #d63638; font-size: 16px; cursor: pointer; }
 .op3pa-remove-row:hover { color: #a00; }
+.op3pa-podcasts-table input.op3pa-field-disabled {
+	color: #a7aaad !important;
+	background: #e2e4e7 !important;
+	border-color: #c3c4c7 !important;
+	cursor: not-allowed !important;
+	pointer-events: none !important;
+}
 
 /* ── Stats header ─────────────────────────────────── */
 .op3pa-stats-header { display: flex; align-items: center; gap: 10px; margin: 16px 0 20px; flex-wrap: wrap; }

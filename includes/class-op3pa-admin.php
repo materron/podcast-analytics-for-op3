@@ -280,10 +280,27 @@ class OP3PA_Admin {
 			var tpl   = <?php echo wp_json_encode( self::get_row_template() ); ?>;
 			var html  = tpl.replace(/__INDEX__/g, index);
 			tbody.insertAdjacentHTML('beforeend', html);
+			op3paUpdateRowPrivacy( tbody.lastElementChild );
 		});
 		document.getElementById('op3pa-podcasts-body').addEventListener('click', function(e) {
 			if ( e.target.classList.contains('op3pa-remove-row') ) {
 				e.target.closest('tr').remove();
+			}
+		});
+
+		/* Toggle UUID/GUID vs Feed slug depending on the "Privado" checkbox. */
+		function op3paUpdateRowPrivacy( row ) {
+			var isPrivate = row.querySelector('.col-private input[type="checkbox"]').checked;
+			var uuid = row.querySelector('input[name$="[show_uuid]"]');
+			var guid = row.querySelector('input[name$="[guid]"]');
+			var slug = row.querySelector('input[name$="[feed_slug]"]');
+			[ uuid, guid ].forEach( function( el ) { el.classList.toggle( 'op3pa-field-disabled', isPrivate ); } );
+			slug.classList.toggle( 'op3pa-field-disabled', ! isPrivate );
+		}
+		document.querySelectorAll( '#op3pa-podcasts-body .op3pa-podcast-row' ).forEach( op3paUpdateRowPrivacy );
+		document.getElementById('op3pa-podcasts-body').addEventListener('change', function(e) {
+			if ( e.target.matches('.col-private input[type="checkbox"]') ) {
+				op3paUpdateRowPrivacy( e.target.closest('tr') );
 			}
 		});
 		</script>
@@ -318,7 +335,7 @@ class OP3PA_Admin {
 			<td>
 				<input type="text" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][feed_slug]"
 					value="<?php echo esc_attr( $podcast['feed_slug'] ?? '' ); ?>"
-					class="regular-text" placeholder="premiumpp" />
+					class="regular-text" placeholder="<?php esc_attr_e( 'ej: mi-canal-privado', 'podcast-analytics-for-op3' ); ?>" />
 			</td>
 			<td class="col-color">
 				<input type="color" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][color]"
@@ -347,7 +364,7 @@ class OP3PA_Admin {
 			<td><input type="text" name="op3pa_podcasts[__INDEX__][name]" class="regular-text" placeholder="<?php esc_attr_e( 'Mi Podcast', 'podcast-analytics-for-op3' ); ?>" /></td>
 			<td><input type="text" name="op3pa_podcasts[__INDEX__][show_uuid]" class="regular-text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></td>
 			<td><input type="text" name="op3pa_podcasts[__INDEX__][guid]" class="regular-text" placeholder="<?php esc_attr_e( 'opcional', 'podcast-analytics-for-op3' ); ?>" /></td>
-			<td><input type="text" name="op3pa_podcasts[__INDEX__][feed_slug]" class="regular-text" placeholder="premiumpp" /></td>
+			<td><input type="text" name="op3pa_podcasts[__INDEX__][feed_slug]" class="regular-text" placeholder="<?php esc_attr_e( 'ej: mi-canal-privado', 'podcast-analytics-for-op3' ); ?>" /></td>
 			<td class="col-color"><input type="color" name="op3pa_podcasts[__INDEX__][color]" value="#0066cc" /></td>
 			<td class="col-private"><input type="checkbox" name="op3pa_podcasts[__INDEX__][private]" value="1" /></td>
 			<td class="col-remove"><button type="button" class="button-link op3pa-remove-row" aria-label="<?php esc_attr_e( 'Eliminar', 'podcast-analytics-for-op3' ); ?>">✕</button></td>

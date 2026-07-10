@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.0.8
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,6 +19,7 @@ Integrate OP3 open podcast analytics with WordPress: prefix your feed automatica
 * **Automatic feed prefix** — Adds `https://op3.dev/e/` before every audio enclosure URL in your RSS feed. Works with PowerPress (Blubrry), Seriously Simple Podcasting, Podlove, and any plugin that generates a standard RSS2 podcast feed.
 * **Dashboard widget** — Shows your podcast's downloads for the last 7 days directly on the WordPress dashboard.
 * **Statistics page** — A dedicated admin page with download counts per episode, switchable between last 24 hours, 7 days, and 30 days.
+* **Private podcast support** — Podcasts behind a restricted/password-protected feed (e.g. with Restrict Content Pro) get their own self-hosted download-tracking endpoint instead of the OP3 prefix, since OP3 cannot access authenticated feeds by design. Statistics for private podcasts are calculated from your own database and shown alongside your public podcasts.
 
 = How the OP3 prefix works =
 
@@ -83,6 +84,10 @@ OP3 data is updated daily. If you just enabled the prefix, wait 24 hours for the
 
 Yes, if you own all the podcasts. The bearer token is tied to your OP3 identity, not to a specific show. Each site needs its own Show UUID configured.
 
+= I have a private/restricted podcast feed. Can I still get statistics? =
+
+Yes, since v2.1.0. Mark the podcast as "Privado" in the settings and set its Feed slug (the `/feed/{slug}/` part of your restricted feed's URL). The plugin will route its downloads through a self-hosted tracking endpoint on your own site instead of the OP3 prefix, and its statistics will appear alongside your public podcasts. Downloads are logged without ever storing raw IP addresses (only a daily-rotating salted hash).
+
 == Privacy Policy ==
 
 This plugin sends data to the external service **op3.dev** in two ways:
@@ -93,6 +98,11 @@ This plugin sends data to the external service **op3.dev** in two ways:
 No data is collected from your site's visitors beyond what OP3 records as part of the redirect.
 
 == Changelog ==
+
+= 2.1.0 =
+* New: private podcast support. Podcasts behind a restricted/password-protected feed (e.g. Restrict Content Pro) can now be marked as private with a Feed slug, routing their downloads through a self-hosted tracking endpoint instead of the OP3 prefix (which cannot access authenticated feeds). Statistics for private podcasts are calculated from your own database, with episode titles resolved from your own posts, and shown alongside your public podcasts in the same network view.
+* Fixed: the OP3 prefix rewrite is now scoped per feed (via the new Feed slug setting) instead of applying site-wide, preventing a public podcast's prefix from leaking into other feeds on multi-podcast sites.
+* Settings page: fields not relevant to a podcast's public/private status (Show UUID/GUID vs. Feed slug) are now visually disabled to reduce confusion.
 
 = 2.0.8 =
 * Fixed: feed prefix now applies immediately after activation, even before configuring a Show UUID. The prefix only stops when all configured podcasts are explicitly marked as private.
