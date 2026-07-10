@@ -129,45 +129,45 @@ The world map used in the country statistics (`admin/img/world-map.svg`) is base
 
 == Changelog ==
 
-= 2.2.0 =
+= 2.2.0 (2026-07-10) =
 * New: apps & devices breakdown, for both public podcasts (from OP3's per-download data) and private ones (detected from the User-Agent).
 * New: country map and ranked list, colored by download volume. Public podcasts get country data directly from OP3; private podcasts need a free MaxMind GeoLite2 license key (added in Settings).
 * New: custom date range picker (desde/hasta) alongside the 24h/7d/30d tabs, for both public and private podcasts.
 * Changed: default statistics period is now 24h instead of 30 days, so the page loads faster by default.
 * Fixed: an AJAX race condition where rapidly toggling the podcast selector could show a stale result if an earlier request resolved after a newer one.
 
-= 2.1.0 =
+= 2.1.0 (2026-07-10) =
 * New: private podcast support. Podcasts behind a restricted/password-protected feed (e.g. Restrict Content Pro) can now be marked as private with a Feed slug, routing their downloads through a self-hosted tracking endpoint instead of the OP3 prefix (which cannot access authenticated feeds). Statistics for private podcasts are calculated from your own database, with episode titles resolved from your own posts, and shown alongside your public podcasts in the same network view.
 * Fixed: the OP3 prefix rewrite is now scoped per feed (via the new Feed slug setting) instead of applying site-wide, preventing a public podcast's prefix from leaking into other feeds on multi-podcast sites.
 * Settings page: fields not relevant to a podcast's public/private status (Show UUID/GUID vs. Feed slug) are now visually disabled to reduce confusion.
 
-= 2.0.8 =
+= 2.0.8 (2026-04-30) =
 * Fixed: feed prefix now applies immediately after activation, even before configuring a Show UUID. The prefix only stops when all configured podcasts are explicitly marked as private.
 
-= 2.0.6 =
+= 2.0.6 (2026-04-07) =
 * Episode publish date now shown in statistics tables (formatted according to WordPress date settings).
 * Episode titles now resolved universally for all podcast hosts using the episodeId field from OP3 download data.
 * Fallback title resolution by itemGuid for PrestoCast-style hosts.
 
-= 2.0.5 =
+= 2.0.5 (2026-04-07) =
 * Improved episode title resolution: cross-references OP3 episodeId from download rows with episode list from show endpoint, making titles work reliably for all podcast hosts.
 
-= 2.0.4 =
+= 2.0.4 (2026-04-07) =
 * Episode titles now fetched from OP3 show endpoint and matched against audio filenames (itemGuid strategy for PrestoCast).
 
-= 2.0.3 =
+= 2.0.3 (2026-04-07) =
 * Fixed dashboard widget pagination (left/right arrows between podcasts).
 * Added episode title enrichment from OP3 show info endpoint.
 
-= 2.0.2 =
+= 2.0.2 (2026-04-06) =
 * Fixed statistics page rendering: initial table now renders inside #op3pa-stats-container so period/podcast changes correctly replace it via AJAX.
 
-= 2.0.1 =
+= 2.0.1 (2026-04-06) =
 * Network view: episodes from all podcasts now shown in a single merged table sorted by downloads, with a Podcast column identifying each episode's show.
 * Network header now shows all podcast names with individual links to their OP3 stats pages.
 * Settings page texts improved with clearer Spanish descriptions for all fields.
 
-= 2.0.0 =
+= 2.0.0 (2026-04-06) =
 * Multi-podcast support: configure any number of podcasts, each with name, Show UUID and optional Podcast GUID.
 * Global bearer token: a single token covers all configured podcasts.
 * Private podcast flag: private podcasts are excluded from the OP3 prefix and from statistics.
@@ -177,11 +177,11 @@ The world map used in the country statistics (`admin/img/world-map.svg`) is base
 * Dashboard widget with left/right pagination between podcasts when multiple are configured.
 * Print-friendly statistics page (Ctrl+P / Cmd+P generates a clean PDF report).
 
-= 1.0.2 =
+= 1.0.2 (2026-04-02) =
 * Fixed output buffer handling: ob_start() is now explicitly closed with ob_get_clean() on the shutdown action.
 
-= 1.0.1 =
+= 1.0.1 (2026-03-25) =
 * Renamed plugin to "Podcast Analytics for OP3" to clarify it is a community integration, not an official OP3 product.
 
-= 1.0.0 =
+= 1.0.0 (2026-03-18) =
 * Initial release: feed prefix, dashboard widget and statistics page with 1/7/30 day periods.
