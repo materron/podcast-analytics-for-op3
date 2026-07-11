@@ -180,12 +180,26 @@ class OP3PA_Api {
 	 * @return int|WP_Error
 	 */
 	public static function get_unique_listeners( int|array $period, int $podcast_i ): int|WP_Error {
+		$ids = self::get_audience_ids( $period, $podcast_i );
+		return is_wp_error( $ids ) ? $ids : count( $ids );
+	}
+
+	/**
+	 * Returns the set of distinct listener identifiers (audienceId) for a
+	 * public podcast within a period. Used both for the unique-listener count
+	 * and for cross-podcast audience-overlap analysis.
+	 *
+	 * @param int|array $period    Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_i Podcast index.
+	 * @return array|WP_Error List of distinct audienceId strings.
+	 */
+	public static function get_audience_ids( int|array $period, int $podcast_i ): array|WP_Error {
 		$all_rows = self::get_raw_rows( $period, $podcast_i );
 		if ( is_wp_error( $all_rows ) ) {
 			return $all_rows;
 		}
 		$ids = array_filter( array_column( $all_rows, 'audienceId' ) );
-		return count( array_unique( $ids ) );
+		return array_values( array_unique( $ids ) );
 	}
 
 	/**

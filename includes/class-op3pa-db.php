@@ -342,6 +342,20 @@ class OP3PA_DB {
 	 * @return int
 	 */
 	public static function get_unique_listeners( int|array $period, int $podcast_index ): int {
+		return count( self::get_audience_ids( $period, $podcast_index ) );
+	}
+
+	/**
+	 * Returns the set of distinct listener identifiers (IP hash) for a private
+	 * podcast within a period. Used both for the unique-listener count and for
+	 * cross-podcast audience-overlap analysis. See get_unique_listeners() for
+	 * the daily-rotation caveat.
+	 *
+	 * @param int|array $period        Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param int       $podcast_index Podcast index.
+	 * @return array List of distinct ip_hash strings.
+	 */
+	public static function get_audience_ids( int|array $period, int $podcast_index ): array {
 		global $wpdb;
 		$table = self::table();
 		[ $since, $until ] = self::period_to_range( $period );
@@ -351,9 +365,9 @@ class OP3PA_DB {
 			: $wpdb->prepare( 'downloaded_at >= %s', $since );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
-		return (int) $wpdb->get_var(
+		return $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT COUNT(DISTINCT ip_hash) FROM {$table} WHERE podcast_index = %d AND {$where_date}",
+				"SELECT DISTINCT ip_hash FROM {$table} WHERE podcast_index = %d AND {$where_date}",
 				$podcast_index
 			)
 		);

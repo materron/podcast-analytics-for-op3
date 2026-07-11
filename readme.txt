@@ -25,6 +25,7 @@ Integrate OP3 open podcast analytics with WordPress: prefix your feed automatica
 * **Custom date range** — Pick any "from/to" range for your stats, in addition to the quick 24h/7d/30d tabs.
 * **Best time to publish** — Charts showing downloads by hour of day and by weekday, in your site's own timezone.
 * **Unique listeners** — A deduplicated listener count, for both public and private podcasts.
+* **Audience overlap** — When two or more podcasts are shown together, see how many listeners they share, as a matrix and a ranked list. Public podcasts are compared against public podcasts, and private against private — see the FAQ below for why they're never mixed.
 
 = How the OP3 prefix works =
 
@@ -97,6 +98,19 @@ Yes, since v2.1.0. Mark the podcast as "Privado" in the settings and set its Fee
 
 Yes, but it requires a free MaxMind GeoLite2 license key (sign up at [maxmind.com/en/geolite2/signup](https://www.maxmind.com/en/geolite2/signup)), added in **OP3 Analytics → Settings**. Public podcasts get country data directly from the OP3 API and don't need this. The plugin never stores raw IP addresses — it resolves the country at the moment of the download and discards the IP immediately.
 
+= How does audience overlap work, and why are public and private podcasts never compared to each other? =
+
+The Statistics page's network view (2+ podcasts shown together) includes an audience-overlap section: a matrix and a ranked list showing how many listeners each pair of podcasts has in common.
+
+This requires a way to recognise "the same listener" across two shows, and public and private podcasts identify listeners very differently:
+
+* **Public podcasts** use OP3's `audienceId`, a stable identifier assigned by OP3 itself, consistent across the whole period you're viewing.
+* **Private podcasts** use this plugin's own privacy-preserving IP hash, which **rotates daily** (a new random salt each day) so the raw IP is never retained. Two different private podcasts *on the same WordPress site* still produce the *same* hash for the same listener on the same day, because the salt is site-wide — so private-vs-private comparison works correctly. But this hash has no relationship whatsoever to OP3's `audienceId`, so a public podcast can never be meaningfully compared against a private one.
+
+Because of this, the plugin always keeps public and private podcasts in **separate groups** for audience overlap: it computes a public-vs-public matrix and a private-vs-private matrix independently, and only shows each one when that group actually has 2 or more comparable podcasts with data. It never attempts to compare across the two groups.
+
+If you select only one podcast (or only one podcast per group), the audience-overlap section doesn't appear at all — it needs at least two comparable shows to say anything meaningful.
+
 == External Services ==
 
 This plugin connects to two external services. Both are optional in the sense that the plugin's core feature (the feed prefix) works without any account, but statistics require them.
@@ -130,6 +144,9 @@ No data is collected from your site's visitors beyond what is described in the E
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.3.1 (2026-07-10) =
+* New: audience overlap report (matrix + ranked list) showing how many listeners two or more podcasts have in common, when 2+ podcasts are shown together. Public and private podcasts are always kept in separate comparisons — see the FAQ for why.
 
 = 2.3.0 (2026-07-10) =
 * New: downloads by hour-of-day and by weekday charts ("best time to publish"), converted to your site's own timezone, for both public and private podcasts.

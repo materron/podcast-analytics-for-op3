@@ -878,6 +878,219 @@ class OP3PA_Admin {
 	}
 
 	/**
+	 * Returns the set of distinct listener identifiers for a single podcast,
+	 * routed to the OP3 API for public podcasts or the local database for
+	 * private ones.
+	 *
+	 * @param int       $podcast_i Podcast index.
+	 * @param int|array $period    Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @return array|WP_Error List of distinct listener identifiers.
+	 */
+	private static function get_audience_ids_for_podcast( int $podcast_i, int|array $period ): array|WP_Error {
+		$podcast = op3pa_get_podcast( $podcast_i );
+		return ! empty( $podcast['private'] )
+			? OP3PA_DB::get_audience_ids( $period, $podcast_i )
+			: OP3PA_Api::get_audience_ids( $period, $podcast_i );
+	}
+
+	/**
+	 * Builds a pairwise audience-overlap matrix across a homogeneous group of
+	 * podcasts (all public, or all private — never mixed, since identifiers
+	 * aren't comparable across groups: OP3's audienceId vs. our own IP hash
+	 * use different, incompatible schemes).
+	 *
+	 * @param array     $group_indexes Podcast indexes, all with the same 'private' status.
+	 * @param int|array $period        Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @return array|null Null if fewer than 2 podcasts have data. Otherwise:
+	 *                     [
+	 *                       'podcasts' => [ index => ['name'=>, 'total'=>] ],
+	 *                       'overlap'  => [ index_a => [ index_b => shared_count ] ],
+	 *                       'pairs'    => [ [ 'a'=>index, 'b'=>index, 'shared'=>int, 'pct_a'=>float, 'pct_b'=>float ] ],
+	 *                     ]
+	 */
+	private static function get_audience_overlap_for_group( array $group_indexes, int|array $period ): ?array {
+		if ( count( $group_indexes ) < 2 ) {
+			return null;
+		}
+
+		$id_sets  = [];
+		$podcasts = [];
+		foreach ( $group_indexes as $i ) {
+			$podcast = op3pa_get_podcast( $i );
+			$ids     = self::get_audience_ids_for_podcast( $i, $period );
+			if ( is_wp_error( $ids ) || empty( $ids ) ) {
+				continue;
+			}
+			$id_sets[ $i ]  = array_flip( $ids ); // Flipped for fast isset() lookups during intersection.
+			$podcasts[ $i ] = [
+				'name'  => $podcast['name'] ?: sprintf( __( 'Podcast %d', 'podcast-analytics-for-op3' ), $i + 1 ),
+				'total' => count( $ids ),
+			];
+		}
+
+		if ( count( $id_sets ) < 2 ) {
+			return null;
+		}
+
+		$overlap      = [];
+		$pairs        = [];
+		$indexes_list = array_keys( $id_sets );
+
+		foreach ( $indexes_list as $a ) {
+			foreach ( $indexes_list as $b ) {
+				if ( $a === $b ) {
+					continue;
+				}
+				$overlap[ $a ][ $b ] = count( array_intersect_key( $id_sets[ $a ], $id_sets[ $b ] ) );
+			}
+		}
+
+		foreach ( $indexes_list as $a ) {
+			foreach ( $indexes_list as $b ) {
+				if ( $b <= $a || 0 === $overlap[ $a ][ $b ] ) {
+					continue; // Each unordered pair only once, skip zero-overlap pairs.
+				}
+				$shared    = $overlap[ $a ][ $b ];
+				$pairs[]   = [
+					'a'      => $a,
+					'b'      => $b,
+					'shared' => $shared,
+					'pct_a'  => $podcasts[ $a ]['total'] > 0 ? round( $shared / $podcasts[ $a ]['total'] * 100, 1 ) : 0,
+					'pct_b'  => $podcasts[ $b ]['total'] > 0 ? round( $shared / $podcasts[ $b ]['total'] * 100, 1 ) : 0,
+				];
+			}
+		}
+		usort( $pairs, fn( $x, $y ) => $y['shared'] <=> $x['shared'] );
+
+		return [ 'podcasts' => $podcasts, 'overlap' => $overlap, 'pairs' => $pairs ];
+	}
+
+	/**
+	 * Splits the given (or all active) podcasts into public/private groups and
+	 * computes the audience-overlap matrix separately for each — they're never
+	 * mixed together, since their listener identifiers aren't comparable.
+	 *
+	 * @param int|array $period  Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param array     $indexes Podcast indexes to include. Empty = all active.
+	 * @return array ['public' => ?array, 'private' => ?array] — see get_audience_overlap_for_group().
+	 */
+	private static function get_audience_overlap( int|array $period, array $indexes = [] ): array {
+		$active = op3pa_get_active_all_podcasts();
+		if ( ! empty( $indexes ) ) {
+			$active = array_intersect_key( $active, array_flip( $indexes ) );
+		}
+
+		$public_indexes  = [];
+		$private_indexes = [];
+		foreach ( $active as $i => $podcast ) {
+			if ( ! empty( $podcast['private'] ) ) {
+				$private_indexes[] = $i;
+			} else {
+				$public_indexes[] = $i;
+			}
+		}
+
+		return [
+			'public'  => self::get_audience_overlap_for_group( $public_indexes, $period ),
+			'private' => self::get_audience_overlap_for_group( $private_indexes, $period ),
+		];
+	}
+
+	/**
+	 * Renders the audience-overlap matrix and ranked pair list. Public and
+	 * private podcasts are always shown as separate sub-reports (never mixed
+	 * in the same matrix), each only if it has 2+ comparable podcasts with data.
+	 *
+	 * @param array $groups Result of get_audience_overlap(): ['public'=>?array, 'private'=>?array].
+	 */
+	private static function render_audience_overlap( array $groups ): void {
+		if ( empty( $groups['public'] ) && empty( $groups['private'] ) ) {
+			return;
+		}
+		$show_subheadings = ! empty( $groups['public'] ) && ! empty( $groups['private'] );
+		?>
+		<h3 class="op3pa-show-heading"><?php esc_html_e( 'Solapamiento de audiencia', 'podcast-analytics-for-op3' ); ?></h3>
+		<?php
+		if ( ! empty( $groups['public'] ) ) {
+			if ( $show_subheadings ) {
+				echo '<p class="op3pa-overlap-group-label">' . esc_html__( 'Podcasts públicos', 'podcast-analytics-for-op3' ) . '</p>';
+			}
+			self::render_audience_overlap_group( $groups['public'] );
+		}
+		if ( ! empty( $groups['private'] ) ) {
+			if ( $show_subheadings ) {
+				echo '<p class="op3pa-overlap-group-label">' . esc_html__( 'Podcasts privados', 'podcast-analytics-for-op3' ) . '</p>';
+			}
+			self::render_audience_overlap_group( $groups['private'] );
+		}
+	}
+
+	/**
+	 * Renders a single overlap matrix + ranked pair list for one homogeneous
+	 * group (all-public or all-private).
+	 *
+	 * @param array $data Result of get_audience_overlap_for_group().
+	 */
+	private static function render_audience_overlap_group( array $data ): void {
+		$podcasts     = $data['podcasts'];
+		$overlap      = $data['overlap'];
+		$indexes_list = array_keys( $podcasts );
+		?>
+		<div class="op3pa-overlap-matrix-wrap">
+			<table class="wp-list-table widefat fixed striped op3pa-table op3pa-overlap-matrix">
+				<thead>
+					<tr>
+						<th></th>
+						<?php foreach ( $indexes_list as $i ) : ?>
+							<th><?php echo esc_html( $podcasts[ $i ]['name'] ); ?></th>
+						<?php endforeach; ?>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $indexes_list as $a ) : ?>
+						<tr>
+							<th><?php echo esc_html( $podcasts[ $a ]['name'] ); ?></th>
+							<?php foreach ( $indexes_list as $b ) : ?>
+								<?php if ( $a === $b ) : ?>
+									<td class="op3pa-overlap-diag"><?php echo esc_html( number_format_i18n( $podcasts[ $a ]['total'] ) ); ?></td>
+								<?php else : ?>
+									<td><?php echo esc_html( number_format_i18n( $overlap[ $a ][ $b ] ) ); ?></td>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+
+		<?php if ( empty( $data['pairs'] ) ) : ?>
+			<p class="op3pa-overlap-none"><?php esc_html_e( 'Sin oyentes compartidos en este periodo.', 'podcast-analytics-for-op3' ); ?></p>
+		<?php else : ?>
+			<ul class="op3pa-overlap-pairs">
+				<?php foreach ( $data['pairs'] as $pair ) : ?>
+					<li>
+						<strong><?php echo esc_html( $podcasts[ $pair['a'] ]['name'] ); ?></strong>
+						↔
+						<strong><?php echo esc_html( $podcasts[ $pair['b'] ]['name'] ); ?></strong>:
+						<?php
+						printf(
+							/* translators: 1: shared listener count 2: percentage of podcast A's audience 3: podcast A name 4: percentage of podcast B's audience 5: podcast B name */
+							esc_html__( '%1$s oyentes compartidos (%2$s%% de %3$s, %4$s%% de %5$s)', 'podcast-analytics-for-op3' ),
+							'<strong>' . esc_html( number_format_i18n( $pair['shared'] ) ) . '</strong>',
+							esc_html( $pair['pct_a'] ),
+							esc_html( $podcasts[ $pair['a'] ]['name'] ),
+							esc_html( $pair['pct_b'] ),
+							esc_html( $podcasts[ $pair['b'] ]['name'] )
+						);
+						?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
+		<?php
+	}
+
+	/**
 	 * Loads the bundled world map SVG and colors each country by its share of
 	 * downloads relative to the busiest country (linear scale, brand blue).
 	 * Countries with no data get a neutral gray fill.
@@ -1124,6 +1337,7 @@ class OP3PA_Admin {
 				<?php self::render_app_breakdown( self::get_combined_app_breakdown( $period, $indexes ) ); ?>
 				<?php self::render_country_breakdown( self::get_combined_country_breakdown( $period, $indexes ) ); ?>
 				<?php self::render_time_distribution( self::get_combined_time_distribution( $period, $indexes ) ); ?>
+				<?php self::render_audience_overlap( self::get_audience_overlap( $period, $indexes ) ); ?>
 
 				<p class="op3pa-cache-note no-print">
 					<?php esc_html_e( 'Datos en caché durante 1 hora.', 'podcast-analytics-for-op3' ); ?>
