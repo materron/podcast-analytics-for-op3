@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 7.0.1
 Requires PHP: 8.0
-Stable tag: 2.4.0
+Stable tag: 2.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,6 +27,9 @@ Integrate OP3 open podcast analytics with WordPress: prefix your feed automatica
 * **Unique listeners** — A deduplicated listener count, for both public and private podcasts.
 * **Audience overlap** — When two or more podcasts are shown together, see how many listeners they share, as a matrix and a ranked list. Public podcasts are compared against public podcasts, and private against private — see the FAQ below for why they're never mixed.
 * **Download alerts** — Get an email when an episode (published more than 14 days ago) has an unusual spike or drop in downloads compared to the previous week. Configured in a dedicated **OP3 Analytics → Alertas** page, with its own history log.
+* **Growth ranking** — See which episodes are climbing or falling fastest, comparing the selected period against the equal-length period right before it.
+* **App comparison** — When two or more podcasts are shown together, compare their apps/devices breakdown side by side.
+* **Printable report** — The "Print / PDF" button now includes a short plain-language explanation under each section, so a printed or exported report is understandable without the interactive dashboard.
 
 = How the OP3 prefix works =
 
@@ -161,6 +164,12 @@ No data is collected from your site's visitors beyond what is described in the E
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.5.0 (2026-07-11) =
+* New: Growth ranking report — episodes climbing or falling fastest vs. the equal-length period before.
+* New: Side-by-side app/device comparison across podcasts in the network view.
+* Improvement: Every report section now includes a short explanation, shown when printing/exporting to PDF.
+* Fix: The "Print / PDF" output no longer has a lopsided left margin from the WordPress admin menu gutter.
 
 = 2.4.0 (2026-07-11) =
 * New: download alerts. Get a consolidated email when a monitored episode (14+ days old) has a spike or drop in downloads vs. the previous week. New dedicated "OP3 Analytics → Alertas" settings page with its own history log, separate from the Statistics page — email required, no fallback to the site admin address, checkable per alert type and per podcast, with a configurable threshold and minimum-baseline noise filter.

@@ -59,6 +59,16 @@
 .op3pa-hbar:hover .op3pa-hbar-fill { opacity: 0.75; }
 .op3pa-show-more-row td { text-align: center; padding: 10px 0; }
 
+/* ── Growth ranking ────────────────────────────────── */
+.op3pa-growth-lists { display: flex; gap: 24px; flex-wrap: wrap; margin: 10px 0 20px; }
+.op3pa-growth-col { flex: 1; min-width: 320px; }
+.op3pa-growth-table .column-episode { width: auto; }
+.op3pa-growth-table .column-growth-counts { width: 130px; color: #646970; font-size: 12px; white-space: nowrap; }
+.op3pa-growth-table .column-growth-pct { width: 70px; text-align: right; }
+.op3pa-growth-pct { font-weight: 700; font-size: 13px; }
+.op3pa-growth-up { color: #00a32a; }
+.op3pa-growth-down { color: #d63638; }
+
 /* ── Audience overlap ─────────────────────────────── */
 .op3pa-overlap-note { font-size: 12px; font-weight: 400; color: #646970; }
 .op3pa-overlap-group-label { font-weight: 600; font-size: 13px; color: #2c3338; margin: 16px 0 6px; }
@@ -73,6 +83,11 @@
 .op3pa-overlap-pairs li { padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
 .op3pa-overlap-pairs li:last-child { border-bottom: none; }
 .op3pa-hbar-label { font-size: 10px; color: #646970; margin-top: 4px; height: 12px; }
+
+/* ── App comparison matrix ────────────────────────── */
+.op3pa-app-comparison-matrix th, .op3pa-app-comparison-matrix td { text-align: center; }
+.op3pa-app-comparison-name { text-align: left !important; font-weight: 600; }
+.op3pa-app-comparison-matrix .op3pa-app-pct { display: block; margin-left: 0; }
 
 /* ── Show heading ─────────────────────────────────── */
 .op3pa-show-heading { font-size: 15px; margin: 20px 0 8px; display: flex; align-items: center; gap: 8px; }
@@ -110,6 +125,7 @@
 .op3pa-podcast-tag { display: inline-block; font-size: 11px; border-radius: 3px; padding: 2px 6px; white-space: nowrap; font-weight: 600; }
 .op3pa-cache-note { color: #646970; font-size: 12px; margin-top: 8px; }
 .op3pa-loading { padding: 20px 0; color: #646970; font-style: italic; }
+.op3pa-report-explainer { display: none; font-size: 12px; color: #646970; font-style: italic; margin: -4px 0 10px; }
 
 /* ── Dashboard widget ─────────────────────────────── */
 .op3pa-widget { font-size: 13px; }
@@ -140,7 +156,15 @@
 @media print {
 	#adminmenuwrap, #adminmenuback, #wpadminbar, #wpfooter,
 	.op3pa-stats-header, .no-print { display: none !important; }
-	.op3pa-wrap { max-width: 100%; }
+	/* WP core reserves the admin-menu gutter via margin/padding on these
+	   wrappers even once the menu itself is hidden — without resetting them
+	   the printed report keeps a large blank strip on the left. */
+	html.wp-toolbar { padding-top: 0 !important; }
+	#wpcontent, #wpbody, #wpbody-content { margin-left: 0 !important; padding-left: 0 !important; }
+	#wpbody-content { padding-bottom: 0 !important; }
+	body { margin: 0 !important; }
+	.op3pa-wrap { max-width: 100%; margin: 0 auto; padding: 0 24px !important; box-sizing: border-box; }
 	.op3pa-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 	a[href]::after { content: none !important; }
+	.op3pa-report-explainer { display: block !important; }
 }

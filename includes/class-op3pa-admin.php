@@ -840,6 +840,7 @@ class OP3PA_Admin {
 		$max   = max( array_column( $apps, 'downloads' ) );
 		?>
 		<h3 class="op3pa-show-heading"><?php esc_html_e( 'Apps y dispositivos', 'podcast-analytics-for-op3' ); ?></h3>
+		<?php self::render_section_intro( __( 'Aplicaciones y dispositivos usados para descargar los episodios, en el periodo seleccionado.', 'podcast-analytics-for-op3' ) ); ?>
 		<table class="wp-list-table widefat fixed striped op3pa-table op3pa-apps-table">
 			<tbody>
 				<?php foreach ( array_slice( $apps, 0, 10 ) as $app ) : ?>
@@ -855,6 +856,124 @@ class OP3PA_Admin {
 				<?php endforeach; ?>
 			</tbody>
 		</table>
+		<?php
+	}
+
+	/** Number of apps shown as rows in the side-by-side comparison, ranked by combined downloads. */
+	private const APP_COMPARISON_MAX_APPS = 8;
+
+	/**
+	 * Builds the data for a side-by-side app/device comparison across the
+	 * selected podcasts: one column per podcast, one row per app. Only
+	 * meaningful with 2+ podcasts, so returns empty for a single one.
+	 *
+	 * @param int|array $period  Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param array     $indexes Podcast indexes to include. Empty = all active.
+	 * @return array Empty, or ['podcasts'=>[['index','name','color','total']], 'apps'=>[name,...], 'matrix'=>[name=>[index=>downloads]]].
+	 */
+	private static function get_app_comparison( int|array $period, array $indexes = [] ): array {
+		$active = op3pa_get_active_all_podcasts();
+		if ( ! empty( $indexes ) ) {
+			$active = array_intersect_key( $active, array_flip( $indexes ) );
+		}
+		if ( count( $active ) < 2 ) {
+			return [];
+		}
+
+		$podcasts      = [];
+		$totals_by_app = [];
+		$matrix        = [];
+
+		foreach ( $active as $i => $podcast ) {
+			$breakdown = self::get_app_breakdown_for_podcast( $i, $period );
+			if ( is_wp_error( $breakdown ) ) {
+				continue;
+			}
+			$by_name    = array_column( $breakdown, 'downloads', 'name' );
+			$podcasts[] = [
+				'index' => $i,
+				'name'  => $podcast['name'] ?: sprintf(
+					/* translators: %d: podcast number */
+					__( 'Podcast %d', 'podcast-analytics-for-op3' ),
+					$i + 1
+				),
+				'color' => ! empty( $podcast['color'] ) ? $podcast['color'] : '#0066cc',
+				'total' => array_sum( $by_name ),
+			];
+			foreach ( $by_name as $name => $downloads ) {
+				$totals_by_app[ $name ] = ( $totals_by_app[ $name ] ?? 0 ) + $downloads;
+				$matrix[ $name ][ $i ]  = $downloads;
+			}
+		}
+
+		if ( count( $podcasts ) < 2 || empty( $totals_by_app ) ) {
+			return [];
+		}
+
+		arsort( $totals_by_app );
+		$apps = array_slice( array_keys( $totals_by_app ), 0, self::APP_COMPARISON_MAX_APPS );
+
+		return [
+			'podcasts' => $podcasts,
+			'apps'     => $apps,
+			'matrix'   => $matrix,
+		];
+	}
+
+	/**
+	 * Renders the side-by-side app/device comparison table: one column per
+	 * podcast, one row per app, each cell showing downloads and % of that
+	 * podcast's total.
+	 *
+	 * @param array $data ['podcasts'=>..., 'apps'=>..., 'matrix'=>...], or empty to skip.
+	 */
+	private static function render_app_comparison( array $data ): void {
+		if ( empty( $data['podcasts'] ) || empty( $data['apps'] ) ) {
+			return;
+		}
+		?>
+		<h3 class="op3pa-show-heading"><?php esc_html_e( 'Comparativa de apps entre podcasts', 'podcast-analytics-for-op3' ); ?></h3>
+		<?php self::render_section_intro( __( 'Reparto de apps y dispositivos de cada podcast, uno al lado del otro, para comparar hábitos de escucha entre shows.', 'podcast-analytics-for-op3' ) ); ?>
+		<div class="op3pa-overlap-matrix-wrap">
+			<table class="wp-list-table widefat fixed striped op3pa-table op3pa-overlap-matrix op3pa-app-comparison-matrix">
+				<thead>
+					<tr>
+						<th></th>
+						<?php foreach ( $data['podcasts'] as $p ) : ?>
+							<?php
+							list( $r, $g, $b ) = sscanf( $p['color'], '#%02x%02x%02x' );
+							$luminance  = ( 0.299 * $r + 0.587 * $g + 0.114 * $b ) / 255;
+							$text_color = $luminance > 0.5 ? '#1d2327' : '#ffffff';
+							?>
+							<th>
+								<span class="op3pa-podcast-tag" style="background:<?php echo esc_attr( $p['color'] ); ?>;color:<?php echo esc_attr( $text_color ); ?>"><?php echo esc_html( $p['name'] ); ?></span>
+							</th>
+						<?php endforeach; ?>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $data['apps'] as $app_name ) : ?>
+						<tr>
+							<td class="op3pa-app-comparison-name"><?php echo esc_html( $app_name ); ?></td>
+							<?php foreach ( $data['podcasts'] as $p ) : ?>
+								<?php
+								$downloads = $data['matrix'][ $app_name ][ $p['index'] ] ?? 0;
+								$pct       = $p['total'] > 0 ? round( $downloads / $p['total'] * 100, 1 ) : 0;
+								?>
+								<td>
+									<?php if ( $downloads > 0 ) : ?>
+										<strong><?php echo esc_html( number_format_i18n( $downloads ) ); ?></strong>
+										<span class="op3pa-app-pct"><?php echo esc_html( $pct ); ?>%</span>
+									<?php else : ?>
+										<span class="op3pa-overlap-na">—</span>
+									<?php endif; ?>
+								</td>
+							<?php endforeach; ?>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
 		<?php
 	}
 
@@ -921,6 +1040,7 @@ class OP3PA_Admin {
 		$by_code = array_column( $countries, 'downloads', 'code' );
 		?>
 		<h3 class="op3pa-show-heading"><?php esc_html_e( 'País', 'podcast-analytics-for-op3' ); ?></h3>
+		<?php self::render_section_intro( __( 'Descargas agrupadas por país de origen, según la IP del oyente.', 'podcast-analytics-for-op3' ) ); ?>
 		<div class="op3pa-country-map">
 			<?php echo self::render_country_map_svg( $by_code, $max ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG markup built and escaped internally. ?>
 		</div>
@@ -1016,6 +1136,7 @@ class OP3PA_Admin {
 		$weekday_max = max( array_merge( $by_weekday, [ 1 ] ) );
 		?>
 		<h3 class="op3pa-show-heading"><?php esc_html_e( 'Mejor hora y día', 'podcast-analytics-for-op3' ); ?></h3>
+		<?php self::render_section_intro( __( 'Cuándo escucha tu audiencia: hora del día y día de la semana con más descargas, útil para decidir cuándo publicar.', 'podcast-analytics-for-op3' ) ); ?>
 		<div class="op3pa-time-charts">
 			<div class="op3pa-time-chart">
 				<p class="op3pa-time-chart-label"><?php esc_html_e( 'Por hora del día', 'podcast-analytics-for-op3' ); ?></p>
@@ -1040,6 +1161,216 @@ class OP3PA_Admin {
 				</div>
 			</div>
 		</div>
+		<?php
+	}
+
+	/** Minimum previous-period downloads for an episode to enter the growth ranking — avoids noisy swings like 1→2 reading as "+100%". */
+	private const GROWTH_MIN_BASELINE = 3;
+
+	/**
+	 * Returns the previous period of equal length immediately preceding the
+	 * given one, e.g. period = last 7 days → previous = the 7 days before that.
+	 *
+	 * @param int|array $period Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @return array ['start'=>'Y-m-d','end'=>'Y-m-d']
+	 */
+	private static function previous_period_range( int|array $period ): array {
+		if ( is_array( $period ) ) {
+			$start = $period['start'];
+			$end   = $period['end'] ?? gmdate( 'Y-m-d' );
+		} else {
+			$end   = gmdate( 'Y-m-d' );
+			$start = gmdate( 'Y-m-d', strtotime( "-{$period} days" ) );
+		}
+
+		$days       = (int) round( ( strtotime( $end ) - strtotime( $start ) ) / DAY_IN_SECONDS ) + 1;
+		$prev_end   = gmdate( 'Y-m-d', strtotime( $start . ' -1 day' ) );
+		$prev_start = gmdate( 'Y-m-d', strtotime( $prev_end . ' -' . ( $days - 1 ) . ' days' ) );
+
+		return [
+			'start' => $prev_start,
+			'end'   => $prev_end,
+		];
+	}
+
+	/**
+	 * Diffs two sets of episode-count rows (current vs. previous period) by
+	 * episode URL, filtering out episodes too small to produce a meaningful
+	 * percentage.
+	 *
+	 * @param array $current_rows
+	 * @param array $previous_rows
+	 * @return array List of ['episodeTitle','episodeUrl','episodePubdate','prev','curr','pct'].
+	 */
+	private static function diff_episode_counts( array $current_rows, array $previous_rows ): array {
+		$prev_by_url = array_column( $previous_rows, 'downloads', 'episodeUrl' );
+
+		$result = [];
+		foreach ( $current_rows as $row ) {
+			$url = $row['episodeUrl'] ?? '';
+			if ( ! $url ) {
+				continue;
+			}
+			$prev = (int) ( $prev_by_url[ $url ] ?? 0 );
+			if ( $prev < self::GROWTH_MIN_BASELINE ) {
+				continue;
+			}
+			$curr = (int) ( $row['downloads'] ?? 0 );
+
+			$result[] = [
+				'episodeTitle'   => $row['episodeTitle'] ?? '',
+				'episodeUrl'     => $url,
+				'episodePubdate' => $row['episodePubdate'] ?? '',
+				'prev'           => $prev,
+				'curr'           => $curr,
+				'pct'            => round( ( $curr - $prev ) / $prev * 100 ),
+			];
+		}
+		return $result;
+	}
+
+	/**
+	 * Returns the growth ranking (current period vs. the equal-length period
+	 * before it) for a single podcast, routed to the OP3 API for public
+	 * podcasts or the local database for private ones.
+	 *
+	 * @param int       $podcast_i Podcast index.
+	 * @param int|array $period    Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @return array|WP_Error List of ['episodeTitle','episodeUrl','episodePubdate','prev','curr','pct'].
+	 */
+	private static function get_growth_ranking_for_podcast( int $podcast_i, int|array $period ): array|WP_Error {
+		$current = self::get_counts_for_podcast( $podcast_i, $period );
+		if ( is_wp_error( $current ) ) {
+			return $current;
+		}
+		$previous = self::get_counts_for_podcast( $podcast_i, self::previous_period_range( $period ) );
+		if ( is_wp_error( $previous ) ) {
+			return $previous;
+		}
+		return self::diff_episode_counts( $current['rows'] ?? [], $previous['rows'] ?? [] );
+	}
+
+	/**
+	 * Aggregates the growth ranking across multiple podcasts, tagging each row
+	 * with its podcast name/color for display in the network view.
+	 *
+	 * @param int|array $period  Days back, or ['start'=>'Y-m-d','end'=>'Y-m-d'].
+	 * @param array     $indexes Podcast indexes to include. Empty = all active.
+	 * @return array
+	 */
+	private static function get_combined_growth_ranking( int|array $period, array $indexes = [] ): array {
+		$active = op3pa_get_active_all_podcasts();
+		if ( ! empty( $indexes ) ) {
+			$active = array_intersect_key( $active, array_flip( $indexes ) );
+		}
+
+		$all = [];
+		foreach ( $active as $i => $podcast ) {
+			$result = self::get_growth_ranking_for_podcast( $i, $period );
+			if ( is_wp_error( $result ) ) {
+				continue;
+			}
+			foreach ( $result as $row ) {
+				$row['podcast_name']  = $podcast['name'] ?: sprintf(
+					/* translators: %d: podcast number */
+					__( 'Podcast %d', 'podcast-analytics-for-op3' ),
+					$i + 1
+				);
+				$row['podcast_color'] = ! empty( $podcast['color'] ) ? $podcast['color'] : '#0066cc';
+				$all[]                = $row;
+			}
+		}
+		return $all;
+	}
+
+	/**
+	 * Renders the growth ranking as two short lists: episodes climbing fastest
+	 * and episodes falling fastest, comparing the current period against the
+	 * equal-length period right before it.
+	 *
+	 * @param array|WP_Error $ranking List of ['episodeTitle','episodeUrl','episodePubdate','prev','curr','pct', optionally 'podcast_name'/'podcast_color'].
+	 */
+	private static function render_growth_ranking( array|WP_Error $ranking ): void {
+		if ( is_wp_error( $ranking ) || empty( $ranking ) ) {
+			return;
+		}
+		$growing = array_values( array_filter( $ranking, fn( $r ) => $r['pct'] > 0 ) );
+		usort( $growing, fn( $a, $b ) => $b['pct'] <=> $a['pct'] );
+		$growing = array_slice( $growing, 0, 10 );
+
+		$declining = array_values( array_filter( $ranking, fn( $r ) => $r['pct'] < 0 ) );
+		usort( $declining, fn( $a, $b ) => $a['pct'] <=> $b['pct'] );
+		$declining = array_slice( $declining, 0, 10 );
+
+		if ( empty( $growing ) && empty( $declining ) ) {
+			return;
+		}
+		?>
+		<h3 class="op3pa-show-heading">
+			<?php esc_html_e( 'Ranking de crecimiento', 'podcast-analytics-for-op3' ); ?>
+			<span class="op3pa-overlap-note"><?php esc_html_e( 'vs. periodo anterior equivalente', 'podcast-analytics-for-op3' ); ?></span>
+		</h3>
+		<?php self::render_section_intro( __( 'Episodios que más han subido o bajado en descargas respecto al periodo anterior de la misma duración.', 'podcast-analytics-for-op3' ) ); ?>
+		<div class="op3pa-growth-lists">
+			<?php if ( ! empty( $growing ) ) : ?>
+				<div class="op3pa-growth-col">
+					<p class="op3pa-time-chart-label">📈 <?php esc_html_e( 'En alza', 'podcast-analytics-for-op3' ); ?></p>
+					<?php self::render_growth_table( $growing ); ?>
+				</div>
+			<?php endif; ?>
+			<?php if ( ! empty( $declining ) ) : ?>
+				<div class="op3pa-growth-col">
+					<p class="op3pa-time-chart-label">📉 <?php esc_html_e( 'En caída', 'podcast-analytics-for-op3' ); ?></p>
+					<?php self::render_growth_table( $declining ); ?>
+				</div>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Renders one growth-ranking table (either the "climbing" or "falling" half).
+	 *
+	 * @param array $rows
+	 */
+	private static function render_growth_table( array $rows ): void {
+		$show_podcast = isset( $rows[0]['podcast_name'] );
+		?>
+		<table class="wp-list-table widefat fixed striped op3pa-table op3pa-growth-table">
+			<tbody>
+				<?php foreach ( $rows as $row ) : ?>
+					<?php
+					if ( $show_podcast ) {
+						list( $r, $g, $b ) = sscanf( $row['podcast_color'], '#%02x%02x%02x' );
+						$luminance  = ( 0.299 * $r + 0.587 * $g + 0.114 * $b ) / 255;
+						$text_color = $luminance > 0.5 ? '#1d2327' : '#ffffff';
+					}
+					?>
+					<tr>
+						<?php if ( $show_podcast ) : ?>
+							<td class="column-podcast-tag">
+								<span class="op3pa-podcast-tag" style="background:<?php echo esc_attr( $row['podcast_color'] ); ?>;color:<?php echo esc_attr( $text_color ); ?>"><?php echo esc_html( $row['podcast_name'] ); ?></span>
+							</td>
+						<?php endif; ?>
+						<td class="column-episode">
+							<?php if ( ! empty( $row['episodeUrl'] ) ) : ?>
+								<a href="<?php echo esc_url( $row['episodeUrl'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $row['episodeTitle'] ); ?></a>
+							<?php else : ?>
+								<?php echo esc_html( $row['episodeTitle'] ); ?>
+							<?php endif; ?>
+						</td>
+						<td class="column-growth-counts">
+							<?php echo esc_html( number_format_i18n( $row['prev'] ) ); ?> → <?php echo esc_html( number_format_i18n( $row['curr'] ) ); ?>
+						</td>
+						<td class="column-growth-pct">
+							<span class="op3pa-growth-pct <?php echo esc_attr( $row['pct'] >= 0 ? 'op3pa-growth-up' : 'op3pa-growth-down' ); ?>">
+								<?php echo esc_html( ( $row['pct'] > 0 ? '+' : '' ) . $row['pct'] ); ?>%
+							</span>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 		<?php
 	}
 
@@ -1222,6 +1553,7 @@ class OP3PA_Admin {
 		$show_subheadings = ! empty( $groups['public'] ) && ! empty( $groups['private'] );
 		?>
 		<h3 class="op3pa-show-heading"><?php esc_html_e( 'Solapamiento de audiencia', 'podcast-analytics-for-op3' ); ?></h3>
+		<?php self::render_section_intro( __( 'Qué porcentaje de oyentes escuchan más de uno de tus podcasts. Solo comparable entre podcasts del mismo tipo (públicos entre sí, privados entre sí).', 'podcast-analytics-for-op3' ) ); ?>
 		<?php
 		if ( ! empty( $groups['public'] ) ) {
 			if ( $show_subheadings ) {
@@ -1477,6 +1809,7 @@ class OP3PA_Admin {
 				$ep_max   = max( array_column( $all_episodes, 'downloads' ) ?: [ 1 ] );
 				?>
 				<h3 class="op3pa-show-heading"><?php esc_html_e( 'Episodios', 'podcast-analytics-for-op3' ); ?></h3>
+				<?php self::render_section_intro( __( 'Descargas por episodio de todos los podcasts seleccionados, ordenadas de mayor a menor.', 'podcast-analytics-for-op3' ) ); ?>
 				<table class="wp-list-table widefat fixed striped op3pa-table">
 					<thead>
 						<tr>
@@ -1547,8 +1880,10 @@ class OP3PA_Admin {
 				</table>
 
 				<?php self::render_app_breakdown( self::get_combined_app_breakdown( $period, $indexes ) ); ?>
+				<?php self::render_app_comparison( self::get_app_comparison( $period, $indexes ) ); ?>
 				<?php self::render_country_breakdown( self::get_combined_country_breakdown( $period, $indexes ) ); ?>
 				<?php self::render_time_distribution( self::get_combined_time_distribution( $period, $indexes ) ); ?>
+				<?php self::render_growth_ranking( self::get_combined_growth_ranking( $period, $indexes ) ); ?>
 				<?php self::render_audience_overlap( self::get_audience_overlap( $period, $indexes ) ); ?>
 
 				<p class="op3pa-cache-note no-print">
@@ -1606,6 +1941,7 @@ class OP3PA_Admin {
 				<?php self::render_app_breakdown( self::get_app_breakdown_for_podcast( $podcast_i, $period ) ); ?>
 				<?php self::render_country_breakdown( self::get_country_breakdown_for_podcast( $podcast_i, $period ) ); ?>
 				<?php self::render_time_distribution( self::get_time_distribution_for_podcast( $podcast_i, $period ) ); ?>
+				<?php self::render_growth_ranking( self::get_growth_ranking_for_podcast( $podcast_i, $period ) ); ?>
 				<?php if ( ! empty( $podcast['private'] ) ) : ?>
 					<p class="op3pa-cache-note no-print">
 						<?php esc_html_e( 'Live data from your own tracking endpoint (not cached).', 'podcast-analytics-for-op3' ); ?>
@@ -1636,6 +1972,8 @@ class OP3PA_Admin {
 	 */
 	private static function render_episodes_table( array $rows, int $total ): void {
 		?>
+		<h3 class="op3pa-show-heading"><?php esc_html_e( 'Episodios', 'podcast-analytics-for-op3' ); ?></h3>
+		<?php self::render_section_intro( __( 'Descargas por episodio en el periodo seleccionado, ordenadas de mayor a menor.', 'podcast-analytics-for-op3' ) ); ?>
 		<table class="wp-list-table widefat fixed striped op3pa-table">
 			<thead>
 				<tr>
@@ -1698,6 +2036,18 @@ class OP3PA_Admin {
 			</tfoot>
 		</table>
 		<?php
+	}
+
+	/**
+	 * Prints a short plain-language explanation of a report section. Hidden on
+	 * screen (the charts speak for themselves there) but shown when printing
+	 * or exporting to PDF, so a reader without access to the interactive admin
+	 * page still understands what each section means.
+	 *
+	 * @param string $text
+	 */
+	private static function render_section_intro( string $text ): void {
+		echo '<p class="op3pa-report-explainer">' . esc_html( $text ) . '</p>';
 	}
 
 	/** Percentage of total, for bar width. */
