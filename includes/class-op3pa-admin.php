@@ -11,13 +11,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class OP3PA_Admin {
 
-	private const MENU_SLUG    = 'op3-podcast-analytics';
-	private const NONCE_KEY    = 'op3pa_settings_nonce';
-	private const NONCE_ACTION = 'op3pa_save_settings';
+	private const MENU_SLUG           = 'op3-podcast-analytics';
+	private const NONCE_KEY           = 'op3pa_settings_nonce';
+	private const NONCE_ACTION        = 'op3pa_save_settings';
+	private const ALERTS_NONCE_KEY    = 'op3pa_alerts_nonce';
+	private const ALERTS_NONCE_ACTION = 'op3pa_save_alerts';
 
 	public static function init(): void {
 		add_action( 'admin_menu',            [ __CLASS__, 'register_menu' ] );
 		add_action( 'admin_init',            [ __CLASS__, 'handle_save' ] );
+		add_action( 'admin_init',            [ __CLASS__, 'handle_alerts_save' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		add_action( 'wp_dashboard_setup',    [ __CLASS__, 'register_dashboard_widget' ] );
 		add_action( 'wp_ajax_op3pa_refresh_stats',   [ __CLASS__, 'ajax_refresh_stats' ] );
@@ -81,6 +84,15 @@ class OP3PA_Admin {
 			self::MENU_SLUG . '-stats',
 			[ __CLASS__, 'render_stats_page' ]
 		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'Alertas', 'podcast-analytics-for-op3' ),
+			__( 'Alertas', 'podcast-analytics-for-op3' ),
+			'manage_options',
+			self::MENU_SLUG . '-alerts',
+			[ __CLASS__, 'render_alerts_page' ]
+		);
 	}
 
 	// -------------------------------------------------------------------------
@@ -91,6 +103,7 @@ class OP3PA_Admin {
 		$pages = [
 			'toplevel_page_' . self::MENU_SLUG,
 			'op3-analytics_page_' . self::MENU_SLUG . '-stats',
+			'op3-analytics_page_' . self::MENU_SLUG . '-alerts',
 			'dashboard',
 		];
 
@@ -412,6 +425,205 @@ class OP3PA_Admin {
 		</tr>
 		<?php
 		return ob_get_clean();
+	}
+
+	// -------------------------------------------------------------------------
+	// Alerts page
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Saves the Alertas settings form.
+	 */
+	public static function handle_alerts_save(): void {
+		if ( ! isset( $_POST[ self::ALERTS_NONCE_KEY ] ) ) {
+			return;
+		}
+		check_admin_referer( self::ALERTS_NONCE_ACTION, self::ALERTS_NONCE_KEY );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Access denied.', 'podcast-analytics-for-op3' ) );
+		}
+
+		$email = sanitize_email( wp_unslash( $_POST['op3pa_alerts_email'] ?? '' ) );
+		update_option( OP3PA_Alerts::OPTION_EMAIL, $email );
+
+		$types = array_intersect(
+			(array) ( $_POST['op3pa_alerts_types'] ?? [] ),
+			[ 'spike', 'drop' ]
+		);
+		update_option( OP3PA_Alerts::OPTION_TYPES, array_values( $types ) );
+
+		$threshold = absint( $_POST['op3pa_alerts_threshold'] ?? 50 );
+		update_option( OP3PA_Alerts::OPTION_THRESHOLD, $threshold > 0 ? $threshold : 50 );
+
+		$min_baseline = absint( $_POST['op3pa_alerts_min_baseline'] ?? 5 );
+		update_option( OP3PA_Alerts::OPTION_MIN_BASELINE, $min_baseline > 0 ? $min_baseline : 5 );
+
+		$podcasts = array_map( 'absint', (array) ( $_POST['op3pa_alerts_podcasts'] ?? [] ) );
+		update_option( OP3PA_Alerts::OPTION_PODCASTS, $podcasts );
+
+		// Re-evaluate the cron schedule immediately after saving.
+		OP3PA_Alerts::init();
+
+		if ( isset( $_POST['op3pa_alerts_check_now'] ) ) {
+			OP3PA_Alerts::run_check();
+			add_action( 'admin_notices', [ __CLASS__, 'notice_alerts_checked' ] );
+		} else {
+			add_action( 'admin_notices', [ __CLASS__, 'notice_saved' ] );
+		}
+	}
+
+	public static function notice_alerts_checked(): void {
+		echo '<div class="notice notice-success is-dismissible"><p>'
+			. esc_html__( 'Ajustes guardados y comprobación de alertas ejecutada.', 'podcast-analytics-for-op3' )
+			. '</p></div>';
+	}
+
+	/**
+	 * Renders the Alertas settings page.
+	 */
+	public static function render_alerts_page(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$email          = OP3PA_Alerts::get_email();
+		$enabled_types  = OP3PA_Alerts::get_enabled_types();
+		$threshold      = OP3PA_Alerts::get_threshold();
+		$min_baseline   = OP3PA_Alerts::get_min_baseline();
+		$monitored      = OP3PA_Alerts::get_monitored_podcasts();
+		$active         = op3pa_get_active_all_podcasts();
+		$last_check     = OP3PA_Alerts::get_last_check();
+		$log            = OP3PA_Alerts::get_log();
+		?>
+		<div class="wrap op3pa-wrap">
+			<h1>
+				<span class="op3pa-logo">OP3</span>
+				<?php esc_html_e( 'Podcast Analytics — Alertas', 'podcast-analytics-for-op3' ); ?>
+			</h1>
+			<p class="description">
+				<?php esc_html_e( 'Recibe un aviso por email cuando un episodio (con más de 14 días publicado) tenga un pico o una caída de descargas inusual respecto a la semana anterior. Se comprueba una vez al día.', 'podcast-analytics-for-op3' ); ?>
+			</p>
+
+			<form method="post" action="">
+				<?php wp_nonce_field( self::ALERTS_NONCE_ACTION, self::ALERTS_NONCE_KEY ); ?>
+
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row">
+							<label for="op3pa_alerts_email"><?php esc_html_e( 'Correo de destino', 'podcast-analytics-for-op3' ); ?></label>
+						</th>
+						<td>
+							<input type="email" id="op3pa_alerts_email" name="op3pa_alerts_email"
+								value="<?php echo esc_attr( $email ); ?>" class="regular-text" />
+							<p class="description"><?php esc_html_e( 'Obligatorio para que se envíen alertas. No hay un correo por defecto.', 'podcast-analytics-for-op3' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Tipo de alerta', 'podcast-analytics-for-op3' ); ?></th>
+						<td>
+							<label style="display:block;margin-bottom:6px;">
+								<input type="checkbox" name="op3pa_alerts_types[]" value="spike" <?php checked( in_array( 'spike', $enabled_types, true ) ); ?> />
+								<?php esc_html_e( 'Pico de descargas en un episodio', 'podcast-analytics-for-op3' ); ?>
+							</label>
+							<label style="display:block;">
+								<input type="checkbox" name="op3pa_alerts_types[]" value="drop" <?php checked( in_array( 'drop', $enabled_types, true ) ); ?> />
+								<?php esc_html_e( 'Caída de descargas en un episodio', 'podcast-analytics-for-op3' ); ?>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label for="op3pa_alerts_threshold"><?php esc_html_e( 'Umbral', 'podcast-analytics-for-op3' ); ?></label>
+						</th>
+						<td>
+							±<input type="number" id="op3pa_alerts_threshold" name="op3pa_alerts_threshold"
+								value="<?php echo esc_attr( $threshold ); ?>" min="1" max="500" style="width:80px;" />%
+							<p class="description"><?php esc_html_e( 'Variación mínima (comparando esta semana con la anterior, por episodio) para disparar una alerta.', 'podcast-analytics-for-op3' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label for="op3pa_alerts_min_baseline"><?php esc_html_e( 'Mínimo de descargas', 'podcast-analytics-for-op3' ); ?></label>
+						</th>
+						<td>
+							<input type="number" id="op3pa_alerts_min_baseline" name="op3pa_alerts_min_baseline"
+								value="<?php echo esc_attr( $min_baseline ); ?>" min="1" max="1000" style="width:80px;" />
+							<p class="description"><?php esc_html_e( 'La semana anterior del episodio debe tener al menos este número de descargas para considerarse. Evita avisos por cambios triviales (ej. pasar de 1 a 2 descargas ya es "+100%").', 'podcast-analytics-for-op3' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Podcasts monitorizados', 'podcast-analytics-for-op3' ); ?></th>
+						<td>
+							<?php if ( empty( $active ) ) : ?>
+								<p class="description"><?php esc_html_e( 'No hay podcasts activos configurados.', 'podcast-analytics-for-op3' ); ?></p>
+							<?php else : ?>
+								<?php foreach ( $active as $i => $podcast ) : ?>
+									<label style="display:block;margin-bottom:4px;">
+										<input type="checkbox" name="op3pa_alerts_podcasts[]" value="<?php echo esc_attr( $i ); ?>" <?php checked( in_array( $i, $monitored, true ) ); ?> />
+										<?php echo esc_html( $podcast['name'] ?: sprintf( __( 'Podcast %d', 'podcast-analytics-for-op3' ), $i + 1 ) ); ?>
+										<?php if ( ! empty( $podcast['private'] ) ) : ?> 🔒<?php endif; ?>
+									</label>
+								<?php endforeach; ?>
+							<?php endif; ?>
+						</td>
+					</tr>
+				</table>
+
+				<?php submit_button( __( 'Guardar ajustes', 'podcast-analytics-for-op3' ), 'primary', 'submit', false ); ?>
+				<?php submit_button( __( 'Guardar y comprobar ahora', 'podcast-analytics-for-op3' ), 'secondary', 'op3pa_alerts_check_now', false ); ?>
+			</form>
+
+			<h2><?php esc_html_e( 'Estado', 'podcast-analytics-for-op3' ); ?></h2>
+			<p>
+				<?php if ( $last_check ) : ?>
+					<?php
+					printf(
+						/* translators: %s: relative time */
+						esc_html__( 'Última comprobación: hace %s.', 'podcast-analytics-for-op3' ),
+						esc_html( human_time_diff( $last_check ) )
+					);
+					?>
+				<?php else : ?>
+					<?php esc_html_e( 'Aún no se ha ejecutado ninguna comprobación.', 'podcast-analytics-for-op3' ); ?>
+				<?php endif; ?>
+			</p>
+
+			<h2><?php esc_html_e( 'Historial reciente', 'podcast-analytics-for-op3' ); ?></h2>
+			<?php if ( empty( $log ) ) : ?>
+				<p class="description"><?php esc_html_e( 'No se ha disparado ninguna alerta todavía.', 'podcast-analytics-for-op3' ); ?></p>
+			<?php else : ?>
+				<table class="wp-list-table widefat fixed striped op3pa-table">
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'Fecha', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Tipo', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Podcast', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Episodio', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Cambio', 'podcast-analytics-for-op3' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ( $log as $entry ) : ?>
+							<tr>
+								<td><?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' H:i', $entry['time'] ?? 0 ) ); ?></td>
+								<td><?php echo 'spike' === ( $entry['type'] ?? '' ) ? '📈 ' . esc_html__( 'Pico', 'podcast-analytics-for-op3' ) : '📉 ' . esc_html__( 'Caída', 'podcast-analytics-for-op3' ); ?></td>
+								<td><?php echo esc_html( $entry['podcast'] ?? '' ); ?></td>
+								<td>
+									<?php if ( ! empty( $entry['episode_url'] ) ) : ?>
+										<a href="<?php echo esc_url( $entry['episode_url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $entry['episode_title'] ?? '' ); ?></a>
+									<?php else : ?>
+										<?php echo esc_html( $entry['episode_title'] ?? '' ); ?>
+									<?php endif; ?>
+								</td>
+								<td><?php echo esc_html( ( ( $entry['pct_change'] ?? 0 ) > 0 ? '+' : '' ) . ( $entry['pct_change'] ?? 0 ) ); ?>%</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endif; ?>
+		</div>
+		<?php
 	}
 
 	// -------------------------------------------------------------------------

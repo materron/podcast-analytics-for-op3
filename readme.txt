@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 7.0.1
 Requires PHP: 8.0
-Stable tag: 2.3.1
+Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,7 @@ Integrate OP3 open podcast analytics with WordPress: prefix your feed automatica
 * **Best time to publish** — Charts showing downloads by hour of day and by weekday, in your site's own timezone.
 * **Unique listeners** — A deduplicated listener count, for both public and private podcasts.
 * **Audience overlap** — When two or more podcasts are shown together, see how many listeners they share, as a matrix and a ranked list. Public podcasts are compared against public podcasts, and private against private — see the FAQ below for why they're never mixed.
+* **Download alerts** — Get an email when an episode (published more than 14 days ago) has an unusual spike or drop in downloads compared to the previous week. Configured in a dedicated **OP3 Analytics → Alertas** page, with its own history log.
 
 = How the OP3 prefix works =
 
@@ -111,6 +112,22 @@ Because of this, the plugin always keeps public and private podcasts in **separa
 
 If you select only one podcast (or only one podcast per group), the audience-overlap section doesn't appear at all — it needs at least two comparable shows to say anything meaningful.
 
+= How do download alerts work? =
+
+Go to **OP3 Analytics → Alertas** and:
+
+1. Enter a destination email address. This is required — there is no fallback to the site's admin email, so alerts stay off until you set one explicitly.
+2. Choose which type(s) to enable: "Pico de descargas" (spike) and/or "Caída de descargas" (drop).
+3. Optionally adjust the threshold (default ±50%) and the minimum baseline (default 5 downloads).
+4. Optionally choose which podcasts to monitor (all active podcasts by default).
+
+Once a day, the plugin compares each monitored episode's downloads in the last 7 days against the 7 days before that. If the change is at or beyond your threshold, it's included in a single consolidated email. Two safeguards keep it from being noisy:
+
+* Episodes younger than 14 days are skipped entirely — a brand-new episode's natural launch curve (high initial downloads, then a steep decline) would otherwise look like a constant "spike" and "drop" for every episode, every day.
+* The previous week's count must be at least the configured minimum baseline (default 5) — otherwise tiny numbers produce meaningless percentages (e.g. going from 1 to 2 downloads reads as "+100%").
+
+A history of the last 50 triggered alerts is kept on the Alertas page itself, along with a "Guardar y comprobar ahora" button to test your configuration immediately instead of waiting for the daily cron.
+
 == External Services ==
 
 This plugin connects to two external services. Both are optional in the sense that the plugin's core feature (the feed prefix) works without any account, but statistics require them.
@@ -144,6 +161,9 @@ No data is collected from your site's visitors beyond what is described in the E
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.4.0 (2026-07-11) =
+* New: download alerts. Get a consolidated email when a monitored episode (14+ days old) has a spike or drop in downloads vs. the previous week. New dedicated "OP3 Analytics → Alertas" settings page with its own history log, separate from the Statistics page — email required, no fallback to the site admin address, checkable per alert type and per podcast, with a configurable threshold and minimum-baseline noise filter.
 
 = 2.3.1 (2026-07-10) =
 * New: audience overlap report (matrix + ranked list) showing how many listeners two or more podcasts have in common, when 2+ podcasts are shown together. Public and private podcasts are always kept in separate comparisons — see the FAQ for why.

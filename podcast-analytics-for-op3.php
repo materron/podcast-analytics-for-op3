@@ -3,7 +3,7 @@
  * Plugin Name: Podcast Analytics for OP3
  * Plugin URI:  https://github.com/materron/podcast-analytics-for-op3
  * Description: Adds the OP3 prefix to your podcast feed enclosures and shows download statistics in the WordPress dashboard. Supports multiple podcasts and network-wide stats.
- * Version:     2.3.1
+ * Version:     2.4.0
  * Requires at least: 6.3
  * Requires PHP: 8.0
  * Author:      Miguel Ángel Terrón Bote
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OP3PA_VERSION', '2.3.1' );
+define( 'OP3PA_VERSION', '2.4.0' );
 define( 'OP3PA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OP3PA_URL', plugin_dir_url( __FILE__ ) );
 define( 'OP3PA_OPTION',              'op3pa_podcasts' );
@@ -31,6 +31,7 @@ require_once OP3PA_DIR . 'includes/class-op3pa-admin.php';
 require_once OP3PA_DIR . 'includes/class-op3pa-db.php';
 require_once OP3PA_DIR . 'includes/class-op3pa-tracker.php';
 require_once OP3PA_DIR . 'includes/class-op3pa-geo.php';
+require_once OP3PA_DIR . 'includes/class-op3pa-alerts.php';
 
 /**
  * Adds a "weekly" interval for the GeoLite2 database refresh cron event.
@@ -203,6 +204,7 @@ add_action( 'plugins_loaded', [ 'OP3PA_Admin', 'init' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_Tracker', 'init' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_DB', 'maybe_upgrade' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_Geo', 'init' ] );
+add_action( 'plugins_loaded', [ 'OP3PA_Alerts', 'init' ] );
 add_action( 'plugins_loaded', 'op3pa_maybe_migrate' );
 
 register_activation_hook( __FILE__, 'op3pa_activate' );
@@ -262,6 +264,7 @@ function op3pa_maybe_migrate(): void {
 
 function op3pa_deactivate(): void {
 	wp_clear_scheduled_hook( 'op3pa_geoip_refresh' );
+	wp_clear_scheduled_hook( 'op3pa_alerts_check' );
 	for ( $op3pa_i = 0; $op3pa_i < 20; $op3pa_i++ ) {
 		delete_transient( 'op3pa_downloads_' . $op3pa_i . '_1d' );
 		delete_transient( 'op3pa_downloads_' . $op3pa_i . '_7d' );
