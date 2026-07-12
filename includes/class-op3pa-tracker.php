@@ -81,11 +81,19 @@ class OP3PA_Tracker {
 			exit;
 		}
 
-		OP3PA_DB::record_download( $podcast_index, $episode_id, [
-			'app_name'     => self::detect_app( $_SERVER['HTTP_USER_AGENT'] ?? '' ),
-			'referer'      => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : null,
-			'country_code' => OP3PA_Geo::lookup_country( OP3PA_DB::get_client_ip() ),
-		] );
+		$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) );
+
+		// Only GET requests are counted as downloads (matching OP3's own rule) —
+		// a HEAD or other method still gets redirected normally, just not logged.
+		if ( 'GET' === ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
+			OP3PA_DB::record_download( $podcast_index, $episode_id, [
+				'app_name'     => self::detect_app( $user_agent ),
+				'user_agent'   => $user_agent,
+				'range_header' => isset( $_SERVER['HTTP_RANGE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_RANGE'] ) ) : null,
+				'referer'      => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : null,
+				'country_code' => OP3PA_Geo::lookup_country( OP3PA_DB::get_client_ip() ),
+			] );
+		}
 
 		wp_redirect( $target_url, 302 ); // phpcs:ignore WordPress.Security.SafeRedirect -- target is the site's own known audio URL.
 		exit;

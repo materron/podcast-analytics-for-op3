@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class OP3PA_DB {
 
 	private const DB_VERSION_OPTION = 'op3pa_db_version';
-	private const DB_VERSION        = '1.0';
+	private const DB_VERSION        = '1.1';
 
 	/**
 	 * Returns the fully-qualified downloads table name.
@@ -46,13 +46,17 @@ class OP3PA_DB {
 			episode_id VARCHAR(191) NOT NULL,
 			downloaded_at DATETIME NOT NULL,
 			ip_hash CHAR(64) NOT NULL,
+			audience_hash CHAR(64) NULL,
+			is_probe TINYINT(1) NOT NULL DEFAULT 0,
+			is_bot TINYINT(1) NOT NULL DEFAULT 0,
 			country_code CHAR(2) NULL,
 			region VARCHAR(100) NULL,
 			app_name VARCHAR(100) NULL,
 			referer VARCHAR(255) NULL,
 			PRIMARY KEY  (id),
 			KEY podcast_episode (podcast_index, episode_id),
-			KEY downloaded_at (downloaded_at)
+			KEY downloaded_at (downloaded_at),
+			KEY dedup_lookup (podcast_index, episode_id(100), audience_hash)
 		) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -62,28 +66,186 @@ class OP3PA_DB {
 	}
 
 	/**
-	 * Records a single download event.
+	 * Records a single download event, applying the same counting rules OP3
+	 * uses for its own redirect service (see download_calculation.htm on
+	 * op3.dev), so private-podcast numbers are measured the same way as the
+	 * public ones OP3 reports:
+	 *  - A Range request for 2 bytes or fewer that ISN'T the "bytes=0-1"
+	 *    startup probe is dropped entirely (some apps poke a random offset
+	 *    before really fetching; that poke isn't a listen).
+	 *  - A "bytes=0-1" probe IS counted (apps commonly do this before the
+	 *    real request), but a later real request from the same listener for
+	 *    the same episode the same day upgrades/replaces it rather than
+	 *    adding a second download.
+	 *  - Only one download per (episode, listener, day) is counted at all —
+	 *    "listener" here is a hash of IP+User-Agent+Referer, scoped to the
+	 *    day for free because `ip_hash` already rotates its salt daily.
+	 *  - Requests from a recognisable bot/crawler User-Agent are still
+	 *    logged (for debugging) but flagged `is_bot` and excluded from every
+	 *    report query, matching OP3 excluding bots from published counts.
+	 *
+	 * Unlike OP3, this does not replicate their internally-curated IP/ASN
+	 * abuse blocklist — that's operational knowledge accumulated by OP3
+	 * over years of running the service, not something derivable from a
+	 * single request. The User-Agent based bot filter below covers the
+	 * overwhelming majority of non-human traffic in practice.
 	 *
 	 * @param int    $podcast_index Podcast index.
 	 * @param string $episode_id    Stable identifier for the episode (e.g. post ID or slug).
-	 * @param array  $meta          Optional keys: country_code, region, app_name, referer.
+	 * @param array  $meta          Optional keys: country_code, region, app_name, referer, user_agent, range_header.
 	 */
 	public static function record_download( int $podcast_index, string $episode_id, array $meta = [] ): void {
 		global $wpdb;
 
+		$range = self::classify_range( $meta['range_header'] ?? null );
+		if ( ! $range['count'] ) {
+			return;
+		}
+
+		$ip_hash       = self::hash_ip( self::get_client_ip() );
+		$user_agent    = (string) ( $meta['user_agent'] ?? '' );
+		$referer       = $meta['referer'] ?? null;
+		$audience_hash = self::compute_audience_hash( $ip_hash, $user_agent, $referer );
+		$is_bot        = self::is_bot_user_agent( $user_agent ) ? 1 : 0;
+		$table         = self::table();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, values are prepared.
+		$existing = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT id, is_probe FROM {$table}
+				 WHERE podcast_index = %d AND episode_id = %s AND audience_hash = %s
+				 ORDER BY id DESC LIMIT 1",
+				$podcast_index,
+				$episode_id,
+				$audience_hash
+			),
+			ARRAY_A
+		);
+
+		if ( $existing ) {
+			if ( '1' === (string) $existing['is_probe'] && ! $range['is_probe'] ) {
+				// A real request supersedes an earlier startup probe for the same listener/episode/day.
+				$wpdb->update(
+					$table,
+					[
+						'downloaded_at' => current_time( 'mysql', true ),
+						'country_code'  => $meta['country_code'] ?? null,
+						'region'        => $meta['region'] ?? null,
+						'app_name'      => $meta['app_name'] ?? null,
+						'referer'       => $referer,
+						'is_probe'      => 0,
+						'is_bot'        => $is_bot,
+					],
+					[ 'id' => $existing['id'] ],
+					[ '%s', '%s', '%s', '%s', '%s', '%d', '%d' ],
+					[ '%d' ]
+				);
+			}
+			// Already counted (as a probe or a real download) for this listener/episode/day — skip.
+			return;
+		}
+
 		$wpdb->insert(
-			self::table(),
+			$table,
 			[
 				'podcast_index' => $podcast_index,
 				'episode_id'    => $episode_id,
 				'downloaded_at' => current_time( 'mysql', true ),
-				'ip_hash'       => self::hash_ip( self::get_client_ip() ),
+				'ip_hash'       => $ip_hash,
+				'audience_hash' => $audience_hash,
+				'is_probe'      => $range['is_probe'] ? 1 : 0,
+				'is_bot'        => $is_bot,
 				'country_code'  => $meta['country_code'] ?? null,
 				'region'        => $meta['region'] ?? null,
 				'app_name'      => $meta['app_name'] ?? null,
-				'referer'       => $meta['referer'] ?? null,
+				'referer'       => $referer,
 			],
-			[ '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
+			[ '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s' ]
+		);
+	}
+
+	/**
+	 * Decides whether a request counts as a download based on its Range
+	 * header, mirroring OP3's rule: no Range header, or a Range covering more
+	 * than 2 bytes, counts normally; a "bytes=0-1" startup probe counts too
+	 * (but is tagged so a later real request can replace it); any other
+	 * Range of 2 bytes or fewer (a mid-file poke, not a real fetch) is
+	 * dropped.
+	 *
+	 * @param string|null $range_header Raw `Range:` request header, if any.
+	 * @return array{count: bool, is_probe: bool}
+	 */
+	private static function classify_range( ?string $range_header ): array {
+		if ( empty( $range_header ) ) {
+			return [
+				'count'    => true,
+				'is_probe' => false,
+			];
+		}
+
+		if ( ! preg_match( '/^bytes=(\d*)-(\d*)$/', trim( $range_header ), $m ) ) {
+			// Multi-range or malformed header: don't try to be clever, count it.
+			return [
+				'count'    => true,
+				'is_probe' => false,
+			];
+		}
+
+		$start = '' === $m[1] ? null : (int) $m[1];
+		$end   = '' === $m[2] ? null : (int) $m[2];
+
+		if ( 0 === $start && 1 === $end ) {
+			return [
+				'count'    => true,
+				'is_probe' => true,
+			];
+		}
+
+		if ( null !== $start && null !== $end && ( $end - $start + 1 ) <= 2 ) {
+			return [
+				'count'    => false,
+				'is_probe' => false,
+			];
+		}
+
+		return [
+			'count'    => true,
+			'is_probe' => false,
+		];
+	}
+
+	/**
+	 * Hashes IP + User-Agent + Referer into a single per-listener identifier
+	 * for a given day. The day-scoping comes for free: `$ip_hash` already
+	 * rotates its salt daily (see hash_ip()), so this hash naturally changes
+	 * every day even for the same real listener — matching OP3's dedup
+	 * window of one UTC calendar day.
+	 *
+	 * @param string      $ip_hash    Already-hashed, already-daily-rotated IP.
+	 * @param string      $user_agent Raw User-Agent header.
+	 * @param string|null $referer    Raw Referer header, if any.
+	 * @return string SHA-256 hex hash.
+	 */
+	private static function compute_audience_hash( string $ip_hash, string $user_agent, ?string $referer ): string {
+		return hash( 'sha256', $ip_hash . '|' . $user_agent . '|' . ( $referer ?? '' ) );
+	}
+
+	/**
+	 * Best-effort bot/crawler detection from the User-Agent header. Not a
+	 * full replica of OP3's curated dataset + IP blocklist (see the
+	 * record_download() docblock), but covers the common cases: missing UA,
+	 * and known bot/crawler/monitoring-service name patterns.
+	 *
+	 * @param string $user_agent Raw User-Agent header.
+	 * @return bool
+	 */
+	private static function is_bot_user_agent( string $user_agent ): bool {
+		if ( '' === trim( $user_agent ) ) {
+			return true;
+		}
+		return (bool) preg_match(
+			'/bot|crawler|spider|slurp|facebookexternalhit|whatsapp|pingdom|monitor|headlesschrome|phantomjs|curl\/|wget\//i',
+			$user_agent
 		);
 	}
 
@@ -122,7 +284,7 @@ class OP3PA_DB {
 				$wpdb->prepare(
 					"SELECT episode_id, COUNT(*) as downloads
 					 FROM {$table}
-					 WHERE podcast_index = %d AND downloaded_at BETWEEN %s AND %s
+					 WHERE podcast_index = %d AND is_bot = 0 AND downloaded_at BETWEEN %s AND %s
 					 GROUP BY episode_id
 					 ORDER BY downloads DESC",
 					$podcast_index,
@@ -137,7 +299,7 @@ class OP3PA_DB {
 			$wpdb->prepare(
 				"SELECT episode_id, COUNT(*) as downloads
 				 FROM {$table}
-				 WHERE podcast_index = %d AND downloaded_at >= %s
+				 WHERE podcast_index = %d AND is_bot = 0 AND downloaded_at >= %s
 				 GROUP BY episode_id
 				 ORDER BY downloads DESC",
 				$podcast_index,
@@ -234,7 +396,7 @@ class OP3PA_DB {
 			$wpdb->prepare(
 				"SELECT COALESCE(app_name, %s) as name, COUNT(*) as downloads
 				 FROM {$table}
-				 WHERE podcast_index = %d AND {$where_date}
+				 WHERE podcast_index = %d AND is_bot = 0 AND {$where_date}
 				 GROUP BY name
 				 ORDER BY downloads DESC",
 				__( 'Unknown', 'podcast-analytics-for-op3' ),
@@ -273,7 +435,7 @@ class OP3PA_DB {
 			$wpdb->prepare(
 				"SELECT country_code as code, COUNT(*) as downloads
 				 FROM {$table}
-				 WHERE podcast_index = %d AND country_code IS NOT NULL AND {$where_date}
+				 WHERE podcast_index = %d AND is_bot = 0 AND country_code IS NOT NULL AND {$where_date}
 				 GROUP BY code
 				 ORDER BY downloads DESC",
 				$podcast_index
@@ -308,7 +470,7 @@ class OP3PA_DB {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
 		$timestamps = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT downloaded_at FROM {$table} WHERE podcast_index = %d AND {$where_date}",
+				"SELECT downloaded_at FROM {$table} WHERE podcast_index = %d AND is_bot = 0 AND {$where_date}",
 				$podcast_index
 			)
 		);
@@ -367,7 +529,7 @@ class OP3PA_DB {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
 		return $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT ip_hash FROM {$table} WHERE podcast_index = %d AND {$where_date}",
+				"SELECT DISTINCT ip_hash FROM {$table} WHERE podcast_index = %d AND is_bot = 0 AND {$where_date}",
 				$podcast_index
 			)
 		);

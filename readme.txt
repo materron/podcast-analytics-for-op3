@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 7.0.1
 Requires PHP: 8.0
-Stable tag: 2.5.0
+Stable tag: 2.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,7 +19,7 @@ Integrate OP3 open podcast analytics with WordPress: prefix your feed automatica
 * **Automatic feed prefix** — Adds `https://op3.dev/e/` before every audio enclosure URL in your RSS feed. Works with PowerPress (Blubrry), Seriously Simple Podcasting, Podlove, and any plugin that generates a standard RSS2 podcast feed.
 * **Dashboard widget** — Shows your podcast's downloads for the last 7 days directly on the WordPress dashboard.
 * **Statistics page** — A dedicated admin page with download counts per episode, switchable between last 24 hours, 7 days, and 30 days.
-* **Private podcast support** — Podcasts behind a restricted/password-protected feed (e.g. with Restrict Content Pro) get their own self-hosted download-tracking endpoint instead of the OP3 prefix, since OP3 cannot access authenticated feeds by design. Statistics for private podcasts are calculated from your own database and shown alongside your public podcasts.
+* **Private podcast support** — Podcasts behind a restricted/password-protected feed (e.g. with Restrict Content Pro) get their own self-hosted download-tracking endpoint instead of the OP3 prefix, since OP3 cannot access authenticated feeds by design. Statistics for private podcasts are calculated from your own database and shown alongside your public podcasts. Download counting for private podcasts follows the same methodology OP3 documents for its own public counting (startup-probe handling, one-download-per-listener-per-day deduplication, bot filtering), so numbers are comparable in kind, not just in table layout.
 * **Apps & devices breakdown** — See which podcast apps (Spotify, Apple Podcasts, Overcast...) your listeners use, for both public and private podcasts.
 * **Country map** — A world map colored by download volume, plus a ranked country list, for both public and private podcasts (private podcasts require a free MaxMind GeoLite2 license key).
 * **Custom date range** — Pick any "from/to" range for your stats, in addition to the quick 24h/7d/30d tabs.
@@ -98,6 +98,16 @@ Yes, if you own all the podcasts. The bearer token is tied to your OP3 identity,
 
 Yes, since v2.1.0. Mark the podcast as "Privado" in the settings and set its Feed slug (the `/feed/{slug}/` part of your restricted feed's URL). The plugin will route its downloads through a self-hosted tracking endpoint on your own site instead of the OP3 prefix, and its statistics will appear alongside your public podcasts. Downloads are logged without ever storing raw IP addresses (only a daily-rotating salted hash).
 
+= How are private podcast downloads counted? Is it comparable to OP3's numbers? =
+
+As of v2.6.0, private podcast downloads follow the same counting rules OP3 documents for its own public numbers ([download_calculation.htm, in OP3's own open-source repository](https://github.com/skymethod/op3/blob/master/worker/static/download_calculation.htm)):
+
+* A request asking for only 1-2 bytes in the middle of the file (some apps "poke" the server before really fetching) isn't counted as a download — except the very first 2 bytes (`bytes=0-1`), which many apps request as a startup check right before the real download; that one *is* counted, since a real request from the same listener almost always follows.
+* Only one download is counted per listener, per episode, per day — a listener re-requesting the same episode (retries, app reopens) doesn't inflate the count.
+* Requests from recognisable bots and crawlers are excluded from every report.
+
+This mirrors OP3's *methodology*, not its exact internal implementation — OP3 also filters against a large, continuously-updated list of known-abusive IP addresses accumulated from running the service since 2023, which isn't something a single WordPress site can replicate. In practice this affects a small fraction of traffic; the rules above cover the overwhelming majority of what separates a real listen from noise.
+
 = Does the country map work for private podcasts too? =
 
 Yes, but it requires a free MaxMind GeoLite2 license key (sign up at [maxmind.com/en/geolite2/signup](https://www.maxmind.com/en/geolite2/signup)), added in **OP3 Analytics → Settings**. Public podcasts get country data directly from the OP3 API and don't need this. The plugin never stores raw IP addresses — it resolves the country at the moment of the download and discards the IP immediately.
@@ -164,6 +174,9 @@ No data is collected from your site's visitors beyond what is described in the E
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.6.0 (2026-07-12) =
+* Improvement: Private podcast download counting now follows the same methodology OP3 documents for its own public counting — startup-probe (`bytes=0-1`) handling, one-download-per-listener-per-day deduplication, and bot/crawler filtering. See the FAQ for details.
 
 = 2.5.0 (2026-07-11) =
 * New: Growth ranking report — episodes climbing or falling fastest vs. the equal-length period before.
