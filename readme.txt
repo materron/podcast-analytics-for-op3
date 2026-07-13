@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.6.2
+Stable tag: 2.6.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -174,6 +174,9 @@ No data is collected from your site's visitors beyond what is described in the E
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.6.3 (2026-07-13) =
+* Fixed: eight remaining `PluginCheck.Security.DirectDB.UnescapedDBParameter` warnings in class-op3pa-geo.php's table-swap logic — the suppression comment was missing that specific sniff code (present in the file's first query, forgotten in the rest).
 
 = 2.6.2 (2026-07-13) =
 * Fixed: remaining Plugin Check warnings missed in 2.6.1 — verified this time against a locally-installed copy of WordPress Coding Standards rather than by hand, since several `phpcs:ignore` comments in 2.6.1 didn't actually cover the flagged line (multi-line SQL statements need the comment on the exact line, not just the statement's opening line) or used the wrong sniff code.
