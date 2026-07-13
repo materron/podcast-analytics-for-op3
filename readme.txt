@@ -2,9 +2,9 @@
 Contributors: materron
 Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
-Tested up to: 7.0.1
+Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.6.0
+Stable tag: 2.6.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -174,6 +174,10 @@ No data is collected from your site's visitors beyond what is described in the E
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.6.1 (2026-07-13) =
+* Fixed: `Tested up to` used a patch-level version number (7.0.1), which WordPress.org's readme validator rejects — only major.minor is accepted. Corrected to 7.0.
+* Fixed: several WordPress.org Plugin Check warnings (missing `wp_unslash()` before sanitizing a few POST/SERVER values, missing `translators:` comments, direct-database-query suppression comments that didn't match the actual sniff codes triggered).
 
 = 2.6.0 (2026-07-12) =
 * Improvement: Private podcast download counting now follows the same methodology OP3 documents for its own public counting — startup-probe (`bytes=0-1`) handling, one-download-per-listener-per-day deduplication, and bot/crawler filtering. See the FAQ for details.

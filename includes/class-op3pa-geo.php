@@ -93,13 +93,14 @@ class OP3PA_Geo {
 		global $wpdb;
 		$table = self::table();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, value is prepared.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- custom table, name is a fixed constant (not user input), value is prepared via %d; a country lookup on every download request must not add a cache-invalidation layer.
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT country_code, end_ip FROM {$table} WHERE start_ip <= %d ORDER BY start_ip DESC LIMIT 1",
 				$ip_long
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		if ( ! $row || (int) $row->end_ip < $ip_long ) {
 			return null;
@@ -185,7 +186,7 @@ class OP3PA_Geo {
 	 */
 	private static function parse_locations_csv( string $file ): array {
 		$map    = [];
-		$handle = fopen( $file, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		$handle = fopen( $file, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- streaming a large local CSV row-by-row; WP_Filesystem has no streaming CSV reader.
 		if ( ! $handle ) {
 			return $map;
 		}
@@ -199,7 +200,7 @@ class OP3PA_Geo {
 				$map[ $row[ $geoname_col ] ] = $row[ $country_col ];
 			}
 		}
-		fclose( $handle );
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- pairs with the fopen() above.
 
 		return $map;
 	}
@@ -217,8 +218,10 @@ class OP3PA_Geo {
 		$charset_collate = $wpdb->get_charset_collate();
 		$staging_table    = self::table() . '_staging';
 
-		$wpdb->query( "DROP TABLE IF EXISTS {$staging_table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$wpdb->query( // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is a fixed constant (not user input); DDL can't use $wpdb->prepare() placeholders.
+		$wpdb->query( "DROP TABLE IF EXISTS {$staging_table}" );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- see above; disabled for this whole statement since the violations land on several of its lines.
+		$wpdb->query(
 			"CREATE TABLE {$staging_table} (
 				start_ip BIGINT UNSIGNED NOT NULL,
 				end_ip BIGINT UNSIGNED NOT NULL,
@@ -226,8 +229,9 @@ class OP3PA_Geo {
 				PRIMARY KEY (start_ip)
 			) {$charset_collate}"
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		$handle = fopen( $file, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		$handle = fopen( $file, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- streaming a large local CSV row-by-row; WP_Filesystem has no streaming CSV reader.
 		if ( ! $handle ) {
 			return new WP_Error( 'op3pa_geoip_read_error', __( 'Could not open GeoLite2 blocks CSV.', 'podcast-analytics-for-op3' ) );
 		}
@@ -264,28 +268,33 @@ class OP3PA_Geo {
 				$batch = [];
 			}
 		}
-		fclose( $handle );
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- pairs with the fopen() above.
 
 		if ( ! empty( $batch ) ) {
 			self::flush_batch( $staging_table, $batch );
 		}
 
 		if ( 0 === $total_rows ) {
-			$wpdb->query( "DROP TABLE IF EXISTS {$staging_table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is a fixed constant (not user input); DDL can't use $wpdb->prepare() placeholders.
+			$wpdb->query( "DROP TABLE IF EXISTS {$staging_table}" );
 			return new WP_Error( 'op3pa_geoip_empty', __( 'GeoLite2 data parsed to zero ranges.', 'podcast-analytics-for-op3' ) );
 		}
 
 		// Atomic swap: staging becomes live, old live table is dropped.
 		$live_table = self::table();
 		$old_table  = $live_table . '_old';
-		$wpdb->query( "DROP TABLE IF EXISTS {$old_table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- see above.
+		$wpdb->query( "DROP TABLE IF EXISTS {$old_table}" );
 
 		$table_exists = (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $live_table ) );
 		if ( $table_exists ) {
-			$wpdb->query( "RENAME TABLE {$live_table} TO {$old_table}, {$staging_table} TO {$live_table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$wpdb->query( "DROP TABLE IF EXISTS {$old_table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- see above.
+			$wpdb->query( "RENAME TABLE {$live_table} TO {$old_table}, {$staging_table} TO {$live_table}" );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- see above.
+			$wpdb->query( "DROP TABLE IF EXISTS {$old_table}" );
 		} else {
-			$wpdb->query( "RENAME TABLE {$staging_table} TO {$live_table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- see above.
+			$wpdb->query( "RENAME TABLE {$staging_table} TO {$live_table}" );
 		}
 
 		return true;
@@ -300,7 +309,8 @@ class OP3PA_Geo {
 	private static function flush_batch( string $table, array $batch ): void {
 		global $wpdb;
 		$sql = "INSERT INTO {$table} (start_ip, end_ip, country_code) VALUES " . implode( ',', $batch );
-		$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- each tuple was already prepared individually.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- each "(%d, %d, %s)" tuple was already built with $wpdb->prepare() individually; table name is a fixed constant.
+		$wpdb->query( $sql );
 	}
 
 	/**

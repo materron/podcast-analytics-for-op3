@@ -183,7 +183,7 @@ class OP3PA_Admin {
 		}
 
 		// Save podcasts list.
-		$raw_podcasts = $_POST['op3pa_podcasts'] ?? [];
+		$raw_podcasts = wp_unslash( $_POST['op3pa_podcasts'] ?? [] );
 		$podcasts     = [];
 
 		if ( is_array( $raw_podcasts ) ) {
@@ -448,7 +448,7 @@ class OP3PA_Admin {
 		update_option( OP3PA_Alerts::OPTION_EMAIL, $email );
 
 		$types = array_intersect(
-			(array) ( $_POST['op3pa_alerts_types'] ?? [] ),
+			wp_unslash( (array) ( $_POST['op3pa_alerts_types'] ?? [] ) ),
 			[ 'spike', 'drop' ]
 		);
 		update_option( OP3PA_Alerts::OPTION_TYPES, array_values( $types ) );
@@ -561,7 +561,10 @@ class OP3PA_Admin {
 								<?php foreach ( $active as $i => $podcast ) : ?>
 									<label style="display:block;margin-bottom:4px;">
 										<input type="checkbox" name="op3pa_alerts_podcasts[]" value="<?php echo esc_attr( $i ); ?>" <?php checked( in_array( $i, $monitored, true ) ); ?> />
-										<?php echo esc_html( $podcast['name'] ?: sprintf( __( 'Podcast %d', 'podcast-analytics-for-op3' ), $i + 1 ) ); ?>
+										<?php
+										/* translators: %d: podcast number */
+										echo esc_html( $podcast['name'] ?: sprintf( __( 'Podcast %d', 'podcast-analytics-for-op3' ), $i + 1 ) );
+										?>
 										<?php if ( ! empty( $podcast['private'] ) ) : ?> 🔒<?php endif; ?>
 									</label>
 								<?php endforeach; ?>
@@ -672,7 +675,10 @@ class OP3PA_Admin {
 					<?php foreach ( $active as $i => $p ) : ?>
 					<label class="op3pa-selector-item">
 						<input type="checkbox" class="op3pa-podcast-check" value="<?php echo esc_attr( $i ); ?>" checked />
-						<?php echo esc_html( $p['name'] ?: sprintf( __( 'Podcast %d', 'podcast-analytics-for-op3' ), $i + 1 ) ); ?>
+						<?php
+						/* translators: %d: podcast number */
+						echo esc_html( $p['name'] ?: sprintf( __( 'Podcast %d', 'podcast-analytics-for-op3' ), $i + 1 ) );
+						?>
 					</label>
 					<?php endforeach; ?>
 				</div>
@@ -1466,7 +1472,11 @@ class OP3PA_Admin {
 			}
 			$id_sets[ $i ]  = array_flip( $ids ); // Flipped for fast isset() lookups during intersection.
 			$podcasts[ $i ] = [
-				'name'  => $podcast['name'] ?: sprintf( __( 'Podcast %d', 'podcast-analytics-for-op3' ), $i + 1 ),
+				'name'  => $podcast['name'] ?: sprintf(
+					/* translators: %d: podcast number */
+					__( 'Podcast %d', 'podcast-analytics-for-op3' ),
+					$i + 1
+				),
 				'total' => count( $ids ),
 			];
 		}
@@ -2062,8 +2072,10 @@ class OP3PA_Admin {
 	 * @return int|array
 	 */
 	private static function parse_requested_period(): int|array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- only caller is ajax_refresh_stats(), which already calls check_ajax_referer() before this runs.
 		$start = sanitize_text_field( wp_unslash( $_POST['start'] ?? '' ) );
-		$end   = sanitize_text_field( wp_unslash( $_POST['end'] ?? '' ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- see above.
+		$end = sanitize_text_field( wp_unslash( $_POST['end'] ?? '' ) );
 
 		if ( $start && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $start ) ) {
 			$period = [ 'start' => $start ];
@@ -2073,6 +2085,7 @@ class OP3PA_Admin {
 			return $period;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- see above.
 		$days = absint( $_POST['days'] ?? 1 );
 		return in_array( $days, [ 1, 7, 30 ], true ) ? $days : 1;
 	}

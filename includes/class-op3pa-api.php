@@ -385,6 +385,7 @@ class OP3PA_Api {
 		// Range-based caches use an md5 hash suffix (can't be enumerated by day), so
 		// clear them by LIKE pattern instead — along with network/episode-title caches.
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- bulk pattern-delete of transients by LIKE; no core WP function clears transients by prefix, and every value here is passed through $wpdb->prepare().
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s

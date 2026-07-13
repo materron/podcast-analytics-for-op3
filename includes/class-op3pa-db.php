@@ -109,7 +109,7 @@ class OP3PA_DB {
 		$is_bot        = self::is_bot_user_agent( $user_agent ) ? 1 : 0;
 		$table         = self::table();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, values are prepared.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is a fixed constant, values are prepared via %d/%s.
 		$existing = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT id, is_probe FROM {$table}
@@ -121,6 +121,7 @@ class OP3PA_DB {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		if ( $existing ) {
 			if ( '1' === (string) $existing['is_probe'] && ! $range['is_probe'] ) {
@@ -278,7 +279,7 @@ class OP3PA_DB {
 
 		[ $since, $until ] = self::period_to_range( $period );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, values are prepared.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is a fixed constant, values are prepared via %d/%s.
 		if ( null !== $until ) {
 			return $wpdb->get_results(
 				$wpdb->prepare(
@@ -307,6 +308,7 @@ class OP3PA_DB {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 	}
 
 	/**
@@ -391,7 +393,7 @@ class OP3PA_DB {
 			? $wpdb->prepare( 'downloaded_at BETWEEN %s AND %s', $since, $until )
 			: $wpdb->prepare( 'downloaded_at >= %s', $since );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is a fixed constant, $where_date was prepared above.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT COALESCE(app_name, %s) as name, COUNT(*) as downloads
@@ -404,6 +406,7 @@ class OP3PA_DB {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		return array_map(
 			static fn( $row ) => [ 'name' => $row['name'], 'downloads' => (int) $row['downloads'] ],
@@ -430,7 +433,7 @@ class OP3PA_DB {
 			? $wpdb->prepare( 'downloaded_at BETWEEN %s AND %s', $since, $until )
 			: $wpdb->prepare( 'downloaded_at >= %s', $since );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is a fixed constant, $where_date was prepared above.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT country_code as code, COUNT(*) as downloads
@@ -442,6 +445,7 @@ class OP3PA_DB {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		return array_map(
 			static fn( $row ) => [ 'code' => $row['code'], 'downloads' => (int) $row['downloads'] ],
@@ -467,13 +471,14 @@ class OP3PA_DB {
 			? $wpdb->prepare( 'downloaded_at BETWEEN %s AND %s', $since, $until )
 			: $wpdb->prepare( 'downloaded_at >= %s', $since );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is a fixed constant, $where_date was prepared above.
 		$timestamps = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT downloaded_at FROM {$table} WHERE podcast_index = %d AND is_bot = 0 AND {$where_date}",
 				$podcast_index
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		$tz         = wp_timezone();
 		$by_hour    = array_fill( 0, 24, 0 );
@@ -526,13 +531,14 @@ class OP3PA_DB {
 			? $wpdb->prepare( 'downloaded_at BETWEEN %s AND %s', $since, $until )
 			: $wpdb->prepare( 'downloaded_at >= %s', $since );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a fixed constant, $where_date was prepared above.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is a fixed constant, $where_date was prepared above.
 		return $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT DISTINCT ip_hash FROM {$table} WHERE podcast_index = %d AND is_bot = 0 AND {$where_date}",
 				$podcast_index
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 	}
 
 	/**
@@ -551,13 +557,14 @@ class OP3PA_DB {
 		global $wpdb;
 		$wanted = array_flip( $episode_ids );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table names are fixed constants.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $wpdb->posts/$wpdb->postmeta are WP core table-name properties, not user input; no variable values to prepare.
 		$posts = $wpdb->get_results(
 			"SELECT p.ID, p.post_title, p.post_date, pm.meta_value
 			 FROM {$wpdb->posts} p
 			 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = 'enclosure'
 			 WHERE p.post_status IN ('publish', 'draft', 'private', 'future')"
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		$map = [];
 		foreach ( $posts as $post ) {
