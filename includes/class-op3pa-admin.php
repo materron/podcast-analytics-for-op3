@@ -182,7 +182,9 @@ class OP3PA_Admin {
 			wp_schedule_single_event( time(), 'op3pa_geoip_refresh' );
 		}
 
-		// Save podcasts list.
+		// Save podcasts list. Each field is individually sanitized per-row in the loop below;
+		// the array itself has no single sanitizer function that applies to it as a whole.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- see loop below.
 		$raw_podcasts = wp_unslash( $_POST['op3pa_podcasts'] ?? [] );
 		$podcasts     = [];
 
@@ -448,6 +450,7 @@ class OP3PA_Admin {
 		update_option( OP3PA_Alerts::OPTION_EMAIL, $email );
 
 		$types = array_intersect(
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized by array_intersect() against the fixed whitelist below, not a string sanitizer function.
 			wp_unslash( (array) ( $_POST['op3pa_alerts_types'] ?? [] ) ),
 			[ 'spike', 'drop' ]
 		);

@@ -286,6 +286,7 @@ class OP3PA_Geo {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- see above.
 		$wpdb->query( "DROP TABLE IF EXISTS {$old_table}" );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table; value is prepared via %s.
 		$table_exists = (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $live_table ) );
 		if ( $table_exists ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- see above.
@@ -309,7 +310,7 @@ class OP3PA_Geo {
 	private static function flush_batch( string $table, array $batch ): void {
 		global $wpdb;
 		$sql = "INSERT INTO {$table} (start_ip, end_ip, country_code) VALUES " . implode( ',', $batch );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- each "(%d, %d, %s)" tuple was already built with $wpdb->prepare() individually; table name is a fixed constant.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- each "(%d, %d, %s)" tuple was already built with $wpdb->prepare() individually; table name is a fixed constant.
 		$wpdb->query( $sql );
 	}
 

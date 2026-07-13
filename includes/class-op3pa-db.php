@@ -126,6 +126,7 @@ class OP3PA_DB {
 		if ( $existing ) {
 			if ( '1' === (string) $existing['is_probe'] && ! $range['is_probe'] ) {
 				// A real request supersedes an earlier startup probe for the same listener/episode/day.
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table; $wpdb->update() already escapes every value via the format arrays below.
 				$wpdb->update(
 					$table,
 					[
@@ -146,6 +147,7 @@ class OP3PA_DB {
 			return;
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table; $wpdb->insert() already escapes every value via the format array below.
 		$wpdb->insert(
 			$table,
 			[
