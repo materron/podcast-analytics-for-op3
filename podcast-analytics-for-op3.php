@@ -3,7 +3,7 @@
  * Plugin Name: Podcast Analytics for OP3
  * Plugin URI:  https://github.com/materron/podcast-analytics-for-op3
  * Description: Adds the OP3 prefix to your podcast feed enclosures and shows download statistics in the WordPress dashboard. Supports multiple podcasts and network-wide stats.
- * Version:     2.6.3
+ * Version:     2.6.4
  * Requires at least: 6.3
  * Requires PHP: 8.0
  * Author:      Miguel Ángel Terrón Bote
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OP3PA_VERSION', '2.6.3' );
+define( 'OP3PA_VERSION', '2.6.4' );
 define( 'OP3PA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OP3PA_URL', plugin_dir_url( __FILE__ ) );
 define( 'OP3PA_OPTION',              'op3pa_podcasts' );
@@ -227,7 +227,7 @@ function op3pa_activate(): void {
  * Runs once and stores a flag to avoid repeating.
  */
 function op3pa_maybe_migrate(): void {
-	if ( get_option( 'op3pa_migrated_v2' ) ) {
+	if ( get_option( 'op3pa_migration_checked' ) ) {
 		return;
 	}
 
@@ -235,8 +235,10 @@ function op3pa_maybe_migrate(): void {
 
 	// Check if old format: first podcast has 'api_key' field.
 	if ( empty( $podcasts ) || ! isset( $podcasts[0]['api_key'] ) ) {
-		// Nothing to migrate, mark as done.
-		update_option( 'op3pa_migrated_v2', true );
+		// Nothing to migrate (e.g. a fresh install) — skip future checks, but
+		// don't set op3pa_migrated_v2, which gates the "your settings were
+		// migrated" admin notice and must only be true for a real migration.
+		update_option( 'op3pa_migration_checked', true );
 		return;
 	}
 
@@ -263,6 +265,7 @@ function op3pa_maybe_migrate(): void {
 	}
 
 	update_option( OP3PA_OPTION, $new_podcasts );
+	update_option( 'op3pa_migration_checked', true );
 	update_option( 'op3pa_migrated_v2', true );
 }
 
