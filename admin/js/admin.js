@@ -175,4 +175,15 @@
 		$widget.find( '.op3pa-nav-dot' ).removeClass( 'active' ).eq( current ).addClass( 'active' );
 	} );
 
+	// ── VozCaster cross-promo dismiss ───────────────────────────────────────
+
+	$( document ).on( 'click', '.op3pa-promo-dismiss', function () {
+		var $promo = $( this ).closest( '.op3pa-promo' );
+		$promo.fadeOut( 200 );
+		$.post( op3paData.ajaxUrl, {
+			action: 'op3pa_dismiss_vozcaster_promo',
+			nonce:  op3paData.nonce
+		} );
+	} );
+
 } )( jQuery );

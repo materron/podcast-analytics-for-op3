@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.6.4
+Stable tag: 2.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -174,6 +174,9 @@ No data is collected from your site's visitors beyond what is described in the E
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.7.0 (2026-07-15) =
+* New: a small, dismissible note on the Statistics and Settings pages pointing to VozCaster (the same author's Telegram-based podcast publishing bot), admin-only and never intrusive.
 
 = 2.6.4 (2026-07-14) =
 * Fixed: a brand-new install (no v1.x data to migrate) could incorrectly show the "your settings were migrated, please verify your Bearer Token" admin notice. That notice is now only shown after a real migration from v1.x actually happened.

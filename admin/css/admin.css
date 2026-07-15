@@ -127,6 +127,47 @@
 .op3pa-loading { padding: 20px 0; color: #646970; font-style: italic; }
 .op3pa-report-explainer { display: none; font-size: 12px; color: #646970; font-style: italic; margin: -4px 0 10px; }
 
+/* ── VozCaster cross-promo ────────────────────────── */
+.op3pa-promo {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin: 4px 0 20px;
+	padding: 16px 44px 16px 20px;
+	background: linear-gradient(135deg, #eaf2fc 0%, #f6f0ff 100%);
+	border: 1px solid #b8d0ef;
+	border-radius: 6px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.op3pa-promo-icon { font-size: 30px; line-height: 1; flex-shrink: 0; }
+.op3pa-promo p { margin: 0; font-size: 14px; color: #1d2327; flex: 1; line-height: 1.5; }
+.op3pa-promo-cta {
+	flex-shrink: 0;
+	white-space: nowrap;
+	font-weight: 600;
+	padding: 6px 18px !important;
+	height: auto !important;
+	font-size: 13px !important;
+}
+.op3pa-promo-dismiss {
+	position: absolute;
+	top: 8px;
+	right: 10px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 18px;
+	line-height: 1;
+	color: #646970;
+	padding: 4px;
+}
+.op3pa-promo-dismiss:hover { color: #1d2327; }
+
+@media (max-width: 782px) {
+	.op3pa-promo { flex-wrap: wrap; }
+}
+
 /* ── Dashboard widget ─────────────────────────────── */
 .op3pa-widget { font-size: 13px; }
 .op3pa-widget-total { display: flex; align-items: baseline; gap: 8px; padding: 10px 0; border-bottom: 1px solid #dcdcde; margin-bottom: 10px; }

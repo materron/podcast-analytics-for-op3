@@ -25,6 +25,7 @@ class OP3PA_Admin {
 		add_action( 'wp_dashboard_setup',    [ __CLASS__, 'register_dashboard_widget' ] );
 		add_action( 'wp_ajax_op3pa_refresh_stats',   [ __CLASS__, 'ajax_refresh_stats' ] );
 		add_action( 'wp_ajax_op3pa_refresh_network', [ __CLASS__, 'ajax_refresh_network' ] );
+		add_action( 'wp_ajax_op3pa_dismiss_vozcaster_promo', [ __CLASS__, 'ajax_dismiss_vozcaster_promo' ] );
 		add_action( 'admin_notices',         [ __CLASS__, 'maybe_show_migration_notice' ] );
 	}
 
@@ -235,6 +236,8 @@ class OP3PA_Admin {
 				<span class="op3pa-logo">OP3</span>
 				<?php esc_html_e( 'Podcast Analytics — Settings', 'podcast-analytics-for-op3' ); ?>
 			</h1>
+
+			<?php self::render_vozcaster_promo(); ?>
 
 			<form method="post" action="">
 				<?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_KEY ); ?>
@@ -649,6 +652,8 @@ class OP3PA_Admin {
 				<?php esc_html_e( 'Podcast Analytics — Statistics', 'podcast-analytics-for-op3' ); ?>
 			</h1>
 
+			<?php self::render_vozcaster_promo(); ?>
+
 			<?php if ( empty( $active ) ) : ?>
 				<div class="notice notice-warning inline">
 					<p>
@@ -728,6 +733,54 @@ class OP3PA_Admin {
 			</div>
 		</div>
 		<?php
+	}
+
+	/** User meta key tracking whether the current admin dismissed the VozCaster cross-promo box. */
+	private const VOZCASTER_PROMO_DISMISS_META = 'op3pa_vozcaster_promo_dismissed';
+
+	/**
+	 * Renders a small, dismissible cross-promotion box for VozCaster (the same
+	 * author's other product) at the bottom of the Statistics page. Admin-only,
+	 * contextual, low-key, and permanently dismissible per user — kept within
+	 * what WordPress.org's plugin guidelines allow for self-promotion (see
+	 * Detailed Plugin Guidelines #5 "Trialware" and #11 "admin dashboard").
+	 */
+	private static function render_vozcaster_promo(): void {
+		$user_id = get_current_user_id();
+		if ( get_user_meta( $user_id, self::VOZCASTER_PROMO_DISMISS_META, true ) ) {
+			return;
+		}
+
+		$is_spanish = str_starts_with( get_locale(), 'es' );
+		$url        = $is_spanish
+			? 'https://vozcaster.com/?utm_source=op3-plugin&utm_medium=wp-admin&utm_campaign=cross-promo'
+			: 'https://vozcaster.com/en/?utm_source=op3-plugin&utm_medium=wp-admin&utm_campaign=cross-promo';
+		$message    = $is_spanish
+			? __( '¿Cansado de editar audios, meter melodías y normalizar para publicar tu podcast? VozCaster lo hace por ti desde Telegram, gratis, en minutos.', 'podcast-analytics-for-op3' )
+			: __( 'Tired of editing audio, adding music, and normalizing levels before publishing your podcast? VozCaster does it for you from Telegram, free, in minutes.', 'podcast-analytics-for-op3' );
+		$cta        = $is_spanish
+			? __( 'Descúbrelo gratis →', 'podcast-analytics-for-op3' )
+			: __( 'Try it free →', 'podcast-analytics-for-op3' );
+		?>
+		<div class="op3pa-promo no-print" id="op3pa-vozcaster-promo">
+			<span class="op3pa-promo-icon">🎙️</span>
+			<p><?php echo esc_html( $message ); ?></p>
+			<a class="button button-primary op3pa-promo-cta" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener">
+				<?php echo esc_html( $cta ); ?>
+			</a>
+			<button type="button" class="op3pa-promo-dismiss" aria-label="<?php esc_attr_e( 'Descartar', 'podcast-analytics-for-op3' ); ?>">&times;</button>
+		</div>
+		<?php
+	}
+
+	/**
+	 * AJAX handler: remembers that the current admin dismissed the VozCaster
+	 * promo box, so it never shows again for them.
+	 */
+	public static function ajax_dismiss_vozcaster_promo(): void {
+		check_ajax_referer( 'op3pa_ajax', 'nonce' );
+		update_user_meta( get_current_user_id(), self::VOZCASTER_PROMO_DISMISS_META, true );
+		wp_send_json_success();
 	}
 
 	/**
