@@ -147,55 +147,12 @@ function op3pa_get_active_all_podcasts(): array {
  * @return string
  */
 function op3pa_country_name( string $code ): string {
-	static $names = null;
-	if ( null === $names ) {
-		$names = [
-			'AF' => 'Afganistán', 'AL' => 'Albania', 'DZ' => 'Argelia', 'AO' => 'Angola',
-			'AR' => 'Argentina', 'AM' => 'Armenia', 'AU' => 'Australia', 'AT' => 'Austria',
-			'AZ' => 'Azerbaiyán', 'BS' => 'Bahamas', 'BD' => 'Bangladés', 'BY' => 'Bielorrusia',
-			'BE' => 'Bélgica', 'BZ' => 'Belice', 'BJ' => 'Benín', 'BT' => 'Bután',
-			'BO' => 'Bolivia', 'BA' => 'Bosnia y Herzegovina', 'BW' => 'Botsuana', 'BR' => 'Brasil',
-			'BN' => 'Brunéi', 'BG' => 'Bulgaria', 'BF' => 'Burkina Faso', 'BI' => 'Burundi',
-			'KH' => 'Camboya', 'CM' => 'Camerún', 'CA' => 'Canadá', 'CF' => 'República Centroafricana',
-			'TD' => 'Chad', 'CL' => 'Chile', 'CN' => 'China', 'CO' => 'Colombia',
-			'CG' => 'Congo', 'CR' => 'Costa Rica', 'CI' => 'Costa de Marfil', 'HR' => 'Croacia',
-			'CU' => 'Cuba', 'CY' => 'Chipre', 'CZ' => 'República Checa', 'CD' => 'RD del Congo',
-			'DK' => 'Dinamarca', 'DJ' => 'Yibuti', 'DO' => 'República Dominicana', 'EC' => 'Ecuador',
-			'EG' => 'Egipto', 'SV' => 'El Salvador', 'GQ' => 'Guinea Ecuatorial', 'ER' => 'Eritrea',
-			'EE' => 'Estonia', 'ET' => 'Etiopía', 'FJ' => 'Fiyi', 'FI' => 'Finlandia',
-			'FR' => 'Francia', 'GA' => 'Gabón', 'GM' => 'Gambia', 'GE' => 'Georgia',
-			'DE' => 'Alemania', 'GH' => 'Ghana', 'GR' => 'Grecia', 'GL' => 'Groenlandia',
-			'GT' => 'Guatemala', 'GN' => 'Guinea', 'GW' => 'Guinea-Bisáu', 'GY' => 'Guyana',
-			'HT' => 'Haití', 'HN' => 'Honduras', 'HU' => 'Hungría', 'IS' => 'Islandia',
-			'IN' => 'India', 'ID' => 'Indonesia', 'IR' => 'Irán', 'IQ' => 'Irak',
-			'IE' => 'Irlanda', 'IL' => 'Israel', 'IT' => 'Italia', 'JM' => 'Jamaica',
-			'JP' => 'Japón', 'JO' => 'Jordania', 'KZ' => 'Kazajistán', 'KE' => 'Kenia',
-			'KW' => 'Kuwait', 'KG' => 'Kirguistán', 'LA' => 'Laos', 'LV' => 'Letonia',
-			'LB' => 'Líbano', 'LS' => 'Lesoto', 'LR' => 'Liberia', 'LY' => 'Libia',
-			'LT' => 'Lituania', 'LU' => 'Luxemburgo', 'MK' => 'Macedonia del Norte', 'MG' => 'Madagascar',
-			'MW' => 'Malaui', 'MY' => 'Malasia', 'ML' => 'Malí', 'MT' => 'Malta',
-			'MR' => 'Mauritania', 'MX' => 'México', 'MD' => 'Moldavia', 'MN' => 'Mongolia',
-			'ME' => 'Montenegro', 'MA' => 'Marruecos', 'MZ' => 'Mozambique', 'MM' => 'Birmania',
-			'NA' => 'Namibia', 'NP' => 'Nepal', 'NL' => 'Países Bajos', 'NZ' => 'Nueva Zelanda',
-			'NI' => 'Nicaragua', 'NE' => 'Níger', 'NG' => 'Nigeria', 'KP' => 'Corea del Norte',
-			'NO' => 'Noruega', 'OM' => 'Omán', 'PK' => 'Pakistán', 'PS' => 'Palestina',
-			'PA' => 'Panamá', 'PG' => 'Papúa Nueva Guinea', 'PY' => 'Paraguay', 'PE' => 'Perú',
-			'PH' => 'Filipinas', 'PL' => 'Polonia', 'PT' => 'Portugal', 'PR' => 'Puerto Rico',
-			'QA' => 'Catar', 'RO' => 'Rumanía', 'RU' => 'Rusia', 'RW' => 'Ruanda',
-			'SA' => 'Arabia Saudí', 'SN' => 'Senegal', 'RS' => 'Serbia', 'SL' => 'Sierra Leona',
-			'SG' => 'Singapur', 'SK' => 'Eslovaquia', 'SI' => 'Eslovenia', 'SB' => 'Islas Salomón',
-			'SO' => 'Somalia', 'ZA' => 'Sudáfrica', 'KR' => 'Corea del Sur', 'SS' => 'Sudán del Sur',
-			'ES' => 'España', 'LK' => 'Sri Lanka', 'SD' => 'Sudán', 'SR' => 'Surinam',
-			'SZ' => 'Esuatini', 'SE' => 'Suecia', 'CH' => 'Suiza', 'SY' => 'Siria',
-			'TW' => 'Taiwán', 'TJ' => 'Tayikistán', 'TZ' => 'Tanzania', 'TH' => 'Tailandia',
-			'TL' => 'Timor Oriental', 'TG' => 'Togo', 'TT' => 'Trinidad y Tobago', 'TN' => 'Túnez',
-			'TR' => 'Turquía', 'TM' => 'Turkmenistán', 'UG' => 'Uganda', 'UA' => 'Ucrania',
-			'AE' => 'Emiratos Árabes Unidos', 'GB' => 'Reino Unido', 'US' => 'Estados Unidos', 'UY' => 'Uruguay',
-			'UZ' => 'Uzbekistán', 'VU' => 'Vanuatu', 'VE' => 'Venezuela', 'VN' => 'Vietnam',
-			'YE' => 'Yemen', 'ZM' => 'Zambia', 'ZW' => 'Zimbabue',
-		];
-	}
-	return $names[ strtoupper( $code ) ] ?? strtoupper( $code );
+    // Gets the current WordPress locale (e.g., 'es_ES', 'fr_FR')
+    $wp_locale = get_locale();
+    // Convert to ISO format expected by PHP Intl
+    $intl_locale = Locale::canonicalize($wp_locale);
+    // Get the translated country name
+    return Locale::getDisplayRegion('-' . strtoupper($code), $intl_locale) ?? strtoupper($code);
 }
 
 // Bootstrap.
