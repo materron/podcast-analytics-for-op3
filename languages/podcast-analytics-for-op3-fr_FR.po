@@ -1,0 +1,777 @@
+# Spanish translation for Podcast Analytics for OP3
+# Copyright (C) 2024 Miguel Ángel Terrón Bote
+# This file is distributed under the same license as the Podcast Analytics for OP3 plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Podcast Analytics for OP3 1.0.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-23 10:55+1200\n"
+"PO-Revision-Date: 2026-07-23 10:59+1200\n"
+"Last-Translator: Miguel Ángel Terrón Bote <materron@gmail.com>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Domain: podcast-analytics-for-op3\n"
+"X-Generator: Poedit 3.9\n"
+"X-Poedit-KeywordsList: esc_html__\n"
+"X-Poedit-Basepath: ../includes\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\podcast-analytics-for-op3.php:46
+msgid "Once Weekly"
+msgstr "Hebdomadaire"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\podcast-analytics-for-op3.php:257
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:137
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:572
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:688
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:830
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:959
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1338
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1533
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-api.php:326
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-db.php:367
+#, php-format
+msgid "Podcast %d"
+msgstr "Podcast %d"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:50
+#, php-format
+msgid ""
+"Podcast Analytics for OP3 has been updated to v2.0. Your podcast settings "
+"have been migrated automatically, but please verify your Bearer Token in the "
+"%s."
+msgstr ""
+"Podcast Analytics pour OP3 a été mis à jour vers la version 2.0. Les "
+"paramètres de votre podcast ont été migrés automatiquement, mais veuillez "
+"vérifier votre 'Bearer Token' dans %s."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:51
+msgid "OP3 Settings page"
+msgstr "Page de paramètres"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:62
+msgid "Podcast Analytics for OP3"
+msgstr "Podcast Analytics pour OP3"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:63
+msgid "OP3 Analytics"
+msgstr "OP3 Analytics"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:73
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:74
+msgid "Settings"
+msgstr "Paramètres"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:82
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:83
+msgid "Statistics"
+msgstr "Statistiques"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:91
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:92
+msgid "Alertas"
+msgstr "Alertes"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:149
+msgid "Refreshing…"
+msgstr "Actualisation…"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:150
+msgid "Could not load stats. Try again later."
+msgstr "Impossible de charger les stats. Réessayez ultérieurement."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:151
+msgid "Network total"
+msgstr "Total réseau"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:168
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:449
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2157
+msgid "Access denied."
+msgstr "Accès refusé."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:217
+msgid "OP3 settings saved."
+msgstr "Paramètres OP3 sauvegardés."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:237
+msgid "Podcast Analytics — Settings"
+msgstr "Podcast Analytics — Paramètres"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:245
+msgid "Ajustes globales"
+msgstr "Paramètres généraux"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:249
+msgid "Bearer token de OP3"
+msgstr "Bearer token de OP3"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:259
+#, php-format
+msgid ""
+"Obtén tu bearer token en %s. Importante: el bearer token NO es la API Key — "
+"para verlo haz clic en «Regenerate token» y cópialo desde ahí. Un mismo "
+"token sirve para todos tus podcasts."
+msgstr ""
+"Récupérez votre « Bearer token » sur %s. Important : le « Bearer token » "
+"n'est PAS la clé API — pour le consulter, cliquez sur « Regenerate token » "
+"et copiez-le à partir de là. Un même token fonctionne pour tous vos podcasts."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:268
+msgid "MaxMind license key (opcional)"
+msgstr "Clé de license MaxMind (optionnelle)."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:278
+#, php-format
+msgid ""
+"Solo necesario para podcasts privados: activa el país/región del oyente en "
+"sus estadísticas. Gratis en %s."
+msgstr ""
+"Nécessaire uniquement pour les podcasts privés : affiche le pays/la région "
+"de l'auditeur dans vos statistiques. Gratuit sur %s."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:287
+#, php-format
+msgid "Base de datos de países actualizada por última vez: hace %s"
+msgstr "Dernière mise à jour de la base de données des pays : il y a %s"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:292
+msgid ""
+"La descarga inicial de la base de datos está en curso (puede tardar unos "
+"minutos)."
+msgstr ""
+"Le téléchargement initial de la base de données est en cours (cela peut "
+"prendre quelques minutes)."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:300
+msgid "Podcasts"
+msgstr "Podcasts"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:302
+msgid ""
+"Añade una fila por cada podcast. El Show UUID lo encontrarás en la URL de tu "
+"página de estadísticas en OP3 (https://op3.dev/show/{uuid}). El Podcast GUID "
+"es opcional y acelera la atribución. El Feed slug (ej. \"premiumpp\" para /"
+"feed/premiumpp/) es obligatorio para podcasts privados, y opcional para "
+"públicos con más de un canal. Los podcasts marcados como privados no tendrán "
+"el prefijo OP3, sino un endpoint propio de seguimiento, y sus estadísticas "
+"se calculan desde tu propia base de datos."
+msgstr ""
+"Ajoutez une ligne pour chaque podcast. Vous trouverez le Show UUID dans "
+"l'URL de votre page de statistiques sur OP3 (https://op3.dev/show/{uuid}). "
+"Le Podcast GUID est facultatif et accélère l'attribution. Le slug du flux "
+"(par ex. « premiumpp » pour /feed/premiumpp/) est obligatoire pour les "
+"podcasts privés, et facultatif pour les podcasts publics comportant "
+"plusieurs chaînes. Les podcasts marqués comme privés n'auront pas le préfixe "
+"OP3, mais disposeront de leur propre point de terminaison de suivi, et leurs "
+"statistiques seront calculées à partir de votre propre base de données."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:308
+msgid "Nombre"
+msgstr "Nombre"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:309
+msgid "Show UUID"
+msgstr "UUID du podcast"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:310
+msgid "Podcast GUID (opcional)"
+msgstr "GUID du podcast (optionnel)"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:311
+msgid "Feed slug"
+msgstr "Slug du flux"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:312
+msgid "Color"
+msgstr "Couleur"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:313
+msgid "Privado"
+msgstr "Privé"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:326
+msgid "Añadir podcast"
+msgstr "Ajouter un podcast"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:330
+msgid "Save Settings"
+msgstr "Sauvegarder les paramètres"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:484
+msgid "Ajustes guardados y comprobación de alertas ejecutada."
+msgstr "Réglages enregistrés et vérification des alertes effectuée."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:508
+msgid "Podcast Analytics — Alertas"
+msgstr "Podcast Analytics — Alertes"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:511
+msgid ""
+"Recibe un aviso por email cuando un episodio (con más de 14 días publicado) "
+"tenga un pico o una caída de descargas inusual respecto a la semana "
+"anterior. Se comprueba una vez al día."
+msgstr ""
+"Recevez une alerte par e-mail lorsqu'un épisode (publié depuis plus de 14 "
+"jours) enregistre un pic ou une baisse inhabituelle du nombre de "
+"téléchargements par rapport à la semaine précédente. La vérification a lieu "
+"une fois par jour."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:520
+msgid "Correo de destino"
+msgstr "Adresse e-mail de destination"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:525
+msgid "Obligatorio para que se envíen alertas. No hay un correo por defecto."
+msgstr ""
+"Obligatoire pour recevoir des alertes. Aucune adresse e-mail n'est définie "
+"par défaut."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:529
+msgid "Tipo de alerta"
+msgstr "Type d'alerte"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:533
+msgid "Pico de descargas en un episodio"
+msgstr "Pic de téléchargements pour un épisode"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:537
+msgid "Caída de descargas en un episodio"
+msgstr "Baisse du nombre de téléchargements au cours d'un épisode"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:543
+msgid "Umbral"
+msgstr "Seuil"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:548
+msgid ""
+"Variación mínima (comparando esta semana con la anterior, por episodio) para "
+"disparar una alerta."
+msgstr ""
+"Variation minimale (en comparant cette semaine à la précédente, par épisode) "
+"pour déclencher une alerte."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:553
+msgid "Mínimo de descargas"
+msgstr "Nombre minimum de téléchargements"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:558
+msgid ""
+"La semana anterior del episodio debe tener al menos este número de descargas "
+"para considerarse. Evita avisos por cambios triviales (ej. pasar de 1 a 2 "
+"descargas ya es \"+100%\")."
+msgstr ""
+"La semaine précédant l'épisode doit avoir enregistré au moins ce nombre de "
+"téléchargements pour être prise en compte. Évitez les notifications pour des "
+"changements insignifiants (par exemple, passer de 1 à 2 téléchargements "
+"correspond déjà à une augmentation de « +100 % »)."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:562
+msgid "Podcasts monitorizados"
+msgstr "Podcasts suivis"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:565
+msgid "No hay podcasts activos configurados."
+msgstr "Aucun podcast actif configuré."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:582
+msgid "Guardar ajustes"
+msgstr "Enregistrer les paramètres"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:583
+msgid "Guardar y comprobar ahora"
+msgstr "Enregistrer et vérifier maintenant"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:586
+msgid "Estado"
+msgstr "État"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:592
+#, php-format
+msgid "Última comprobación: hace %s."
+msgstr "Dernière vérification : il y a %s."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:597
+msgid "Aún no se ha ejecutado ninguna comprobación."
+msgstr "Aucune vérification n'a encore été effectuée."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:601
+msgid "Historial reciente"
+msgstr "Historique récent"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:603
+msgid "No se ha disparado ninguna alerta todavía."
+msgstr "Aucune alerte n'a encore été déclenchée."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:608
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1884
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2047
+msgid "Fecha"
+msgstr "Date"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:609
+msgid "Tipo"
+msgstr "Type"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:610
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1838
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1882
+msgid "Podcast"
+msgstr "Podcast"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:611
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1883
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2046
+msgid "Episodio"
+msgstr "Épisode"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:612
+msgid "Cambio"
+msgstr "Changement"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:619
+msgid "Pico"
+msgstr "Pic"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:619
+msgid "Caída"
+msgstr "Baisse"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:652
+msgid "Podcast Analytics — Statistics"
+msgstr "Podcast Analytics — Statistiques"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:663
+#, php-format
+msgid "No active podcasts configured. Go to the %s to add your podcasts."
+msgstr ""
+"Aucun podcast actif n'est configuré. Rendez-vous sur %s pour ajouter vos "
+"podcasts."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:665
+msgid "Settings page"
+msgstr ""
+"Page de p\n"
+"aramètres"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:680
+msgid "All (network)"
+msgstr "Tout (réseau)"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:696
+msgid "Last 24h"
+msgstr "Dernières 24h"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:697
+msgid "Last 7 days"
+msgstr "7 derniers jours"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:698
+msgid "Last 30 days"
+msgstr "30 derniers jours"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:703
+msgid "Desde"
+msgstr "De"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:707
+msgid "Hasta"
+msgstr "À"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:711
+msgid "Aplicar rango"
+msgstr "Appliquer une plage"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:716
+msgid "Refresh"
+msgstr "Rafraîchir"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:719
+msgid "Print / PDF"
+msgstr "Imprimer / PDF"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:759
+msgid ""
+"¿Cansado de editar audios, meter melodías y normalizar para publicar tu "
+"podcast? VozCaster lo hace por ti desde Telegram, gratis, en minutos."
+msgstr ""
+"Vous en avez assez de monter vos fichiers audio, d'y ajouter des mélodies et "
+"de les normaliser pour publier votre podcast ? VozCaster s'en charge pour "
+"vous depuis Telegram, gratuitement, en quelques minutes."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:760
+msgid ""
+"Tired of editing audio, adding music, and normalizing levels before "
+"publishing your podcast? VozCaster does it for you from Telegram, free, in "
+"minutes."
+msgstr ""
+"Vous en avez assez de retoucher vos enregistrements audio, d'ajouter de la "
+"musique et de normaliser les niveaux avant de publier votre podcast ? "
+"VozCaster s'en charge pour vous depuis Telegram, gratuitement et en quelques "
+"minutes."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:762
+msgid "Descúbrelo gratis →"
+msgstr "Découvrez-le gratuitement →"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:763
+msgid "Try it free →"
+msgstr "Essayez-le gratuitement →"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:904
+msgid "Apps y dispositivos"
+msgstr "Applications et appareils"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:905
+msgid ""
+"Aplicaciones y dispositivos usados para descargar los episodios, en el "
+"periodo seleccionado."
+msgstr ""
+"Applications et appareils utilisés pour télécharger les épisodes, au cours "
+"de la période sélectionnée."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:997
+msgid "Comparativa de apps entre podcasts"
+msgstr "Comparaison d'applications de podcasts"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:998
+msgid ""
+"Reparto de apps y dispositivos de cada podcast, uno al lado del otro, para "
+"comparar hábitos de escucha entre shows."
+msgstr ""
+"Répartition des applications et des appareils utilisés pour chaque podcast, "
+"côte à côte, afin de comparer les habitudes d'écoute entre les émissions."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1104
+msgid "País"
+msgstr "Pays"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1105
+msgid "Descargas agrupadas por país de origen, según la IP del oyente."
+msgstr ""
+"Téléchargements regroupés par pays d'origine, en fonction de l'adresse IP de "
+"l'auditeur."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1188
+msgid "Dom"
+msgstr "Dim"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1189
+msgid "Lun"
+msgstr "Lun"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1190
+msgid "Mar"
+msgstr "Mar"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1191
+msgid "Mié"
+msgstr "Mer"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1192
+msgid "Jue"
+msgstr "Jeu"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1193
+msgid "Vie"
+msgstr "Ven"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1194
+msgid "Sáb"
+msgstr "Sam"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1200
+msgid "Mejor hora y día"
+msgstr "Meilleure heure et meilleur jour"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1201
+msgid ""
+"Cuándo escucha tu audiencia: hora del día y día de la semana con más "
+"descargas, útil para decidir cuándo publicar."
+msgstr ""
+"Quand votre audience est à l'écoute : heure de la journée et jour de la "
+"semaine où les téléchargements sont les plus nombreux, ce qui est utile pour "
+"choisir le moment de la publication."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1204
+msgid "Por hora del día"
+msgstr "Par heure de la journée"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1215
+msgid "Por día de la semana"
+msgstr "Par jour de la semaine"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1372
+msgid "Ranking de crecimiento"
+msgstr "Classement en fonction de la croissance"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1373
+msgid "vs. periodo anterior equivalente"
+msgstr "par rapport à la même période de l'année précédente"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1375
+msgid ""
+"Episodios que más han subido o bajado en descargas respecto al periodo "
+"anterior de la misma duración."
+msgstr ""
+"Épisodes dont le nombre de téléchargements a le plus augmenté ou diminué par "
+"rapport à la période précédente de même durée."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1379
+msgid "En alza"
+msgstr "En hausse"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1385
+msgid "En caída"
+msgstr "En baisse"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1621
+msgid "Solapamiento de audiencia"
+msgstr "Dissimulation d'audience"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1622
+msgid ""
+"Qué porcentaje de oyentes escuchan más de uno de tus podcasts. Solo "
+"comparable entre podcasts del mismo tipo (públicos entre sí, privados entre "
+"sí)."
+msgstr ""
+"Quel pourcentage d'auditeurs écoute plus d'un de vos podcasts ? Comparaison "
+"valable uniquement entre des podcasts du même type (publics entre eux, "
+"privés entre eux)."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1626
+msgid "Podcasts públicos"
+msgstr "Podcasts publics"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1632
+msgid "Podcasts privados"
+msgstr "Podcasts privés"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1677
+msgid "Sin oyentes compartidos en este periodo."
+msgstr "Aucun auditeur commun au cours de cette période."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1688
+#, php-format
+msgid "%1$s oyentes compartidos (%2$s%% de %3$s, %4$s%% de %5$s)"
+msgstr "%1$s auditeurs communs (%2$s%% sur %3$s, %4$s%% sur %5$s)"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1801
+msgid "descargas totales"
+msgstr "nombre total de téléchargements"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1807
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2000
+msgid "oyentes únicos"
+msgstr "auditeurs uniques"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1831
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1992
+msgid "No download data available yet."
+msgstr "Pas de donnés de téléchargement disponibles."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1839
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1885
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2048
+msgid "Descargas"
+msgstr "Téléchargements"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1855
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1941
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2098
+msgid "Total"
+msgstr "Total"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1877
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2041
+msgid "Episodios"
+msgstr "Épisodes"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1878
+msgid ""
+"Descargas por episodio de todos los podcasts seleccionados, ordenadas de "
+"mayor a menor."
+msgstr ""
+"Nombre de téléchargements par épisode pour tous les podcasts sélectionnés, "
+"classés par ordre décroissant."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1891
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2056
+msgid "(unknown)"
+msgstr "(inconnu)"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1929
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2087
+#, php-format
+msgid "Ver todos (%d más)"
+msgstr "Tout afficher (%d de plus)"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:1956
+msgid "Datos en caché durante 1 hora."
+msgstr "Données en cache pendant 1 heure."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2013
+msgid "Live data from your own tracking endpoint (not cached)."
+msgstr ""
+"Données en temps réel provenant de votre propre point de terminaison de "
+"suivi (non mises en cache)."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2020
+#, php-format
+msgid "Data cached for 1 hour. %s"
+msgstr "Données en cache pendant 1 heure. %s"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2022
+msgid "View detailed breakdown on OP3 →"
+msgstr "Voir les détails sur OP3 →"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2042
+msgid ""
+"Descargas por episodio en el periodo seleccionado, ordenadas de mayor a "
+"menor."
+msgstr ""
+"Nombre de téléchargements par épisode pour la période sélectionnée, classés "
+"par ordre décroissant."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2195
+msgid "OP3 Podcast Downloads"
+msgstr "Téléchargements de podcast OP3"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2208
+#, php-format
+msgid "Configure your podcasts in the %s."
+msgstr "Configurez votre podcast dans %s."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2210
+msgid "OP3 settings"
+msgstr "Paramètres OP3"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2232
+msgid "downloads in the last 7 days"
+msgstr "téléchargements sur les 7 derniers jours"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-admin.php:2283
+msgid "View all stats →"
+msgstr "Voir toutes les stats →"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-alerts.php:245
+#, php-format
+msgid "[%s] Alertas de descargas de podcast"
+msgstr "[%s] Alertes de téléchargement de podcasts"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-api.php:32
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-api.php:218
+msgid "No Show UUID configured."
+msgstr "UUID du podcast non configuré."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-api.php:74
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-db.php:406
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-api.php:298
+msgid "No active podcasts configured."
+msgstr "Aucun podcast actif configuré."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-api.php:530
+msgid "Invalid bearer token. Check your OP3 settings."
+msgstr "Bearer token invalide. Vérifiez vos paramètres OP3."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-api.php:533
+msgid "Show not found. Check your Show UUID."
+msgstr "Podcast non trouvé. Vérifiez l'UUID de votre podcast."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-api.php:539
+#, php-format
+msgid "OP3 API returned status %d."
+msgstr "L'API OP3 a retourné un statut %d."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-api.php:545
+msgid "Could not parse OP3 API response."
+msgstr "Impossible d'analyser la réponse de l'API OP3."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-geo.php:124
+msgid "No MaxMind license key configured."
+msgstr "Pas de clé de license MaxMind configurée."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-geo.php:164
+msgid "GeoLite2 CSV files not found in downloaded archive."
+msgstr "Fichiers GeoLite2 CSV non trouvés dans l'archive téléchargée."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-geo.php:236
+msgid "Could not open GeoLite2 blocks CSV."
+msgstr "Impossible d'ouvrir le CSV de blocs GeoLite2."
+
+#: D:\dev\libs\web\wordpress\podcast-analytics-for-op3\includes\class-op3pa-geo.php:280
+msgid "GeoLite2 data parsed to zero ranges."
+msgstr "Données GeoLite2 analysées: ensembles vides."
+
+#~ msgid "Enable OP3 prefix"
+#~ msgstr "Activer le préfixe OP3"
+
+#~ msgid "Add the OP3 prefix to all audio URLs in the RSS feed"
+#~ msgstr "Ajouter le préfixe OP3 à toutes les URLs audio du flux RSS"
+
+#~ msgid ""
+#~ "When enabled, audio enclosures in your feed will be rewritten from "
+#~ "https://yoursite.com/audio.mp3 to https://op3.dev/e/yoursite.com/"
+#~ "audio.mp3."
+#~ msgstr ""
+#~ "Une fois activé, les 'enclosures' audio du flux sont réécrites de https://"
+#~ "yoursite.com/audio.mp3 à https://op3.dev/e/yoursite.com/audio.mp3."
+
+#~ msgid ""
+#~ "Get your bearer token at %s (different from the API Key — use the token "
+#~ "shown after clicking «Regenerate token»)."
+#~ msgstr ""
+#~ "Récupérez votre token 'bearer' at %s (différent de la clé API - utilisez "
+#~ "le token fourni après avoir cliqué sur \"Regenerate token\")."
+
+#~ msgid ""
+#~ "The UUID that OP3 assigns to your show. You can find it in your public "
+#~ "stats URL: https://op3.dev/show/{uuid}."
+#~ msgstr ""
+#~ "L'UUID que OP3 assigne au podcast. Vous pouvez le trouver dans l'URL "
+#~ "publique de vos stats: https://op3.dev/show/{uuid}."
+
+#~ msgid ""
+#~ "The <podcast:guid> of your show (from your RSS feed). Including it speeds "
+#~ "up attribution in OP3 — useful but not required."
+#~ msgstr ""
+#~ "Le <podcast:guid> de votre podcast (d'après votre flux RSS). L'ajouter "
+#~ "accélère l'attribution dans OP3 - utile mais pas requis."
+
+#~ msgid "Feed Check"
+#~ msgstr "Vérification du flux"
+
+#~ msgid "Your feed URL: %s"
+#~ msgstr "URL de votre flux: %s"
+
+#~ msgid ""
+#~ "Open your feed after saving and verify that audio URLs start with https://"
+#~ "op3.dev/e/."
+#~ msgstr ""
+#~ "Ouvrez votre flux après l'avoir sauvegardé et vérifiez que les URL audio "
+#~ "commencent par https://op3.dev/e/."
+
+#~ msgid "↗ View public stats page on OP3"
+#~ msgstr "↗ Voir la page de stats publique sur OP3"
+
+#~ msgid "Please configure your Show UUID in the %s first."
+#~ msgstr "Veuillez configurer l'UUID de votre podcast in the %s first."
+
+#~ msgid "↗ Full stats on OP3"
+#~ msgstr "↗ Stats complètes sur OP3"
+
+#~ msgid "Loading stats…"
+#~ msgstr "Chargement des stats…"
+
+#~ msgid "Downloads"
+#~ msgstr "Téléchargements"
+
+#~ msgid "OP3 dashboard ↗"
+#~ msgstr "Tableau de bord OP3 ↗"
