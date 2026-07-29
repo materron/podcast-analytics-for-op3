@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.7.0
+Stable tag: 2.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -169,11 +169,23 @@ Only used if you mark a podcast as private AND enter a MaxMind license key in th
 
 No data is collected from your site's visitors beyond what is described in the External Services section above. IP addresses are never stored in raw form by this plugin — only a daily-rotating salted hash (for private-podcast unique-listener deduplication) and, when GeoLite2 is configured, a resolved country code.
 
+Because the salt rotates daily and the hash is one-way, the stored data cannot be traced back to an individual or to a registered WordPress user. The plugin therefore has nothing to hand to WordPress's built-in personal-data exporter and eraser tools, and does not register them.
+
+Deleting the plugin from the Plugins screen removes all of its data: settings, credentials, cached statistics and its custom database tables.
+
 == Credits ==
 
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.8.0 (2026-07-29) =
+* Fixed: uninstalling the plugin left data behind. It had not been updated since 2.0 and only removed the podcast list and a few old transients, leaving the Bearer Token, the MaxMind license key, all alert settings, the cached statistics and — most importantly — the custom download-tracking and GeoLite2 tables in the database. Uninstall now removes everything the plugin ever created, and does so per-site on Multisite.
+* Improvement: accessibility — the ten inputs in the Podcasts settings table (name, show UUID, feed GUID, feed slug, colour, private) had no accessible name, since the table only has column headers. Each control now carries an `aria-label` that also states which podcast row it belongs to.
+* Improvement: accessibility — the section headings on the Statistics page were `<h3>` directly under the page's `<h1>`, skipping a level. They are now `<h2>`, so the heading outline is sequential for screen readers.
+* Improvement: Multisite — new sites created in a network with the plugin network-activated now get their tracking table immediately, via `wp_initialize_site`, instead of on the next admin request.
+* Improvement: the bundled world map SVG is now read through the WordPress Filesystem API instead of `file_get_contents()`.
+* Improvement: the podcast list option is no longer autoloaded on every page request, since it is only needed on the plugin's own screens and on feed requests.
 
 = 2.7.0 (2026-07-15) =
 * New: a small, dismissible note on the Statistics and Settings pages pointing to VozCaster (the same author's Telegram-based podcast publishing bot), admin-only and never intrusive.

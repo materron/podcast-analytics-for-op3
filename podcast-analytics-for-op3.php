@@ -3,7 +3,7 @@
  * Plugin Name: Podcast Analytics for OP3
  * Plugin URI:  https://github.com/materron/podcast-analytics-for-op3
  * Description: Adds the OP3 prefix to your podcast feed enclosures and shows download statistics in the WordPress dashboard. Supports multiple podcasts and network-wide stats.
- * Version:     2.7.0
+ * Version:     2.8.0
  * Requires at least: 6.3
  * Requires PHP: 8.0
  * Author:      Miguel Ángel Terrón Bote
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OP3PA_VERSION', '2.7.0' );
+define( 'OP3PA_VERSION', '2.8.0' );
 define( 'OP3PA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OP3PA_URL', plugin_dir_url( __FILE__ ) );
 define( 'OP3PA_OPTION',              'op3pa_podcasts' );
@@ -209,13 +209,38 @@ add_action( 'plugins_loaded', 'op3pa_maybe_migrate' );
 
 register_activation_hook( __FILE__, 'op3pa_activate' );
 register_deactivation_hook( __FILE__, 'op3pa_deactivate' );
+add_action( 'wp_initialize_site', 'op3pa_initialize_new_site', 20 );
 
 function op3pa_activate(): void {
 	if ( ! get_option( OP3PA_OPTION ) ) {
-		add_option( OP3PA_OPTION, [] );
+		// The podcast list is only read on plugin screens and on feed requests,
+		// so it does not need to be autoloaded on every page.
+		add_option( OP3PA_OPTION, [], '', 'no' );
 	}
 	op3pa_maybe_migrate();
 	OP3PA_DB::maybe_upgrade();
+}
+
+/**
+ * Creates the plugin tables on a newly created site of a Multisite network.
+ *
+ * Without this, a new sub-site would only get its downloads table on the next
+ * admin request that reaches the 'plugins_loaded' upgrade check.
+ *
+ * @param WP_Site $new_site The site that was just created.
+ */
+function op3pa_initialize_new_site( $new_site ): void {
+	// wp_initialize_site can fire outside the admin (WP-CLI, REST), where
+	// is_plugin_active_for_network() is not loaded yet.
+	require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+	if ( ! is_plugin_active_for_network( plugin_basename( __FILE__ ) ) ) {
+		return;
+	}
+
+	switch_to_blog( (int) $new_site->blog_id );
+	OP3PA_DB::maybe_upgrade();
+	restore_current_blog();
 }
 
 /**

@@ -165,3 +165,25 @@ msgstr "Actualizando…"
 
 msgid "Could not load stats. Try again later."
 msgstr "No se han podido cargar las estadísticas. Inténtalo de nuevo más tarde."
+
+msgid "Podcast name"
+msgstr "Nombre del podcast"
+
+msgid "OP3 show UUID"
+msgstr "UUID del programa en OP3"
+
+msgid "Feed GUID"
+msgstr "GUID del feed"
+
+msgid "Private feed slug"
+msgstr "Slug del feed privado"
+
+msgid "Badge colour"
+msgstr "Color del distintivo"
+
+msgid "Private podcast"
+msgstr "Podcast privado"
+
+#. translators: 1: field name, 2: row number.
+msgid "%1$s (podcast %2$d)"
+msgstr "%1$s (podcast %2$d)"

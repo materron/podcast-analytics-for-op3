@@ -207,3 +207,25 @@ msgstr ""
 #: includes/class-op3pa-api.php
 msgid "Could not parse OP3 API response."
 msgstr ""
+
+msgid "Podcast name"
+msgstr ""
+
+msgid "OP3 show UUID"
+msgstr ""
+
+msgid "Feed GUID"
+msgstr ""
+
+msgid "Private feed slug"
+msgstr ""
+
+msgid "Badge colour"
+msgstr ""
+
+msgid "Private podcast"
+msgstr ""
+
+#. translators: 1: field name, 2: row number.
+msgid "%1$s (podcast %2$d)"
+msgstr ""
