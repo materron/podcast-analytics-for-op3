@@ -1,13 +1,13 @@
 # Spanish translation for Podcast Analytics for OP3
-# Copyright (C) 2024 Miguel Ángel Terrón Bote
+# Copyright (C) 2026 Miguel Angel Terron Bote
 # This file is distributed under the same license as the Podcast Analytics for OP3 plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Podcast Analytics for OP3 1.0.2\n"
+"Project-Id-Version: Podcast Analytics for OP3 2.9.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/podcast-analytics-for-op3\n"
-"POT-Creation-Date: 2024-01-01 00:00:00+00:00\n"
-"PO-Revision-Date: 2024-01-01 00:00:00+0000\n"
-"Last-Translator: Miguel Ángel Terrón Bote <materron@gmail.com>\n"
+"POT-Creation-Date: 2026-07-29 00:00:00+00:00\n"
+"PO-Revision-Date: 2026-07-29 00:00:00+0000\n"
+"Last-Translator: Miguel Angel Terron Bote <materron@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
@@ -15,6 +15,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: podcast-analytics-for-op3\n"
+
+msgid "Once Weekly"
+msgstr "Una vez por semana"
+
+msgid "Podcast %d"
+msgstr "Podcast %d"
+
+msgid "Podcast Analytics for OP3 has been updated to v2.0. Your podcast settings have been migrated automatically, but please verify your Bearer Token in the %s."
+msgstr "Podcast Analytics para OP3 se ha actualizado a la v2.0. Tus ajustes de podcast se han migrado automáticamente, pero verifica tu Bearer Token en %s."
+
+msgid "OP3 Settings page"
+msgstr "la página de ajustes de OP3"
 
 msgid "Podcast Analytics for OP3"
 msgstr "Podcast Analytics para OP3"
@@ -28,95 +40,359 @@ msgstr "Ajustes"
 msgid "Statistics"
 msgstr "Estadísticas"
 
+msgid "Alerts"
+msgstr "Alertas"
+
+msgid "Refreshing…"
+msgstr "Actualizando…"
+
+msgid "Could not load stats. Try again later."
+msgstr "No se han podido cargar las estadísticas. Inténtalo de nuevo más tarde."
+
+msgid "Network total"
+msgstr "Total de la red"
+
+msgid "Access denied."
+msgstr "Acceso denegado."
+
 msgid "OP3 settings saved."
 msgstr "Ajustes de OP3 guardados."
 
 msgid "Podcast Analytics — Settings"
 msgstr "Podcast Analytics — Ajustes"
 
-msgid "Enable OP3 prefix"
-msgstr "Activar prefijo OP3"
+msgid "Global settings"
+msgstr "Ajustes globales"
 
-msgid "Add the OP3 prefix to all audio URLs in the RSS feed"
-msgstr "Añadir el prefijo OP3 a todas las URLs de audio del feed RSS"
-
-msgid "When enabled, audio enclosures in your feed will be rewritten from https://yoursite.com/audio.mp3 to https://op3.dev/e/yoursite.com/audio.mp3."
-msgstr "Al activarlo, los enclosures de audio de tu feed se reescribirán de https://tudominio.com/audio.mp3 a https://op3.dev/e/tudominio.com/audio.mp3."
-
-msgid "OP3 Bearer Token"
+msgid "OP3 bearer token"
 msgstr "Bearer token de OP3"
 
-msgid "Get your bearer token at %s (different from the API Key — use the token shown after clicking «Regenerate token»)."
-msgstr "Obtén tu bearer token en %s (es diferente a la API Key — usa el token que aparece al hacer clic en «Regenerate token»)."
+msgid "Get your bearer token at %s. Important: the bearer token is NOT the API Key — to see it, click \"Regenerate token\" and copy it from there. One token works for all your podcasts."
+msgstr "Obtén tu bearer token en %s. Importante: el bearer token NO es la API Key — para verlo haz clic en «Regenerate token» y cópialo desde ahí. Un mismo token sirve para todos tus podcasts."
+
+msgid "MaxMind license key (optional)"
+msgstr "MaxMind license key (opcional)"
+
+msgid "Only needed for private podcasts: enables listener country/region in their statistics. Free at %s."
+msgstr "Solo necesario para podcasts privados: activa el país/región del oyente en sus estadísticas. Gratis en %s."
+
+msgid "Country database last updated %s ago"
+msgstr "Base de datos de países actualizada por última vez: hace %s"
+
+msgid "The initial database download is in progress (it may take a few minutes)."
+msgstr "La descarga inicial de la base de datos está en curso (puede tardar unos minutos)."
+
+msgid "Podcasts"
+msgstr "Podcasts"
+
+msgid "Add one row per podcast. The Show UUID is in the URL of your OP3 statistics page (https://op3.dev/show/{uuid}). The Podcast GUID is optional and speeds up attribution. The Feed slug (e.g. \"premiumpp\" for /feed/premiumpp/) is required for private podcasts, and optional for public ones with more than one channel. Podcasts marked as private get their own tracking endpoint instead of the OP3 prefix, and their statistics are calculated from your own database."
+msgstr "Añade una fila por cada podcast. El Show UUID lo encontrarás en la URL de tu página de estadísticas en OP3 (https://op3.dev/show/{uuid}). El Podcast GUID es opcional y acelera la atribución. El Feed slug (ej. \"premiumpp\" para /feed/premiumpp/) es obligatorio para podcasts privados, y opcional para públicos con más de un canal. Los podcasts marcados como privados no tendrán el prefijo OP3, sino un endpoint propio de seguimiento, y sus estadísticas se calculan desde tu propia base de datos."
+
+msgid "Name"
+msgstr "Nombre"
 
 msgid "Show UUID"
 msgstr "UUID del programa"
 
-msgid "The UUID that OP3 assigns to your show. You can find it in your public stats URL: https://op3.dev/show/{uuid}."
-msgstr "El UUID que OP3 asigna a tu programa. Lo encontrarás en la URL de tu página pública de estadísticas: https://op3.dev/show/{uuid}."
-
 msgid "Podcast GUID (optional)"
-msgstr "GUID del podcast (opcional)"
+msgstr "Podcast GUID (opcional)"
 
-msgid "The <podcast:guid> of your show (from your RSS feed). Including it speeds up attribution in OP3 — useful but not required."
-msgstr "El <podcast:guid> de tu programa (del feed RSS). Incluirlo acelera la atribución en OP3 — útil pero no obligatorio."
+msgid "Feed slug"
+msgstr "Feed slug"
+
+msgid "Color"
+msgstr "Color"
+
+msgid "Private"
+msgstr "Privado"
+
+msgid "Add podcast"
+msgstr "Añadir podcast"
 
 msgid "Save Settings"
 msgstr "Guardar ajustes"
 
-msgid "Feed Check"
-msgstr "Verificación del feed"
+msgid "%1$s (podcast %2$d)"
+msgstr "%1$s (podcast %2$d)"
 
-msgid "Your feed URL: %s"
-msgstr "URL de tu feed: %s"
+msgid "My Podcast"
+msgstr "Mi Podcast"
 
-msgid "Open your feed after saving and verify that audio URLs start with https://op3.dev/e/."
-msgstr "Abre tu feed después de guardar y verifica que las URLs de audio comiencen por https://op3.dev/e/."
+msgid "Podcast name"
+msgstr "Nombre del podcast"
 
-msgid "↗ View public stats page on OP3"
-msgstr "↗ Ver página de estadísticas pública en OP3"
+msgid "OP3 show UUID"
+msgstr "UUID del programa en OP3"
 
-msgid "Podcast Analytics — Statistics"
-msgstr "Podcast Analytics — Estadísticas"
+msgid "optional"
+msgstr "opcional"
 
-msgid "Please configure your Show UUID in the %s first."
-msgstr "Primero configura el UUID del programa en la %s."
+msgid "Feed GUID"
+msgstr "GUID del feed"
 
-msgid "Settings page"
-msgstr "página de ajustes"
+msgid "e.g. my-private-channel"
+msgstr "ej: mi-canal-privado"
 
-msgid "Last 30 days"
-msgstr "Últimos 30 días"
+msgid "Private feed slug"
+msgstr "Slug del feed privado"
 
-msgid "Last 7 days"
-msgstr "Últimos 7 días"
+msgid "Badge color"
+msgstr "Color del distintivo"
 
-msgid "Last 24h"
-msgstr "Últimas 24 h"
+msgid "Private podcast"
+msgstr "Podcast privado"
 
-msgid "Refresh"
-msgstr "Actualizar"
+msgid "Remove"
+msgstr "Eliminar"
 
-msgid "↗ Full stats on OP3"
-msgstr "↗ Estadísticas completas en OP3"
+msgid "Settings saved and alert check run."
+msgstr "Ajustes guardados y comprobación de alertas ejecutada."
 
-msgid "Loading stats…"
-msgstr "Cargando estadísticas…"
+msgid "Podcast Analytics — Alerts"
+msgstr "Podcast Analytics — Alertas"
 
-msgid "No download data available yet."
-msgstr "Aún no hay datos de descargas disponibles."
+msgid "Get an email when an episode (published more than 14 days ago) has an unusual download spike or drop compared with the previous week. Checked once a day."
+msgstr "Recibe un aviso por email cuando un episodio (con más de 14 días publicado) tenga un pico o una caída de descargas inusual respecto a la semana anterior. Se comprueba una vez al día."
+
+msgid "Destination email"
+msgstr "Correo de destino"
+
+msgid "Required for alerts to be sent. There is no default address."
+msgstr "Obligatorio para que se envíen alertas. No hay un correo por defecto."
+
+msgid "Alert type"
+msgstr "Tipo de alerta"
+
+msgid "Download spike on an episode"
+msgstr "Pico de descargas en un episodio"
+
+msgid "Download drop on an episode"
+msgstr "Caída de descargas en un episodio"
+
+msgid "Threshold"
+msgstr "Umbral"
+
+msgid "Minimum change (comparing this week with the previous one, per episode) needed to trigger an alert."
+msgstr "Variación mínima (comparando esta semana con la anterior, por episodio) para disparar una alerta."
+
+msgid "Minimum downloads"
+msgstr "Mínimo de descargas"
+
+msgid "The episode must have at least this many downloads in the previous week to be considered. Avoids alerts for trivial changes (e.g. going from 1 to 2 downloads is already \"+100%\")."
+msgstr "La semana anterior del episodio debe tener al menos este número de descargas para considerarse. Evita avisos por cambios triviales (ej. pasar de 1 a 2 descargas ya es \"+100%\")."
+
+msgid "Monitored podcasts"
+msgstr "Podcasts monitorizados"
+
+msgid "No active podcasts configured."
+msgstr "No hay podcasts activos configurados."
+
+msgid "Save and check now"
+msgstr "Guardar y comprobar ahora"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Last check: %s ago."
+msgstr "Última comprobación: hace %s."
+
+msgid "No check has run yet."
+msgstr "Aún no se ha ejecutado ninguna comprobación."
+
+msgid "Recent history"
+msgstr "Historial reciente"
+
+msgid "No alerts have been triggered yet."
+msgstr "No se ha disparado ninguna alerta todavía."
+
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "Podcast"
+msgstr "Podcast"
 
 msgid "Episode"
 msgstr "Episodio"
 
+msgid "Change"
+msgstr "Cambio"
+
+msgid "Spike"
+msgstr "Pico"
+
+msgid "Drop"
+msgstr "Caída"
+
+msgid "Podcast Analytics — Statistics"
+msgstr "Podcast Analytics — Estadísticas"
+
+msgid "No active podcasts configured. Go to the %s to add your podcasts."
+msgstr "No hay podcasts activos configurados. Ve a %s para añadir tus podcasts."
+
+msgid "Settings page"
+msgstr "página de ajustes"
+
+msgid "All (network)"
+msgstr "Todos (red)"
+
+msgid "Last 24h"
+msgstr "Últimas 24 h"
+
+msgid "Last 7 days"
+msgstr "Últimos 7 días"
+
+msgid "Last 30 days"
+msgstr "Últimos 30 días"
+
+msgid "From"
+msgstr "Desde"
+
+msgid "To"
+msgstr "Hasta"
+
+msgid "Apply range"
+msgstr "Aplicar rango"
+
+msgid "Refresh"
+msgstr "Actualizar"
+
+msgid "Print / PDF"
+msgstr "Imprimir / PDF"
+
+msgid "Tired of editing audio, adding music, and normalizing levels before publishing your podcast? VozCaster does it for you from Telegram, free, in minutes."
+msgstr "¿Cansado de editar audios, meter melodías y normalizar para publicar tu podcast? VozCaster lo hace por ti desde Telegram, gratis, en minutos."
+
+msgid "Try it free →"
+msgstr "Descúbrelo gratis →"
+
+msgid "Dismiss"
+msgstr "Descartar"
+
+msgid "Apps and devices"
+msgstr "Apps y dispositivos"
+
+msgid "Apps and devices used to download the episodes, in the selected period."
+msgstr "Aplicaciones y dispositivos usados para descargar los episodios, en el periodo seleccionado."
+
+msgid "App comparison across podcasts"
+msgstr "Comparativa de apps entre podcasts"
+
+msgid "App and device split for each podcast, side by side, to compare listening habits across shows."
+msgstr "Reparto de apps y dispositivos de cada podcast, uno al lado del otro, para comparar hábitos de escucha entre shows."
+
+msgid "Country"
+msgstr "País"
+
+msgid "Downloads grouped by country of origin, based on the listener IP."
+msgstr "Descargas agrupadas por país de origen, según la IP del oyente."
+
+msgid "Sun"
+msgstr "Dom"
+
+msgid "Mon"
+msgstr "Lun"
+
+msgid "Tue"
+msgstr "Mar"
+
+msgid "Wed"
+msgstr "Mié"
+
+msgid "Thu"
+msgstr "Jue"
+
+msgid "Fri"
+msgstr "Vie"
+
+msgid "Sat"
+msgstr "Sáb"
+
+msgid "Best time and day"
+msgstr "Mejor hora y día"
+
+msgid "When your audience listens: hour of day and day of week with the most downloads, useful for deciding when to publish."
+msgstr "Cuándo escucha tu audiencia: hora del día y día de la semana con más descargas, útil para decidir cuándo publicar."
+
+msgid "By hour of day"
+msgstr "Por hora del día"
+
+msgid "By day of week"
+msgstr "Por día de la semana"
+
+msgid "Growth ranking"
+msgstr "Ranking de crecimiento"
+
+msgid "vs. equivalent previous period"
+msgstr "vs. periodo anterior equivalente"
+
+msgid "Episodes that rose or fell the most in downloads compared with the previous period of the same length."
+msgstr "Episodios que más han subido o bajado en descargas respecto al periodo anterior de la misma duración."
+
+msgid "Rising"
+msgstr "En alza"
+
+msgid "Falling"
+msgstr "En caída"
+
+msgid "Audience overlap"
+msgstr "Solapamiento de audiencia"
+
+msgid "What percentage of listeners follow more than one of your podcasts. Only comparable between podcasts of the same type (public with public, private with private)."
+msgstr "Qué porcentaje de oyentes escuchan más de uno de tus podcasts. Solo comparable entre podcasts del mismo tipo (públicos entre sí, privados entre sí)."
+
+msgid "Public podcasts"
+msgstr "Podcasts públicos"
+
+msgid "Private podcasts"
+msgstr "Podcasts privados"
+
+msgid "No shared listeners in this period."
+msgstr "Sin oyentes compartidos en este periodo."
+
+msgid "%1$s shared listeners (%2$s%% of %3$s, %4$s%% of %5$s)"
+msgstr "%1$s oyentes compartidos (%2$s%% de %3$s, %4$s%% de %5$s)"
+
+msgid "total downloads"
+msgstr "descargas totales"
+
+msgid "unique listeners"
+msgstr "oyentes únicos"
+
+msgid "Approximate for private podcasts over periods longer than 24h."
+msgstr "Aproximado para podcasts privados en periodos superiores a 24h."
+
+msgid "No download data available yet."
+msgstr "Aún no hay datos de descargas disponibles."
+
 msgid "Downloads"
 msgstr "Descargas"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Episodes"
+msgstr "Episodios"
+
+msgid "Downloads per episode across all selected podcasts, highest first."
+msgstr "Descargas por episodio de todos los podcasts seleccionados, ordenadas de mayor a menor."
 
 msgid "(unknown)"
 msgstr "(desconocido)"
 
-msgid "Total"
-msgstr "Total"
+msgid "View all (%d more)"
+msgstr "Ver todos (%d más)"
+
+msgid "Data cached for 1 hour."
+msgstr "Datos en caché durante 1 hora."
+
+msgid "Approximate over periods longer than 24h."
+msgstr "Aproximado en periodos superiores a 24h."
+
+msgid "Live data from your own tracking endpoint (not cached)."
+msgstr "Datos en vivo de tu propio endpoint de seguimiento (sin caché)."
 
 msgid "Data cached for 1 hour. %s"
 msgstr "Datos en caché durante 1 hora. %s"
@@ -124,14 +400,14 @@ msgstr "Datos en caché durante 1 hora. %s"
 msgid "View detailed breakdown on OP3 →"
 msgstr "Ver desglose completo en OP3 →"
 
-msgid "Access denied."
-msgstr "Acceso denegado."
+msgid "Downloads per episode in the selected period, highest first."
+msgstr "Descargas por episodio en el periodo seleccionado, ordenadas de mayor a menor."
 
 msgid "OP3 Podcast Downloads"
 msgstr "Descargas de podcast OP3"
 
-msgid "Configure your Show UUID in the %s."
-msgstr "Configura el UUID del programa en la %s."
+msgid "Configure your podcasts in the %s."
+msgstr "Configura tus podcasts en %s."
 
 msgid "OP3 settings"
 msgstr "ajustes de OP3"
@@ -142,11 +418,14 @@ msgstr "descargas en los últimos 7 días"
 msgid "View all stats →"
 msgstr "Ver todas las estadísticas →"
 
-msgid "OP3 dashboard ↗"
-msgstr "Panel de OP3 ↗"
+msgid "[%s] Podcast download alerts"
+msgstr "[%s] Alertas de descargas de podcast"
 
 msgid "No Show UUID configured."
 msgstr "No se ha configurado ningún UUID de programa."
+
+msgid "Unknown"
+msgstr "Desconocido"
 
 msgid "Invalid bearer token. Check your OP3 settings."
 msgstr "Bearer token no válido. Comprueba los ajustes de OP3."
@@ -160,30 +439,14 @@ msgstr "La API de OP3 ha devuelto el estado %d."
 msgid "Could not parse OP3 API response."
 msgstr "No se ha podido interpretar la respuesta de la API de OP3."
 
-msgid "Refreshing…"
-msgstr "Actualizando…"
+msgid "No MaxMind license key configured."
+msgstr "No hay ninguna licencia de MaxMind configurada."
 
-msgid "Could not load stats. Try again later."
-msgstr "No se han podido cargar las estadísticas. Inténtalo de nuevo más tarde."
+msgid "GeoLite2 CSV files not found in downloaded archive."
+msgstr "No se han encontrado los ficheros CSV de GeoLite2 en el archivo descargado."
 
-msgid "Podcast name"
-msgstr "Nombre del podcast"
+msgid "Could not open GeoLite2 blocks CSV."
+msgstr "No se ha podido abrir el CSV de bloques de GeoLite2."
 
-msgid "OP3 show UUID"
-msgstr "UUID del programa en OP3"
-
-msgid "Feed GUID"
-msgstr "GUID del feed"
-
-msgid "Private feed slug"
-msgstr "Slug del feed privado"
-
-msgid "Badge colour"
-msgstr "Color del distintivo"
-
-msgid "Private podcast"
-msgstr "Podcast privado"
-
-#. translators: 1: field name, 2: row number.
-msgid "%1$s (podcast %2$d)"
-msgstr "%1$s (podcast %2$d)"
+msgid "GeoLite2 data parsed to zero ranges."
+msgstr "Los datos de GeoLite2 no han producido ningún rango."

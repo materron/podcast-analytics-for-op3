@@ -1,211 +1,121 @@
-# Copyright (C) 2024 Miguel Ángel Terrón
-# This file is distributed under the same license as the OP3 Podcast Analytics plugin.
+# Translation template for Podcast Analytics for OP3
+# Copyright (C) 2026 Miguel Angel Terron Bote
+# This file is distributed under the same license as the Podcast Analytics for OP3 plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: OP3 Podcast Analytics 1.0.0\n"
+"Project-Id-Version: Podcast Analytics for OP3 2.9.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/podcast-analytics-for-op3\n"
-"POT-Creation-Date: 2024-01-01 00:00:00+00:00\n"
+"POT-Creation-Date: 2026-07-29 00:00:00+00:00\n"
+"PO-Revision-Date: 2026-07-29 00:00:00+0000\n"
+"Last-Translator: Miguel Angel Terron Bote <materron@gmail.com>\n"
+"Language-Team: Spanish <es@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2024-01-01 00:00:00+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-"X-Generator: WP-CLI 2.x\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: podcast-analytics-for-op3\n"
 
-#: includes/class-op3pa-admin.php
-msgid "OP3 Podcast Analytics"
+msgid "Once Weekly"
 msgstr ""
 
-#: includes/class-op3pa-admin.php
+msgid "Podcast %d"
+msgstr ""
+
+msgid "Podcast Analytics for OP3 has been updated to v2.0. Your podcast settings have been migrated automatically, but please verify your Bearer Token in the %s."
+msgstr ""
+
+msgid "OP3 Settings page"
+msgstr ""
+
+msgid "Podcast Analytics for OP3"
+msgstr ""
+
 msgid "OP3 Analytics"
 msgstr ""
 
-#: includes/class-op3pa-admin.php
 msgid "Settings"
 msgstr ""
 
-#: includes/class-op3pa-admin.php
 msgid "Statistics"
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "OP3 settings saved."
+msgid "Alerts"
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "OP3 Podcast Analytics — Settings"
+msgid "Refreshing…"
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "Enable OP3 prefix"
+msgid "Could not load stats. Try again later."
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "Add the OP3 prefix to all audio URLs in the RSS feed"
+msgid "Network total"
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "When enabled, audio enclosures in your feed will be rewritten from https://yoursite.com/audio.mp3 to https://op3.dev/e/yoursite.com/audio.mp3."
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "OP3 API Key"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Get your API key at %s after signing in."
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Show UUID"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "The UUID that OP3 assigns to your show. You can find it in the OP3 dashboard or in your public stats URL: https://op3.dev/show/{uuid}."
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Podcast GUID (optional)"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "The <podcast:guid> of your show (from your RSS feed). Including it speeds up attribution in OP3 — useful but not required."
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Save Settings"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Feed Check"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Your feed URL: %s"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Open your feed after saving and verify that audio URLs start with https://op3.dev/e/."
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "↗ View public stats page on OP3"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "OP3 Podcast Analytics — Statistics"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Please configure your Show UUID in the %s first."
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Settings page"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Last 30 days"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Last 7 days"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Last 24h"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Refresh"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "↗ Full stats on OP3"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Loading stats…"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "No download data available yet."
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Episode"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Downloads"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "(unknown)"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Total"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "Data cached for 1 hour. %s"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
-msgid "View detailed breakdown on OP3 →"
-msgstr ""
-
-#: includes/class-op3pa-admin.php
 msgid "Access denied."
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "OP3 Podcast Downloads"
+msgid "OP3 settings saved."
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "Configure your Show UUID in the %s."
+msgid "Podcast Analytics — Settings"
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "OP3 settings"
+msgid "Global settings"
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "downloads in the last 7 days"
+msgid "OP3 bearer token"
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "View all stats →"
+msgid "Get your bearer token at %s. Important: the bearer token is NOT the API Key — to see it, click \"Regenerate token\" and copy it from there. One token works for all your podcasts."
 msgstr ""
 
-#: includes/class-op3pa-admin.php
-msgid "OP3 dashboard ↗"
+msgid "MaxMind license key (optional)"
 msgstr ""
 
-#: includes/class-op3pa-api.php
-msgid "No Show UUID configured."
+msgid "Only needed for private podcasts: enables listener country/region in their statistics. Free at %s."
 msgstr ""
 
-#: includes/class-op3pa-api.php
-msgid "Invalid API key. Check your OP3 settings."
+msgid "Country database last updated %s ago"
 msgstr ""
 
-#: includes/class-op3pa-api.php
-msgid "Show not found. Check your Show UUID."
+msgid "The initial database download is in progress (it may take a few minutes)."
 msgstr ""
 
-#: includes/class-op3pa-api.php
-msgid "OP3 API returned status %d."
+msgid "Podcasts"
 msgstr ""
 
-#: includes/class-op3pa-api.php
-msgid "Could not parse OP3 API response."
+msgid "Add one row per podcast. The Show UUID is in the URL of your OP3 statistics page (https://op3.dev/show/{uuid}). The Podcast GUID is optional and speeds up attribution. The Feed slug (e.g. \"premiumpp\" for /feed/premiumpp/) is required for private podcasts, and optional for public ones with more than one channel. Podcasts marked as private get their own tracking endpoint instead of the OP3 prefix, and their statistics are calculated from your own database."
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Show UUID"
+msgstr ""
+
+msgid "Podcast GUID (optional)"
+msgstr ""
+
+msgid "Feed slug"
+msgstr ""
+
+msgid "Color"
+msgstr ""
+
+msgid "Private"
+msgstr ""
+
+msgid "Add podcast"
+msgstr ""
+
+msgid "Save Settings"
+msgstr ""
+
+msgid "%1$s (podcast %2$d)"
+msgstr ""
+
+msgid "My Podcast"
 msgstr ""
 
 msgid "Podcast name"
@@ -214,18 +124,329 @@ msgstr ""
 msgid "OP3 show UUID"
 msgstr ""
 
+msgid "optional"
+msgstr ""
+
 msgid "Feed GUID"
+msgstr ""
+
+msgid "e.g. my-private-channel"
 msgstr ""
 
 msgid "Private feed slug"
 msgstr ""
 
-msgid "Badge colour"
+msgid "Badge color"
 msgstr ""
 
 msgid "Private podcast"
 msgstr ""
 
-#. translators: 1: field name, 2: row number.
-msgid "%1$s (podcast %2$d)"
+msgid "Remove"
+msgstr ""
+
+msgid "Settings saved and alert check run."
+msgstr ""
+
+msgid "Podcast Analytics — Alerts"
+msgstr ""
+
+msgid "Get an email when an episode (published more than 14 days ago) has an unusual download spike or drop compared with the previous week. Checked once a day."
+msgstr ""
+
+msgid "Destination email"
+msgstr ""
+
+msgid "Required for alerts to be sent. There is no default address."
+msgstr ""
+
+msgid "Alert type"
+msgstr ""
+
+msgid "Download spike on an episode"
+msgstr ""
+
+msgid "Download drop on an episode"
+msgstr ""
+
+msgid "Threshold"
+msgstr ""
+
+msgid "Minimum change (comparing this week with the previous one, per episode) needed to trigger an alert."
+msgstr ""
+
+msgid "Minimum downloads"
+msgstr ""
+
+msgid "The episode must have at least this many downloads in the previous week to be considered. Avoids alerts for trivial changes (e.g. going from 1 to 2 downloads is already \"+100%\")."
+msgstr ""
+
+msgid "Monitored podcasts"
+msgstr ""
+
+msgid "No active podcasts configured."
+msgstr ""
+
+msgid "Save and check now"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Last check: %s ago."
+msgstr ""
+
+msgid "No check has run yet."
+msgstr ""
+
+msgid "Recent history"
+msgstr ""
+
+msgid "No alerts have been triggered yet."
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Podcast"
+msgstr ""
+
+msgid "Episode"
+msgstr ""
+
+msgid "Change"
+msgstr ""
+
+msgid "Spike"
+msgstr ""
+
+msgid "Drop"
+msgstr ""
+
+msgid "Podcast Analytics — Statistics"
+msgstr ""
+
+msgid "No active podcasts configured. Go to the %s to add your podcasts."
+msgstr ""
+
+msgid "Settings page"
+msgstr ""
+
+msgid "All (network)"
+msgstr ""
+
+msgid "Last 24h"
+msgstr ""
+
+msgid "Last 7 days"
+msgstr ""
+
+msgid "Last 30 days"
+msgstr ""
+
+msgid "From"
+msgstr ""
+
+msgid "To"
+msgstr ""
+
+msgid "Apply range"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Print / PDF"
+msgstr ""
+
+msgid "Tired of editing audio, adding music, and normalizing levels before publishing your podcast? VozCaster does it for you from Telegram, free, in minutes."
+msgstr ""
+
+msgid "Try it free →"
+msgstr ""
+
+msgid "Dismiss"
+msgstr ""
+
+msgid "Apps and devices"
+msgstr ""
+
+msgid "Apps and devices used to download the episodes, in the selected period."
+msgstr ""
+
+msgid "App comparison across podcasts"
+msgstr ""
+
+msgid "App and device split for each podcast, side by side, to compare listening habits across shows."
+msgstr ""
+
+msgid "Country"
+msgstr ""
+
+msgid "Downloads grouped by country of origin, based on the listener IP."
+msgstr ""
+
+msgid "Sun"
+msgstr ""
+
+msgid "Mon"
+msgstr ""
+
+msgid "Tue"
+msgstr ""
+
+msgid "Wed"
+msgstr ""
+
+msgid "Thu"
+msgstr ""
+
+msgid "Fri"
+msgstr ""
+
+msgid "Sat"
+msgstr ""
+
+msgid "Best time and day"
+msgstr ""
+
+msgid "When your audience listens: hour of day and day of week with the most downloads, useful for deciding when to publish."
+msgstr ""
+
+msgid "By hour of day"
+msgstr ""
+
+msgid "By day of week"
+msgstr ""
+
+msgid "Growth ranking"
+msgstr ""
+
+msgid "vs. equivalent previous period"
+msgstr ""
+
+msgid "Episodes that rose or fell the most in downloads compared with the previous period of the same length."
+msgstr ""
+
+msgid "Rising"
+msgstr ""
+
+msgid "Falling"
+msgstr ""
+
+msgid "Audience overlap"
+msgstr ""
+
+msgid "What percentage of listeners follow more than one of your podcasts. Only comparable between podcasts of the same type (public with public, private with private)."
+msgstr ""
+
+msgid "Public podcasts"
+msgstr ""
+
+msgid "Private podcasts"
+msgstr ""
+
+msgid "No shared listeners in this period."
+msgstr ""
+
+msgid "%1$s shared listeners (%2$s%% of %3$s, %4$s%% of %5$s)"
+msgstr ""
+
+msgid "total downloads"
+msgstr ""
+
+msgid "unique listeners"
+msgstr ""
+
+msgid "Approximate for private podcasts over periods longer than 24h."
+msgstr ""
+
+msgid "No download data available yet."
+msgstr ""
+
+msgid "Downloads"
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Episodes"
+msgstr ""
+
+msgid "Downloads per episode across all selected podcasts, highest first."
+msgstr ""
+
+msgid "(unknown)"
+msgstr ""
+
+msgid "View all (%d more)"
+msgstr ""
+
+msgid "Data cached for 1 hour."
+msgstr ""
+
+msgid "Approximate over periods longer than 24h."
+msgstr ""
+
+msgid "Live data from your own tracking endpoint (not cached)."
+msgstr ""
+
+msgid "Data cached for 1 hour. %s"
+msgstr ""
+
+msgid "View detailed breakdown on OP3 →"
+msgstr ""
+
+msgid "Downloads per episode in the selected period, highest first."
+msgstr ""
+
+msgid "OP3 Podcast Downloads"
+msgstr ""
+
+msgid "Configure your podcasts in the %s."
+msgstr ""
+
+msgid "OP3 settings"
+msgstr ""
+
+msgid "downloads in the last 7 days"
+msgstr ""
+
+msgid "View all stats →"
+msgstr ""
+
+msgid "[%s] Podcast download alerts"
+msgstr ""
+
+msgid "No Show UUID configured."
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "Invalid bearer token. Check your OP3 settings."
+msgstr ""
+
+msgid "Show not found. Check your Show UUID."
+msgstr ""
+
+msgid "OP3 API returned status %d."
+msgstr ""
+
+msgid "Could not parse OP3 API response."
+msgstr ""
+
+msgid "No MaxMind license key configured."
+msgstr ""
+
+msgid "GeoLite2 CSV files not found in downloaded archive."
+msgstr ""
+
+msgid "Could not open GeoLite2 blocks CSV."
+msgstr ""
+
+msgid "GeoLite2 data parsed to zero ranges."
 msgstr ""

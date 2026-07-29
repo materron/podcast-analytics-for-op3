@@ -88,8 +88,8 @@ class OP3PA_Admin {
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'Alertas', 'podcast-analytics-for-op3' ),
-			__( 'Alertas', 'podcast-analytics-for-op3' ),
+			__( 'Alerts', 'podcast-analytics-for-op3' ),
+			__( 'Alerts', 'podcast-analytics-for-op3' ),
 			'manage_options',
 			self::MENU_SLUG . '-alerts',
 			[ __CLASS__, 'render_alerts_page' ]
@@ -242,11 +242,11 @@ class OP3PA_Admin {
 			<form method="post" action="">
 				<?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_KEY ); ?>
 
-				<h2><?php esc_html_e( 'Ajustes globales', 'podcast-analytics-for-op3' ); ?></h2>
+				<h2><?php esc_html_e( 'Global settings', 'podcast-analytics-for-op3' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row">
-							<label for="op3pa_token"><?php esc_html_e( 'Bearer token de OP3', 'podcast-analytics-for-op3' ); ?></label>
+							<label for="op3pa_token"><?php esc_html_e( 'OP3 bearer token', 'podcast-analytics-for-op3' ); ?></label>
 						</th>
 						<td>
 							<input type="password" id="op3pa_token" name="op3pa_token"
@@ -256,7 +256,7 @@ class OP3PA_Admin {
 								<?php
 								printf(
 									/* translators: %s: link to op3.dev */
-									esc_html__( 'Obtén tu bearer token en %s. Importante: el bearer token NO es la API Key — para verlo haz clic en «Regenerate token» y cópialo desde ahí. Un mismo token sirve para todos tus podcasts.', 'podcast-analytics-for-op3' ),
+									esc_html__( 'Get your bearer token at %s. Important: the bearer token is NOT the API Key — to see it, click "Regenerate token" and copy it from there. One token works for all your podcasts.', 'podcast-analytics-for-op3' ),
 									'<a href="https://op3.dev/api/keys" target="_blank" rel="noopener">op3.dev/api/keys</a>'
 								);
 								?>
@@ -265,7 +265,7 @@ class OP3PA_Admin {
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="op3pa_maxmind_key"><?php esc_html_e( 'MaxMind license key (opcional)', 'podcast-analytics-for-op3' ); ?></label>
+							<label for="op3pa_maxmind_key"><?php esc_html_e( 'MaxMind license key (optional)', 'podcast-analytics-for-op3' ); ?></label>
 						</th>
 						<td>
 							<input type="password" id="op3pa_maxmind_key" name="op3pa_maxmind_key"
@@ -275,7 +275,7 @@ class OP3PA_Admin {
 								<?php
 								printf(
 									/* translators: %s: link to MaxMind signup */
-									esc_html__( 'Solo necesario para podcasts privados: activa el país/región del oyente en sus estadísticas. Gratis en %s.', 'podcast-analytics-for-op3' ),
+									esc_html__( 'Only needed for private podcasts: enables listener country/region in their statistics. Free at %s.', 'podcast-analytics-for-op3' ),
 									'<a href="https://www.maxmind.com/en/geolite2/signup" target="_blank" rel="noopener">maxmind.com/en/geolite2/signup</a>'
 								);
 								?>
@@ -284,12 +284,12 @@ class OP3PA_Admin {
 										<br><?php
 										printf(
 											/* translators: %s: relative time e.g. "2 hours" */
-											esc_html__( 'Base de datos de países actualizada por última vez: hace %s', 'podcast-analytics-for-op3' ),
+											esc_html__( 'Country database last updated %s ago', 'podcast-analytics-for-op3' ),
 											esc_html( human_time_diff( OP3PA_Geo::get_last_update() ) )
 										);
 										?>
 									<?php else : ?>
-										<br><?php esc_html_e( 'La descarga inicial de la base de datos está en curso (puede tardar unos minutos).', 'podcast-analytics-for-op3' ); ?>
+										<br><?php esc_html_e( 'The initial database download is in progress (it may take a few minutes).', 'podcast-analytics-for-op3' ); ?>
 									<?php endif; ?>
 								<?php endif; ?>
 							</p>
@@ -299,18 +299,18 @@ class OP3PA_Admin {
 
 				<h2><?php esc_html_e( 'Podcasts', 'podcast-analytics-for-op3' ); ?></h2>
 				<p class="description">
-					<?php esc_html_e( 'Añade una fila por cada podcast. El Show UUID lo encontrarás en la URL de tu página de estadísticas en OP3 (https://op3.dev/show/{uuid}). El Podcast GUID es opcional y acelera la atribución. El Feed slug (ej. "premiumpp" para /feed/premiumpp/) es obligatorio para podcasts privados, y opcional para públicos con más de un canal. Los podcasts marcados como privados no tendrán el prefijo OP3, sino un endpoint propio de seguimiento, y sus estadísticas se calculan desde tu propia base de datos.', 'podcast-analytics-for-op3' ); ?>
+					<?php esc_html_e( 'Add one row per podcast. The Show UUID is in the URL of your OP3 statistics page (https://op3.dev/show/{uuid}). The Podcast GUID is optional and speeds up attribution. The Feed slug (e.g. "premiumpp" for /feed/premiumpp/) is required for private podcasts, and optional for public ones with more than one channel. Podcasts marked as private get their own tracking endpoint instead of the OP3 prefix, and their statistics are calculated from your own database.', 'podcast-analytics-for-op3' ); ?>
 				</p>
 
 				<table class="wp-list-table widefat fixed op3pa-podcasts-table" id="op3pa-podcasts-table">
 					<thead>
 						<tr>
-							<th><?php esc_html_e( 'Nombre', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Name', 'podcast-analytics-for-op3' ); ?></th>
 							<th><?php esc_html_e( 'Show UUID', 'podcast-analytics-for-op3' ); ?></th>
-							<th><?php esc_html_e( 'Podcast GUID (opcional)', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Podcast GUID (optional)', 'podcast-analytics-for-op3' ); ?></th>
 							<th><?php esc_html_e( 'Feed slug', 'podcast-analytics-for-op3' ); ?></th>
 							<th class="col-color"><?php esc_html_e( 'Color', 'podcast-analytics-for-op3' ); ?></th>
-							<th class="col-private"><?php esc_html_e( 'Privado', 'podcast-analytics-for-op3' ); ?></th>
+							<th class="col-private"><?php esc_html_e( 'Private', 'podcast-analytics-for-op3' ); ?></th>
 							<th class="col-remove"></th>
 						</tr>
 					</thead>
@@ -323,7 +323,7 @@ class OP3PA_Admin {
 
 				<p>
 					<button type="button" id="op3pa-add-podcast" class="button button-secondary">
-						+ <?php esc_html_e( 'Añadir podcast', 'podcast-analytics-for-op3' ); ?>
+						+ <?php esc_html_e( 'Add podcast', 'podcast-analytics-for-op3' ); ?>
 					</button>
 				</p>
 
@@ -394,7 +394,7 @@ class OP3PA_Admin {
 			<td>
 				<input type="text" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][name]"
 					value="<?php echo esc_attr( $podcast['name'] ?? '' ); ?>"
-					class="regular-text" placeholder="<?php esc_attr_e( 'Mi Podcast', 'podcast-analytics-for-op3' ); ?>"
+					class="regular-text" placeholder="<?php esc_attr_e( 'My Podcast', 'podcast-analytics-for-op3' ); ?>"
 					aria-label="<?php echo esc_attr( self::row_field_label( $i, __( 'Podcast name', 'podcast-analytics-for-op3' ) ) ); ?>" />
 			</td>
 			<td>
@@ -406,19 +406,19 @@ class OP3PA_Admin {
 			<td>
 				<input type="text" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][guid]"
 					value="<?php echo esc_attr( $podcast['guid'] ?? '' ); ?>"
-					class="regular-text" placeholder="<?php esc_attr_e( 'opcional', 'podcast-analytics-for-op3' ); ?>"
+					class="regular-text" placeholder="<?php esc_attr_e( 'optional', 'podcast-analytics-for-op3' ); ?>"
 					aria-label="<?php echo esc_attr( self::row_field_label( $i, __( 'Feed GUID', 'podcast-analytics-for-op3' ) ) ); ?>" />
 			</td>
 			<td>
 				<input type="text" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][feed_slug]"
 					value="<?php echo esc_attr( $podcast['feed_slug'] ?? '' ); ?>"
-					class="regular-text" placeholder="<?php esc_attr_e( 'ej: mi-canal-privado', 'podcast-analytics-for-op3' ); ?>"
+					class="regular-text" placeholder="<?php esc_attr_e( 'e.g. my-private-channel', 'podcast-analytics-for-op3' ); ?>"
 					aria-label="<?php echo esc_attr( self::row_field_label( $i, __( 'Private feed slug', 'podcast-analytics-for-op3' ) ) ); ?>" />
 			</td>
 			<td class="col-color">
 				<input type="color" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][color]"
 					value="<?php echo esc_attr( $color ); ?>"
-					aria-label="<?php echo esc_attr( self::row_field_label( $i, __( 'Badge colour', 'podcast-analytics-for-op3' ) ) ); ?>" />
+					aria-label="<?php echo esc_attr( self::row_field_label( $i, __( 'Badge color', 'podcast-analytics-for-op3' ) ) ); ?>" />
 			</td>
 			<td class="col-private">
 				<input type="checkbox" name="op3pa_podcasts[<?php echo esc_attr( $i ); ?>][private]" value="1"
@@ -426,7 +426,7 @@ class OP3PA_Admin {
 					aria-label="<?php echo esc_attr( self::row_field_label( $i, __( 'Private podcast', 'podcast-analytics-for-op3' ) ) ); ?>" />
 			</td>
 			<td class="col-remove">
-				<button type="button" class="button-link op3pa-remove-row" aria-label="<?php esc_attr_e( 'Eliminar', 'podcast-analytics-for-op3' ); ?>">✕</button>
+				<button type="button" class="button-link op3pa-remove-row" aria-label="<?php esc_attr_e( 'Remove', 'podcast-analytics-for-op3' ); ?>">✕</button>
 			</td>
 		</tr>
 		<?php
@@ -441,13 +441,13 @@ class OP3PA_Admin {
 		ob_start();
 		?>
 		<tr class="op3pa-podcast-row">
-			<td><input type="text" name="op3pa_podcasts[__INDEX__][name]" class="regular-text" placeholder="<?php esc_attr_e( 'Mi Podcast', 'podcast-analytics-for-op3' ); ?>" aria-label="<?php esc_attr_e( 'Podcast name', 'podcast-analytics-for-op3' ); ?>" /></td>
+			<td><input type="text" name="op3pa_podcasts[__INDEX__][name]" class="regular-text" placeholder="<?php esc_attr_e( 'My Podcast', 'podcast-analytics-for-op3' ); ?>" aria-label="<?php esc_attr_e( 'Podcast name', 'podcast-analytics-for-op3' ); ?>" /></td>
 			<td><input type="text" name="op3pa_podcasts[__INDEX__][show_uuid]" class="regular-text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" aria-label="<?php esc_attr_e( 'OP3 show UUID', 'podcast-analytics-for-op3' ); ?>" /></td>
-			<td><input type="text" name="op3pa_podcasts[__INDEX__][guid]" class="regular-text" placeholder="<?php esc_attr_e( 'opcional', 'podcast-analytics-for-op3' ); ?>" aria-label="<?php esc_attr_e( 'Feed GUID', 'podcast-analytics-for-op3' ); ?>" /></td>
-			<td><input type="text" name="op3pa_podcasts[__INDEX__][feed_slug]" class="regular-text" placeholder="<?php esc_attr_e( 'ej: mi-canal-privado', 'podcast-analytics-for-op3' ); ?>" aria-label="<?php esc_attr_e( 'Private feed slug', 'podcast-analytics-for-op3' ); ?>" /></td>
-			<td class="col-color"><input type="color" name="op3pa_podcasts[__INDEX__][color]" value="#0066cc" aria-label="<?php esc_attr_e( 'Badge colour', 'podcast-analytics-for-op3' ); ?>" /></td>
+			<td><input type="text" name="op3pa_podcasts[__INDEX__][guid]" class="regular-text" placeholder="<?php esc_attr_e( 'optional', 'podcast-analytics-for-op3' ); ?>" aria-label="<?php esc_attr_e( 'Feed GUID', 'podcast-analytics-for-op3' ); ?>" /></td>
+			<td><input type="text" name="op3pa_podcasts[__INDEX__][feed_slug]" class="regular-text" placeholder="<?php esc_attr_e( 'e.g. my-private-channel', 'podcast-analytics-for-op3' ); ?>" aria-label="<?php esc_attr_e( 'Private feed slug', 'podcast-analytics-for-op3' ); ?>" /></td>
+			<td class="col-color"><input type="color" name="op3pa_podcasts[__INDEX__][color]" value="#0066cc" aria-label="<?php esc_attr_e( 'Badge color', 'podcast-analytics-for-op3' ); ?>" /></td>
 			<td class="col-private"><input type="checkbox" name="op3pa_podcasts[__INDEX__][private]" value="1" aria-label="<?php esc_attr_e( 'Private podcast', 'podcast-analytics-for-op3' ); ?>" /></td>
-			<td class="col-remove"><button type="button" class="button-link op3pa-remove-row" aria-label="<?php esc_attr_e( 'Eliminar', 'podcast-analytics-for-op3' ); ?>">✕</button></td>
+			<td class="col-remove"><button type="button" class="button-link op3pa-remove-row" aria-label="<?php esc_attr_e( 'Remove', 'podcast-analytics-for-op3' ); ?>">✕</button></td>
 		</tr>
 		<?php
 		return ob_get_clean();
@@ -502,7 +502,7 @@ class OP3PA_Admin {
 
 	public static function notice_alerts_checked(): void {
 		echo '<div class="notice notice-success is-dismissible"><p>'
-			. esc_html__( 'Ajustes guardados y comprobación de alertas ejecutada.', 'podcast-analytics-for-op3' )
+			. esc_html__( 'Settings saved and alert check run.', 'podcast-analytics-for-op3' )
 			. '</p></div>';
 	}
 
@@ -526,10 +526,10 @@ class OP3PA_Admin {
 		<div class="wrap op3pa-wrap">
 			<h1>
 				<span class="op3pa-logo">OP3</span>
-				<?php esc_html_e( 'Podcast Analytics — Alertas', 'podcast-analytics-for-op3' ); ?>
+				<?php esc_html_e( 'Podcast Analytics — Alerts', 'podcast-analytics-for-op3' ); ?>
 			</h1>
 			<p class="description">
-				<?php esc_html_e( 'Recibe un aviso por email cuando un episodio (con más de 14 días publicado) tenga un pico o una caída de descargas inusual respecto a la semana anterior. Se comprueba una vez al día.', 'podcast-analytics-for-op3' ); ?>
+				<?php esc_html_e( 'Get an email when an episode (published more than 14 days ago) has an unusual download spike or drop compared with the previous week. Checked once a day.', 'podcast-analytics-for-op3' ); ?>
 			</p>
 
 			<form method="post" action="">
@@ -538,52 +538,52 @@ class OP3PA_Admin {
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row">
-							<label for="op3pa_alerts_email"><?php esc_html_e( 'Correo de destino', 'podcast-analytics-for-op3' ); ?></label>
+							<label for="op3pa_alerts_email"><?php esc_html_e( 'Destination email', 'podcast-analytics-for-op3' ); ?></label>
 						</th>
 						<td>
 							<input type="email" id="op3pa_alerts_email" name="op3pa_alerts_email"
 								value="<?php echo esc_attr( $email ); ?>" class="regular-text" />
-							<p class="description"><?php esc_html_e( 'Obligatorio para que se envíen alertas. No hay un correo por defecto.', 'podcast-analytics-for-op3' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Required for alerts to be sent. There is no default address.', 'podcast-analytics-for-op3' ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Tipo de alerta', 'podcast-analytics-for-op3' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Alert type', 'podcast-analytics-for-op3' ); ?></th>
 						<td>
 							<label style="display:block;margin-bottom:6px;">
 								<input type="checkbox" name="op3pa_alerts_types[]" value="spike" <?php checked( in_array( 'spike', $enabled_types, true ) ); ?> />
-								<?php esc_html_e( 'Pico de descargas en un episodio', 'podcast-analytics-for-op3' ); ?>
+								<?php esc_html_e( 'Download spike on an episode', 'podcast-analytics-for-op3' ); ?>
 							</label>
 							<label style="display:block;">
 								<input type="checkbox" name="op3pa_alerts_types[]" value="drop" <?php checked( in_array( 'drop', $enabled_types, true ) ); ?> />
-								<?php esc_html_e( 'Caída de descargas en un episodio', 'podcast-analytics-for-op3' ); ?>
+								<?php esc_html_e( 'Download drop on an episode', 'podcast-analytics-for-op3' ); ?>
 							</label>
 						</td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="op3pa_alerts_threshold"><?php esc_html_e( 'Umbral', 'podcast-analytics-for-op3' ); ?></label>
+							<label for="op3pa_alerts_threshold"><?php esc_html_e( 'Threshold', 'podcast-analytics-for-op3' ); ?></label>
 						</th>
 						<td>
 							±<input type="number" id="op3pa_alerts_threshold" name="op3pa_alerts_threshold"
 								value="<?php echo esc_attr( $threshold ); ?>" min="1" max="500" style="width:80px;" />%
-							<p class="description"><?php esc_html_e( 'Variación mínima (comparando esta semana con la anterior, por episodio) para disparar una alerta.', 'podcast-analytics-for-op3' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Minimum change (comparing this week with the previous one, per episode) needed to trigger an alert.', 'podcast-analytics-for-op3' ); ?></p>
 						</td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="op3pa_alerts_min_baseline"><?php esc_html_e( 'Mínimo de descargas', 'podcast-analytics-for-op3' ); ?></label>
+							<label for="op3pa_alerts_min_baseline"><?php esc_html_e( 'Minimum downloads', 'podcast-analytics-for-op3' ); ?></label>
 						</th>
 						<td>
 							<input type="number" id="op3pa_alerts_min_baseline" name="op3pa_alerts_min_baseline"
 								value="<?php echo esc_attr( $min_baseline ); ?>" min="1" max="1000" style="width:80px;" />
-							<p class="description"><?php esc_html_e( 'La semana anterior del episodio debe tener al menos este número de descargas para considerarse. Evita avisos por cambios triviales (ej. pasar de 1 a 2 descargas ya es "+100%").', 'podcast-analytics-for-op3' ); ?></p>
+							<p class="description"><?php esc_html_e( 'The episode must have at least this many downloads in the previous week to be considered. Avoids alerts for trivial changes (e.g. going from 1 to 2 downloads is already "+100%").', 'podcast-analytics-for-op3' ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Podcasts monitorizados', 'podcast-analytics-for-op3' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Monitored podcasts', 'podcast-analytics-for-op3' ); ?></th>
 						<td>
 							<?php if ( empty( $active ) ) : ?>
-								<p class="description"><?php esc_html_e( 'No hay podcasts activos configurados.', 'podcast-analytics-for-op3' ); ?></p>
+								<p class="description"><?php esc_html_e( 'No active podcasts configured.', 'podcast-analytics-for-op3' ); ?></p>
 							<?php else : ?>
 								<?php foreach ( $active as $i => $podcast ) : ?>
 									<label style="display:block;margin-bottom:4px;">
@@ -600,44 +600,44 @@ class OP3PA_Admin {
 					</tr>
 				</table>
 
-				<?php submit_button( __( 'Guardar ajustes', 'podcast-analytics-for-op3' ), 'primary', 'submit', false ); ?>
-				<?php submit_button( __( 'Guardar y comprobar ahora', 'podcast-analytics-for-op3' ), 'secondary', 'op3pa_alerts_check_now', false ); ?>
+				<?php submit_button( __( 'Save Settings', 'podcast-analytics-for-op3' ), 'primary', 'submit', false ); ?>
+				<?php submit_button( __( 'Save and check now', 'podcast-analytics-for-op3' ), 'secondary', 'op3pa_alerts_check_now', false ); ?>
 			</form>
 
-			<h2><?php esc_html_e( 'Estado', 'podcast-analytics-for-op3' ); ?></h2>
+			<h2><?php esc_html_e( 'Status', 'podcast-analytics-for-op3' ); ?></h2>
 			<p>
 				<?php if ( $last_check ) : ?>
 					<?php
 					printf(
 						/* translators: %s: relative time */
-						esc_html__( 'Última comprobación: hace %s.', 'podcast-analytics-for-op3' ),
+						esc_html__( 'Last check: %s ago.', 'podcast-analytics-for-op3' ),
 						esc_html( human_time_diff( $last_check ) )
 					);
 					?>
 				<?php else : ?>
-					<?php esc_html_e( 'Aún no se ha ejecutado ninguna comprobación.', 'podcast-analytics-for-op3' ); ?>
+					<?php esc_html_e( 'No check has run yet.', 'podcast-analytics-for-op3' ); ?>
 				<?php endif; ?>
 			</p>
 
-			<h2><?php esc_html_e( 'Historial reciente', 'podcast-analytics-for-op3' ); ?></h2>
+			<h2><?php esc_html_e( 'Recent history', 'podcast-analytics-for-op3' ); ?></h2>
 			<?php if ( empty( $log ) ) : ?>
-				<p class="description"><?php esc_html_e( 'No se ha disparado ninguna alerta todavía.', 'podcast-analytics-for-op3' ); ?></p>
+				<p class="description"><?php esc_html_e( 'No alerts have been triggered yet.', 'podcast-analytics-for-op3' ); ?></p>
 			<?php else : ?>
 				<table class="wp-list-table widefat fixed striped op3pa-table">
 					<thead>
 						<tr>
-							<th><?php esc_html_e( 'Fecha', 'podcast-analytics-for-op3' ); ?></th>
-							<th><?php esc_html_e( 'Tipo', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Date', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Type', 'podcast-analytics-for-op3' ); ?></th>
 							<th><?php esc_html_e( 'Podcast', 'podcast-analytics-for-op3' ); ?></th>
-							<th><?php esc_html_e( 'Episodio', 'podcast-analytics-for-op3' ); ?></th>
-							<th><?php esc_html_e( 'Cambio', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Episode', 'podcast-analytics-for-op3' ); ?></th>
+							<th><?php esc_html_e( 'Change', 'podcast-analytics-for-op3' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php foreach ( $log as $entry ) : ?>
 							<tr>
 								<td><?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' H:i', $entry['time'] ?? 0 ) ); ?></td>
-								<td><?php echo 'spike' === ( $entry['type'] ?? '' ) ? '📈 ' . esc_html__( 'Pico', 'podcast-analytics-for-op3' ) : '📉 ' . esc_html__( 'Caída', 'podcast-analytics-for-op3' ); ?></td>
+								<td><?php echo 'spike' === ( $entry['type'] ?? '' ) ? '📈 ' . esc_html__( 'Spike', 'podcast-analytics-for-op3' ) : '📉 ' . esc_html__( 'Drop', 'podcast-analytics-for-op3' ); ?></td>
 								<td><?php echo esc_html( $entry['podcast'] ?? '' ); ?></td>
 								<td>
 									<?php if ( ! empty( $entry['episode_url'] ) ) : ?>
@@ -721,15 +721,15 @@ class OP3PA_Admin {
 
 				<div class="op3pa-date-range">
 					<label>
-						<?php esc_html_e( 'Desde', 'podcast-analytics-for-op3' ); ?>
+						<?php esc_html_e( 'From', 'podcast-analytics-for-op3' ); ?>
 						<input type="date" id="op3pa-range-start" />
 					</label>
 					<label>
-						<?php esc_html_e( 'Hasta', 'podcast-analytics-for-op3' ); ?>
+						<?php esc_html_e( 'To', 'podcast-analytics-for-op3' ); ?>
 						<input type="date" id="op3pa-range-end" />
 					</label>
 					<button type="button" id="op3pa-range-apply" class="button button-secondary">
-						<?php esc_html_e( 'Aplicar rango', 'podcast-analytics-for-op3' ); ?>
+						<?php esc_html_e( 'Apply range', 'podcast-analytics-for-op3' ); ?>
 					</button>
 				</div>
 
@@ -772,16 +772,13 @@ class OP3PA_Admin {
 			return;
 		}
 
-		$is_spanish = str_starts_with( get_locale(), 'es' );
-		$url        = $is_spanish
+		// The copy itself is translated through gettext; only the landing page
+		// still branches, since VozCaster serves a separate English site.
+		$url     = str_starts_with( get_locale(), 'es' )
 			? 'https://vozcaster.com/?utm_source=op3-plugin&utm_medium=wp-admin&utm_campaign=cross-promo'
 			: 'https://vozcaster.com/en/?utm_source=op3-plugin&utm_medium=wp-admin&utm_campaign=cross-promo';
-		$message    = $is_spanish
-			? __( '¿Cansado de editar audios, meter melodías y normalizar para publicar tu podcast? VozCaster lo hace por ti desde Telegram, gratis, en minutos.', 'podcast-analytics-for-op3' )
-			: __( 'Tired of editing audio, adding music, and normalizing levels before publishing your podcast? VozCaster does it for you from Telegram, free, in minutes.', 'podcast-analytics-for-op3' );
-		$cta        = $is_spanish
-			? __( 'Descúbrelo gratis →', 'podcast-analytics-for-op3' )
-			: __( 'Try it free →', 'podcast-analytics-for-op3' );
+		$message = __( 'Tired of editing audio, adding music, and normalizing levels before publishing your podcast? VozCaster does it for you from Telegram, free, in minutes.', 'podcast-analytics-for-op3' );
+		$cta     = __( 'Try it free →', 'podcast-analytics-for-op3' );
 		?>
 		<div class="op3pa-promo no-print" id="op3pa-vozcaster-promo">
 			<span class="op3pa-promo-icon">🎙️</span>
@@ -789,7 +786,7 @@ class OP3PA_Admin {
 			<a class="button button-primary op3pa-promo-cta" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener">
 				<?php echo esc_html( $cta ); ?>
 			</a>
-			<button type="button" class="op3pa-promo-dismiss" aria-label="<?php esc_attr_e( 'Descartar', 'podcast-analytics-for-op3' ); ?>">&times;</button>
+			<button type="button" class="op3pa-promo-dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'podcast-analytics-for-op3' ); ?>">&times;</button>
 		</div>
 		<?php
 	}
@@ -922,8 +919,8 @@ class OP3PA_Admin {
 		$total = array_sum( array_column( $apps, 'downloads' ) );
 		$max   = max( array_column( $apps, 'downloads' ) );
 		?>
-		<h2 class="op3pa-show-heading"><?php esc_html_e( 'Apps y dispositivos', 'podcast-analytics-for-op3' ); ?></h2>
-		<?php self::render_section_intro( __( 'Aplicaciones y dispositivos usados para descargar los episodios, en el periodo seleccionado.', 'podcast-analytics-for-op3' ) ); ?>
+		<h2 class="op3pa-show-heading"><?php esc_html_e( 'Apps and devices', 'podcast-analytics-for-op3' ); ?></h2>
+		<?php self::render_section_intro( __( 'Apps and devices used to download the episodes, in the selected period.', 'podcast-analytics-for-op3' ) ); ?>
 		<table class="wp-list-table widefat fixed striped op3pa-table op3pa-apps-table">
 			<tbody>
 				<?php foreach ( array_slice( $apps, 0, 10 ) as $app ) : ?>
@@ -1015,8 +1012,8 @@ class OP3PA_Admin {
 			return;
 		}
 		?>
-		<h2 class="op3pa-show-heading"><?php esc_html_e( 'Comparativa de apps entre podcasts', 'podcast-analytics-for-op3' ); ?></h2>
-		<?php self::render_section_intro( __( 'Reparto de apps y dispositivos de cada podcast, uno al lado del otro, para comparar hábitos de escucha entre shows.', 'podcast-analytics-for-op3' ) ); ?>
+		<h2 class="op3pa-show-heading"><?php esc_html_e( 'App comparison across podcasts', 'podcast-analytics-for-op3' ); ?></h2>
+		<?php self::render_section_intro( __( 'App and device split for each podcast, side by side, to compare listening habits across shows.', 'podcast-analytics-for-op3' ) ); ?>
 		<div class="op3pa-overlap-matrix-wrap">
 			<table class="wp-list-table widefat fixed striped op3pa-table op3pa-overlap-matrix op3pa-app-comparison-matrix">
 				<thead>
@@ -1122,8 +1119,8 @@ class OP3PA_Admin {
 		$max   = max( array_column( $countries, 'downloads' ) );
 		$by_code = array_column( $countries, 'downloads', 'code' );
 		?>
-		<h2 class="op3pa-show-heading"><?php esc_html_e( 'País', 'podcast-analytics-for-op3' ); ?></h2>
-		<?php self::render_section_intro( __( 'Descargas agrupadas por país de origen, según la IP del oyente.', 'podcast-analytics-for-op3' ) ); ?>
+		<h2 class="op3pa-show-heading"><?php esc_html_e( 'Country', 'podcast-analytics-for-op3' ); ?></h2>
+		<?php self::render_section_intro( __( 'Downloads grouped by country of origin, based on the listener IP.', 'podcast-analytics-for-op3' ) ); ?>
 		<div class="op3pa-country-map">
 			<?php echo self::render_country_map_svg( $by_code, $max ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG markup built and escaped internally. ?>
 		</div>
@@ -1206,23 +1203,23 @@ class OP3PA_Admin {
 		}
 
 		$weekday_labels = [
-			__( 'Dom', 'podcast-analytics-for-op3' ),
-			__( 'Lun', 'podcast-analytics-for-op3' ),
-			__( 'Mar', 'podcast-analytics-for-op3' ),
-			__( 'Mié', 'podcast-analytics-for-op3' ),
-			__( 'Jue', 'podcast-analytics-for-op3' ),
-			__( 'Vie', 'podcast-analytics-for-op3' ),
-			__( 'Sáb', 'podcast-analytics-for-op3' ),
+			__( 'Sun', 'podcast-analytics-for-op3' ),
+			__( 'Mon', 'podcast-analytics-for-op3' ),
+			__( 'Tue', 'podcast-analytics-for-op3' ),
+			__( 'Wed', 'podcast-analytics-for-op3' ),
+			__( 'Thu', 'podcast-analytics-for-op3' ),
+			__( 'Fri', 'podcast-analytics-for-op3' ),
+			__( 'Sat', 'podcast-analytics-for-op3' ),
 		];
 
 		$hour_max    = max( array_merge( $by_hour, [ 1 ] ) );
 		$weekday_max = max( array_merge( $by_weekday, [ 1 ] ) );
 		?>
-		<h2 class="op3pa-show-heading"><?php esc_html_e( 'Mejor hora y día', 'podcast-analytics-for-op3' ); ?></h2>
-		<?php self::render_section_intro( __( 'Cuándo escucha tu audiencia: hora del día y día de la semana con más descargas, útil para decidir cuándo publicar.', 'podcast-analytics-for-op3' ) ); ?>
+		<h2 class="op3pa-show-heading"><?php esc_html_e( 'Best time and day', 'podcast-analytics-for-op3' ); ?></h2>
+		<?php self::render_section_intro( __( 'When your audience listens: hour of day and day of week with the most downloads, useful for deciding when to publish.', 'podcast-analytics-for-op3' ) ); ?>
 		<div class="op3pa-time-charts">
 			<div class="op3pa-time-chart">
-				<p class="op3pa-time-chart-label"><?php esc_html_e( 'Por hora del día', 'podcast-analytics-for-op3' ); ?></p>
+				<p class="op3pa-time-chart-label"><?php esc_html_e( 'By hour of day', 'podcast-analytics-for-op3' ); ?></p>
 				<div class="op3pa-hbar-chart">
 					<?php foreach ( $by_hour as $hour => $count ) : ?>
 						<div class="op3pa-hbar" data-op3pa-tooltip="<?php echo esc_attr( sprintf( '<strong>%02d:00</strong>: %s', $hour, number_format_i18n( $count ) ) ); ?>">
@@ -1233,7 +1230,7 @@ class OP3PA_Admin {
 				</div>
 			</div>
 			<div class="op3pa-time-chart">
-				<p class="op3pa-time-chart-label"><?php esc_html_e( 'Por día de la semana', 'podcast-analytics-for-op3' ); ?></p>
+				<p class="op3pa-time-chart-label"><?php esc_html_e( 'By day of week', 'podcast-analytics-for-op3' ); ?></p>
 				<div class="op3pa-hbar-chart op3pa-hbar-chart-week">
 					<?php foreach ( $by_weekday as $w => $count ) : ?>
 						<div class="op3pa-hbar" data-op3pa-tooltip="<?php echo esc_attr( '<strong>' . $weekday_labels[ $w ] . '</strong>: ' . number_format_i18n( $count ) ); ?>">
@@ -1390,20 +1387,20 @@ class OP3PA_Admin {
 		}
 		?>
 		<h2 class="op3pa-show-heading">
-			<?php esc_html_e( 'Ranking de crecimiento', 'podcast-analytics-for-op3' ); ?>
-			<span class="op3pa-overlap-note"><?php esc_html_e( 'vs. periodo anterior equivalente', 'podcast-analytics-for-op3' ); ?></span>
+			<?php esc_html_e( 'Growth ranking', 'podcast-analytics-for-op3' ); ?>
+			<span class="op3pa-overlap-note"><?php esc_html_e( 'vs. equivalent previous period', 'podcast-analytics-for-op3' ); ?></span>
 		</h2>
-		<?php self::render_section_intro( __( 'Episodios que más han subido o bajado en descargas respecto al periodo anterior de la misma duración.', 'podcast-analytics-for-op3' ) ); ?>
+		<?php self::render_section_intro( __( 'Episodes that rose or fell the most in downloads compared with the previous period of the same length.', 'podcast-analytics-for-op3' ) ); ?>
 		<div class="op3pa-growth-lists">
 			<?php if ( ! empty( $growing ) ) : ?>
 				<div class="op3pa-growth-col">
-					<p class="op3pa-time-chart-label">📈 <?php esc_html_e( 'En alza', 'podcast-analytics-for-op3' ); ?></p>
+					<p class="op3pa-time-chart-label">📈 <?php esc_html_e( 'Rising', 'podcast-analytics-for-op3' ); ?></p>
 					<?php self::render_growth_table( $growing ); ?>
 				</div>
 			<?php endif; ?>
 			<?php if ( ! empty( $declining ) ) : ?>
 				<div class="op3pa-growth-col">
-					<p class="op3pa-time-chart-label">📉 <?php esc_html_e( 'En caída', 'podcast-analytics-for-op3' ); ?></p>
+					<p class="op3pa-time-chart-label">📉 <?php esc_html_e( 'Falling', 'podcast-analytics-for-op3' ); ?></p>
 					<?php self::render_growth_table( $declining ); ?>
 				</div>
 			<?php endif; ?>
@@ -1639,18 +1636,18 @@ class OP3PA_Admin {
 		}
 		$show_subheadings = ! empty( $groups['public'] ) && ! empty( $groups['private'] );
 		?>
-		<h2 class="op3pa-show-heading"><?php esc_html_e( 'Solapamiento de audiencia', 'podcast-analytics-for-op3' ); ?></h2>
-		<?php self::render_section_intro( __( 'Qué porcentaje de oyentes escuchan más de uno de tus podcasts. Solo comparable entre podcasts del mismo tipo (públicos entre sí, privados entre sí).', 'podcast-analytics-for-op3' ) ); ?>
+		<h2 class="op3pa-show-heading"><?php esc_html_e( 'Audience overlap', 'podcast-analytics-for-op3' ); ?></h2>
+		<?php self::render_section_intro( __( 'What percentage of listeners follow more than one of your podcasts. Only comparable between podcasts of the same type (public with public, private with private).', 'podcast-analytics-for-op3' ) ); ?>
 		<?php
 		if ( ! empty( $groups['public'] ) ) {
 			if ( $show_subheadings ) {
-				echo '<p class="op3pa-overlap-group-label">' . esc_html__( 'Podcasts públicos', 'podcast-analytics-for-op3' ) . '</p>';
+				echo '<p class="op3pa-overlap-group-label">' . esc_html__( 'Public podcasts', 'podcast-analytics-for-op3' ) . '</p>';
 			}
 			self::render_audience_overlap_group( $groups['public'] );
 		}
 		if ( ! empty( $groups['private'] ) ) {
 			if ( $show_subheadings ) {
-				echo '<p class="op3pa-overlap-group-label">' . esc_html__( 'Podcasts privados', 'podcast-analytics-for-op3' ) . '</p>';
+				echo '<p class="op3pa-overlap-group-label">' . esc_html__( 'Private podcasts', 'podcast-analytics-for-op3' ) . '</p>';
 			}
 			self::render_audience_overlap_group( $groups['private'] );
 		}
@@ -1695,7 +1692,7 @@ class OP3PA_Admin {
 		</div>
 
 		<?php if ( empty( $data['pairs'] ) ) : ?>
-			<p class="op3pa-overlap-none"><?php esc_html_e( 'Sin oyentes compartidos en este periodo.', 'podcast-analytics-for-op3' ); ?></p>
+			<p class="op3pa-overlap-none"><?php esc_html_e( 'No shared listeners in this period.', 'podcast-analytics-for-op3' ); ?></p>
 		<?php else : ?>
 			<ul class="op3pa-overlap-pairs">
 				<?php foreach ( $data['pairs'] as $pair ) : ?>
@@ -1706,7 +1703,7 @@ class OP3PA_Admin {
 						<?php
 						printf(
 							/* translators: 1: shared listener count 2: percentage of podcast A's audience 3: podcast A name 4: percentage of podcast B's audience 5: podcast B name */
-							esc_html__( '%1$s oyentes compartidos (%2$s%% de %3$s, %4$s%% de %5$s)', 'podcast-analytics-for-op3' ),
+							esc_html__( '%1$s shared listeners (%2$s%% of %3$s, %4$s%% of %5$s)', 'podcast-analytics-for-op3' ),
 							'<strong>' . esc_html( number_format_i18n( $pair['shared'] ) ) . '</strong>',
 							esc_html( $pair['pct_a'] ),
 							esc_html( $podcasts[ $pair['a'] ]['name'] ),
@@ -1830,15 +1827,15 @@ class OP3PA_Admin {
 			<div class="op3pa-network-header">
 				<div class="op3pa-network-total">
 					<span class="op3pa-net-number"><?php echo esc_html( number_format_i18n( (int) $total ) ); ?></span>
-					<span class="op3pa-net-label"><?php esc_html_e( 'descargas totales', 'podcast-analytics-for-op3' ); ?></span>
+					<span class="op3pa-net-label"><?php esc_html_e( 'total downloads', 'podcast-analytics-for-op3' ); ?></span>
 				</div>
 				<?php if ( $unique['total'] > 0 ) : ?>
 				<div class="op3pa-network-total op3pa-network-total-secondary">
 					<span class="op3pa-net-number"><?php echo esc_html( number_format_i18n( $unique['total'] ) ); ?></span>
 					<span class="op3pa-net-label">
-						<?php esc_html_e( 'oyentes únicos', 'podcast-analytics-for-op3' ); ?>
+						<?php esc_html_e( 'unique listeners', 'podcast-analytics-for-op3' ); ?>
 						<?php if ( $unique['has_private'] ) : ?>
-							<span title="<?php esc_attr_e( 'Aproximado para podcasts privados en periodos superiores a 24h.', 'podcast-analytics-for-op3' ); ?>">*</span>
+							<span title="<?php esc_attr_e( 'Approximate for private podcasts over periods longer than 24h.', 'podcast-analytics-for-op3' ); ?>">*</span>
 						<?php endif; ?>
 					</span>
 				</div>
@@ -1868,7 +1865,7 @@ class OP3PA_Admin {
 					<thead>
 						<tr>
 							<th class="column-podcast"><?php esc_html_e( 'Podcast', 'podcast-analytics-for-op3' ); ?></th>
-							<th class="column-downloads"><?php esc_html_e( 'Descargas', 'podcast-analytics-for-op3' ); ?></th>
+							<th class="column-downloads"><?php esc_html_e( 'Downloads', 'podcast-analytics-for-op3' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -1906,15 +1903,15 @@ class OP3PA_Admin {
 				$ep_total = array_sum( array_column( $all_episodes, 'downloads' ) );
 				$ep_max   = max( array_column( $all_episodes, 'downloads' ) ?: [ 1 ] );
 				?>
-				<h2 class="op3pa-show-heading"><?php esc_html_e( 'Episodios', 'podcast-analytics-for-op3' ); ?></h2>
-				<?php self::render_section_intro( __( 'Descargas por episodio de todos los podcasts seleccionados, ordenadas de mayor a menor.', 'podcast-analytics-for-op3' ) ); ?>
+				<h2 class="op3pa-show-heading"><?php esc_html_e( 'Episodes', 'podcast-analytics-for-op3' ); ?></h2>
+				<?php self::render_section_intro( __( 'Downloads per episode across all selected podcasts, highest first.', 'podcast-analytics-for-op3' ) ); ?>
 				<table class="wp-list-table widefat fixed striped op3pa-table">
 					<thead>
 						<tr>
 							<th class="column-podcast-tag"><?php esc_html_e( 'Podcast', 'podcast-analytics-for-op3' ); ?></th>
-							<th class="column-episode"><?php esc_html_e( 'Episodio', 'podcast-analytics-for-op3' ); ?></th>
-							<th class="column-pubdate"><?php esc_html_e( 'Fecha', 'podcast-analytics-for-op3' ); ?></th>
-							<th class="column-downloads"><?php esc_html_e( 'Descargas', 'podcast-analytics-for-op3' ); ?></th>
+							<th class="column-episode"><?php esc_html_e( 'Episode', 'podcast-analytics-for-op3' ); ?></th>
+							<th class="column-pubdate"><?php esc_html_e( 'Date', 'podcast-analytics-for-op3' ); ?></th>
+							<th class="column-downloads"><?php esc_html_e( 'Downloads', 'podcast-analytics-for-op3' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -1958,7 +1955,7 @@ class OP3PA_Admin {
 									<?php
 									printf(
 										/* translators: %d: number of remaining episodes */
-										esc_html__( 'Ver todos (%d más)', 'podcast-analytics-for-op3' ),
+										esc_html__( 'View all (%d more)', 'podcast-analytics-for-op3' ),
 										count( $all_episodes ) - 10
 									);
 									?>
@@ -1985,7 +1982,7 @@ class OP3PA_Admin {
 				<?php self::render_audience_overlap( self::get_audience_overlap( $period, $indexes ) ); ?>
 
 				<p class="op3pa-cache-note no-print">
-					<?php esc_html_e( 'Datos en caché durante 1 hora.', 'podcast-analytics-for-op3' ); ?>
+					<?php esc_html_e( 'Data cached for 1 hour.', 'podcast-analytics-for-op3' ); ?>
 				</p>
 			<?php endif; ?>
 		</div>
@@ -2029,9 +2026,9 @@ class OP3PA_Admin {
 					?>
 					<p class="op3pa-unique-listeners">
 						<strong><?php echo esc_html( number_format_i18n( $unique ) ); ?></strong>
-						<?php esc_html_e( 'oyentes únicos', 'podcast-analytics-for-op3' ); ?>
+						<?php esc_html_e( 'unique listeners', 'podcast-analytics-for-op3' ); ?>
 						<?php if ( ! empty( $podcast['private'] ) ) : ?>
-							<span title="<?php esc_attr_e( 'Aproximado en periodos superiores a 24h.', 'podcast-analytics-for-op3' ); ?>">*</span>
+							<span title="<?php esc_attr_e( 'Approximate over periods longer than 24h.', 'podcast-analytics-for-op3' ); ?>">*</span>
 						<?php endif; ?>
 					</p>
 				<?php endif; ?>
@@ -2070,14 +2067,14 @@ class OP3PA_Admin {
 	 */
 	private static function render_episodes_table( array $rows, int $total ): void {
 		?>
-		<h2 class="op3pa-show-heading"><?php esc_html_e( 'Episodios', 'podcast-analytics-for-op3' ); ?></h2>
-		<?php self::render_section_intro( __( 'Descargas por episodio en el periodo seleccionado, ordenadas de mayor a menor.', 'podcast-analytics-for-op3' ) ); ?>
+		<h2 class="op3pa-show-heading"><?php esc_html_e( 'Episodes', 'podcast-analytics-for-op3' ); ?></h2>
+		<?php self::render_section_intro( __( 'Downloads per episode in the selected period, highest first.', 'podcast-analytics-for-op3' ) ); ?>
 		<table class="wp-list-table widefat fixed striped op3pa-table">
 			<thead>
 				<tr>
-					<th class="column-episode"><?php esc_html_e( 'Episodio', 'podcast-analytics-for-op3' ); ?></th>
-					<th class="column-pubdate"><?php esc_html_e( 'Fecha', 'podcast-analytics-for-op3' ); ?></th>
-					<th class="column-downloads"><?php esc_html_e( 'Descargas', 'podcast-analytics-for-op3' ); ?></th>
+					<th class="column-episode"><?php esc_html_e( 'Episode', 'podcast-analytics-for-op3' ); ?></th>
+					<th class="column-pubdate"><?php esc_html_e( 'Date', 'podcast-analytics-for-op3' ); ?></th>
+					<th class="column-downloads"><?php esc_html_e( 'Downloads', 'podcast-analytics-for-op3' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -2116,7 +2113,7 @@ class OP3PA_Admin {
 							<?php
 							printf(
 								/* translators: %d: number of remaining episodes */
-								esc_html__( 'Ver todos (%d más)', 'podcast-analytics-for-op3' ),
+								esc_html__( 'View all (%d more)', 'podcast-analytics-for-op3' ),
 								count( $rows ) - 10
 							);
 							?>

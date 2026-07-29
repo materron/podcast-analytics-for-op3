@@ -242,7 +242,7 @@ class OP3PA_Alerts {
 
 		$site_name = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 		/* translators: %s: site name */
-		$subject = sprintf( __( '[%s] Alertas de descargas de podcast', 'podcast-analytics-for-op3' ), $site_name );
+		$subject = sprintf( __( '[%s] Podcast download alerts', 'podcast-analytics-for-op3' ), $site_name );
 
 		$lines = [];
 		foreach ( $alerts as $alert ) {

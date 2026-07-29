@@ -26,7 +26,7 @@ Integrate OP3 open podcast analytics with WordPress: prefix your feed automatica
 * **Best time to publish** — Charts showing downloads by hour of day and by weekday, in your site's own timezone.
 * **Unique listeners** — A deduplicated listener count, for both public and private podcasts.
 * **Audience overlap** — When two or more podcasts are shown together, see how many listeners they share, as a matrix and a ranked list. Public podcasts are compared against public podcasts, and private against private — see the FAQ below for why they're never mixed.
-* **Download alerts** — Get an email when an episode (published more than 14 days ago) has an unusual spike or drop in downloads compared to the previous week. Configured in a dedicated **OP3 Analytics → Alertas** page, with its own history log.
+* **Download alerts** — Get an email when an episode (published more than 14 days ago) has an unusual spike or drop in downloads compared to the previous week. Configured in a dedicated **OP3 Analytics → Alerts** page, with its own history log.
 * **Growth ranking** — See which episodes are climbing or falling fastest, comparing the selected period against the equal-length period right before it.
 * **App comparison** — When two or more podcasts are shown together, compare their apps/devices breakdown side by side.
 * **Printable report** — The "Print / PDF" button now includes a short plain-language explanation under each section, so a printed or exported report is understandable without the interactive dashboard.
@@ -96,7 +96,7 @@ Yes, if you own all the podcasts. The bearer token is tied to your OP3 identity,
 
 = I have a private/restricted podcast feed. Can I still get statistics? =
 
-Yes, since v2.1.0. Mark the podcast as "Privado" in the settings and set its Feed slug (the `/feed/{slug}/` part of your restricted feed's URL). The plugin will route its downloads through a self-hosted tracking endpoint on your own site instead of the OP3 prefix, and its statistics will appear alongside your public podcasts. Downloads are logged without ever storing raw IP addresses (only a daily-rotating salted hash).
+Yes, since v2.1.0. Mark the podcast as "Private" in the settings and set its Feed slug (the `/feed/{slug}/` part of your restricted feed's URL). The plugin will route its downloads through a self-hosted tracking endpoint on your own site instead of the OP3 prefix, and its statistics will appear alongside your public podcasts. Downloads are logged without ever storing raw IP addresses (only a daily-rotating salted hash).
 
 = How are private podcast downloads counted? Is it comparable to OP3's numbers? =
 
@@ -127,7 +127,7 @@ If you select only one podcast (or only one podcast per group), the audience-ove
 
 = How do download alerts work? =
 
-Go to **OP3 Analytics → Alertas** and:
+Go to **OP3 Analytics → Alerts** and:
 
 1. Enter a destination email address. This is required — there is no fallback to the site's admin email, so alerts stay off until you set one explicitly.
 2. Choose which type(s) to enable: "Pico de descargas" (spike) and/or "Caída de descargas" (drop).
@@ -139,7 +139,7 @@ Once a day, the plugin compares each monitored episode's downloads in the last 7
 * Episodes younger than 14 days are skipped entirely — a brand-new episode's natural launch curve (high initial downloads, then a steep decline) would otherwise look like a constant "spike" and "drop" for every episode, every day.
 * The previous week's count must be at least the configured minimum baseline (default 5) — otherwise tiny numbers produce meaningless percentages (e.g. going from 1 to 2 downloads reads as "+100%").
 
-A history of the last 50 triggered alerts is kept on the Alertas page itself, along with a "Guardar y comprobar ahora" button to test your configuration immediately instead of waiting for the daily cron.
+A history of the last 50 triggered alerts is kept on the Alerts page itself, along with a "Save and check now" button to test your configuration immediately instead of waiting for the daily cron.
 
 == External Services ==
 
@@ -178,6 +178,13 @@ Deleting the plugin from the Plugins screen removes all of its data: settings, c
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.9.0 (2026-07-29) =
+* Fixed: the plugin's source strings were written in Spanish, which made Spanish the effective default for everyone. An admin running WordPress in English saw large parts of the interface in Spanish, because gettext falls back to the source string when a language has no translation. All 145 source strings are now in English, with the Spanish rendering moved into the bundled es_ES catalog where it belongs. A Spanish site looks exactly the same as before; an English one is now actually in English.
+* Improvement: translators on translate.wordpress.org can now work from English source strings instead of translating out of Spanish, which is what the platform assumes.
+* Improvement: the es_ES catalog went from 57 entries (many of them for screens that no longer exist) to a complete 145, so nothing falls back to the source string any more. Two labels that were shown in English even on Spanish sites — "All (network)" and "Print / PDF" — are now translated.
+* Improvement: the VozCaster promo no longer picks its wording with a hand-written locale check; the text goes through gettext like everything else. Only the destination URL still varies, since VozCaster has a separate English site.
+* Improvement: renamed the "Badge colour" label to "Badge color" to match WordPress core's US English spelling.
 
 = 2.8.0 (2026-07-29) =
 * Fixed: uninstalling the plugin left data behind. It had not been updated since 2.0 and only removed the podcast list and a few old transients, leaving the Bearer Token, the MaxMind license key, all alert settings, the cached statistics and — most importantly — the custom download-tracking and GeoLite2 tables in the database. Uninstall now removes everything the plugin ever created, and does so per-site on Multisite.
