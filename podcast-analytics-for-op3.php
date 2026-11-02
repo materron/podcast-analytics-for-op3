@@ -3,7 +3,7 @@
  * Plugin Name: Podcast Analytics for OP3
  * Plugin URI:  https://github.com/materron/podcast-analytics-for-op3
  * Description: Adds the OP3 prefix to your podcast feed enclosures and shows download statistics in the WordPress dashboard. Supports multiple podcasts and network-wide stats.
- * Version:     2.9.0
+ * Version:     2.9.1
  * Requires at least: 6.3
  * Requires PHP: 8.0
  * Author:      Miguel Ángel Terrón Bote
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OP3PA_VERSION', '2.9.0' );
+define( 'OP3PA_VERSION', '2.9.1' );
 define( 'OP3PA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OP3PA_URL', plugin_dir_url( __FILE__ ) );
 define( 'OP3PA_OPTION',              'op3pa_podcasts' );
@@ -198,6 +198,28 @@ function op3pa_country_name( string $code ): string {
 	return $names[ strtoupper( $code ) ] ?? strtoupper( $code );
 }
 
+/**
+ * Fills in the strings the WordPress.org language pack does not have yet.
+ *
+ * Sites get their translations from translate.wordpress.org, which lags behind
+ * a new release, so every string added in it showed up in English even on a
+ * Spanish site. The language pack is loaded first, so its translations win, and
+ * then the catalog shipped in /languages, which only adds the missing entries.
+ */
+function op3pa_load_bundled_translations(): void {
+	$domain  = 'podcast-analytics-for-op3';
+	$locale  = determine_locale();
+	$bundled = OP3PA_DIR . 'languages/' . $domain . '-' . $locale . '.mo';
+	if ( ! is_readable( $bundled ) ) {
+		return;
+	}
+	$pack = WP_LANG_DIR . '/plugins/' . $domain . '-' . $locale . '.mo';
+	if ( ! is_textdomain_loaded( $domain ) && is_readable( $pack ) ) {
+		load_textdomain( $domain, $pack, $locale );
+	}
+	load_textdomain( $domain, $bundled, $locale );
+}
+
 // Bootstrap.
 add_action( 'plugins_loaded', [ 'OP3PA_Feed', 'init' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_Admin', 'init' ] );
@@ -206,6 +228,7 @@ add_action( 'plugins_loaded', [ 'OP3PA_DB', 'maybe_upgrade' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_Geo', 'init' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_Alerts', 'init' ] );
 add_action( 'plugins_loaded', 'op3pa_maybe_migrate' );
+add_action( 'init', 'op3pa_load_bundled_translations', 0 );
 
 register_activation_hook( __FILE__, 'op3pa_activate' );
 register_deactivation_hook( __FILE__, 'op3pa_deactivate' );

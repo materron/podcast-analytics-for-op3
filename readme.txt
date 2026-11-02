@@ -2,9 +2,9 @@
 Contributors: materron
 Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 2.9.0
+Stable tag: 2.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -178,6 +178,11 @@ Deleting the plugin from the Plugins screen removes all of its data: settings, c
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.9.1 (2026-11-02) =
+* Fixed: strings added in a new release showed up in English on Spanish sites until translate.wordpress.org caught up, because the WordPress.org language pack replaced the catalog bundled with the plugin. The pack still wins, but the bundled catalog now fills in whatever the pack is missing.
+* Improvement: tested up to WordPress 7.1.
+* Improvement: the VozCaster note no longer says the service works "from Telegram". Telegram is now just one of several ways in — there is also a web app and recording straight from WordPress — so the wording follows the product again: you talk, VozCaster takes care of the rest and leaves the episode in your WordPress.
 
 = 2.9.0 (2026-07-29) =
 * Fixed: the plugin's source strings were written in Spanish, which made Spanish the effective default for everyone. An admin running WordPress in English saw large parts of the interface in Spanish, because gettext falls back to the source string when a language has no translation. All 145 source strings are now in English, with the Spanish rendering moved into the bundled es_ES catalog where it belongs. A Spanish site looks exactly the same as before; an English one is now actually in English.

@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the Podcast Analytics for OP3 plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Podcast Analytics for OP3 2.9.0\n"
+"Project-Id-Version: Podcast Analytics for OP3 2.9.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/podcast-analytics-for-op3\n"
 "POT-Creation-Date: 2026-07-29 00:00:00+00:00\n"
 "PO-Revision-Date: 2026-07-29 00:00:00+0000\n"
@@ -262,8 +262,8 @@ msgstr "Actualizar"
 msgid "Print / PDF"
 msgstr "Imprimir / PDF"
 
-msgid "Tired of editing audio, adding music, and normalizing levels before publishing your podcast? VozCaster does it for you from Telegram, free, in minutes."
-msgstr "¿Cansado de editar audios, meter melodías y normalizar para publicar tu podcast? VozCaster lo hace por ti desde Telegram, gratis, en minutos."
+msgid "Tired of editing audio, adding music, and normalizing levels before publishing your podcast? You talk, VozCaster takes care of the rest and leaves the episode in your WordPress, free, in minutes."
+msgstr "¿Cansado de editar audios, meter melodías y normalizar para publicar tu podcast? Tú hablas, del resto se ocupa VozCaster: el episodio aparece en tu WordPress, gratis, en minutos."
 
 msgid "Try it free →"
 msgstr "Descúbrelo gratis →"

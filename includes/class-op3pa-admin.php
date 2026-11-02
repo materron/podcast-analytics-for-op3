@@ -777,7 +777,7 @@ class OP3PA_Admin {
 		$url     = str_starts_with( get_locale(), 'es' )
 			? 'https://vozcaster.com/?utm_source=op3-plugin&utm_medium=wp-admin&utm_campaign=cross-promo'
 			: 'https://vozcaster.com/en/?utm_source=op3-plugin&utm_medium=wp-admin&utm_campaign=cross-promo';
-		$message = __( 'Tired of editing audio, adding music, and normalizing levels before publishing your podcast? VozCaster does it for you from Telegram, free, in minutes.', 'podcast-analytics-for-op3' );
+		$message = __( 'Tired of editing audio, adding music, and normalizing levels before publishing your podcast? You talk, VozCaster takes care of the rest and leaves the episode in your WordPress, free, in minutes.', 'podcast-analytics-for-op3' );
 		$cta     = __( 'Try it free →', 'podcast-analytics-for-op3' );
 		?>
 		<div class="op3pa-promo no-print" id="op3pa-vozcaster-promo">
