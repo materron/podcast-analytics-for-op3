@@ -3,7 +3,7 @@
  * Plugin Name: Podcast Analytics for OP3
  * Plugin URI:  https://github.com/materron/podcast-analytics-for-op3
  * Description: Adds the OP3 prefix to your podcast feed enclosures and shows download statistics in the WordPress dashboard. Supports multiple podcasts and network-wide stats.
- * Version:     2.9.1
+ * Version:     2.9.2
  * Requires at least: 6.3
  * Requires PHP: 8.0
  * Author:      Miguel Ángel Terrón Bote
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OP3PA_VERSION', '2.9.1' );
+define( 'OP3PA_VERSION', '2.9.2' );
 define( 'OP3PA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OP3PA_URL', plugin_dir_url( __FILE__ ) );
 define( 'OP3PA_OPTION',              'op3pa_podcasts' );
@@ -140,13 +140,28 @@ function op3pa_get_active_all_podcasts(): array {
 }
 
 /**
- * Returns a human-readable country name for an ISO 3166-1 alpha-2 code.
- * Covers the countries present in the bundled world map (admin/img/world-map.svg).
+ * Returns a human-readable country name for an ISO 3166-1 alpha-2 code,
+ * in the language of the site.
+ *
+ * Where the intl extension is available, the name comes from ICU, which knows
+ * every country in every language. The hard-coded table below is the fallback
+ * for sites without intl: it only covers the countries present in the bundled
+ * world map (admin/img/world-map.svg), and only in Spanish.
  *
  * @param string $code Two-letter uppercase country code.
  * @return string
  */
 function op3pa_country_name( string $code ): string {
+	$code = strtoupper( $code );
+
+	if ( function_exists( 'locale_get_display_region' ) ) {
+		// ICU wants a locale tag; a region on its own is written '-XX'.
+		$name = locale_get_display_region( '-' . $code, determine_locale() );
+		if ( is_string( $name ) && '' !== $name && $name !== $code ) {
+			return $name;
+		}
+	}
+
 	static $names = null;
 	if ( null === $names ) {
 		$names = [
@@ -195,7 +210,7 @@ function op3pa_country_name( string $code ): string {
 			'YE' => 'Yemen', 'ZM' => 'Zambia', 'ZW' => 'Zimbabue',
 		];
 	}
-	return $names[ strtoupper( $code ) ] ?? strtoupper( $code );
+	return $names[ $code ] ?? $code;
 }
 
 /**
@@ -229,6 +244,7 @@ add_action( 'plugins_loaded', [ 'OP3PA_Geo', 'init' ] );
 add_action( 'plugins_loaded', [ 'OP3PA_Alerts', 'init' ] );
 add_action( 'plugins_loaded', 'op3pa_maybe_migrate' );
 add_action( 'init', 'op3pa_load_bundled_translations', 0 );
+add_action( 'change_locale', 'op3pa_load_bundled_translations' );
 
 register_activation_hook( __FILE__, 'op3pa_activate' );
 register_deactivation_hook( __FILE__, 'op3pa_deactivate' );
