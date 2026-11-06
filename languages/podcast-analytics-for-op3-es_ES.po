@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: Podcast Analytics for OP3 2.9.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/podcast-analytics-for-op3\n"
 "POT-Creation-Date: 2026-07-29 00:00:00+00:00\n"
-"PO-Revision-Date: 2026-07-29 00:00:00+0000\n"
+"PO-Revision-Date: 2026-11-06 00:00:00+0000\n"
 "Last-Translator: Miguel Angel Terron Bote <materron@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "Language: es_ES\n"
@@ -86,7 +86,7 @@ msgid "Podcasts"
 msgstr "Podcasts"
 
 msgid "Add one row per podcast. The Show UUID is in the URL of your OP3 statistics page (https://op3.dev/show/{uuid}). The Podcast GUID is optional and speeds up attribution. The Feed slug (e.g. \"premiumpp\" for /feed/premiumpp/) is required for private podcasts, and optional for public ones with more than one channel. Podcasts marked as private get their own tracking endpoint instead of the OP3 prefix, and their statistics are calculated from your own database."
-msgstr "Añade una fila por cada podcast. El Show UUID lo encontrarás en la URL de tu página de estadísticas en OP3 (https://op3.dev/show/{uuid}). El Podcast GUID es opcional y acelera la atribución. El Feed slug (ej. \"premiumpp\" para /feed/premiumpp/) es obligatorio para podcasts privados, y opcional para públicos con más de un canal. Los podcasts marcados como privados no tendrán el prefijo OP3, sino un endpoint propio de seguimiento, y sus estadísticas se calculan desde tu propia base de datos."
+msgstr "Añade una fila por cada podcast. El UUID del programa está en la URL de tu página de estadísticas en OP3 (https://op3.dev/show/{uuid}). El Podcast GUID es opcional y acelera la atribución. El Feed slug (por ejemplo, «premiumpp» para /feed/premiumpp/) es obligatorio para los podcasts privados y opcional para los públicos con más de un canal. Los podcasts marcados como privados no llevan el prefijo de OP3, sino un punto de acceso de seguimiento propio, y sus estadísticas se calculan con tu propia base de datos."
 
 msgid "Name"
 msgstr "Nombre"
@@ -152,13 +152,13 @@ msgid "Podcast Analytics — Alerts"
 msgstr "Podcast Analytics — Alertas"
 
 msgid "Get an email when an episode (published more than 14 days ago) has an unusual download spike or drop compared with the previous week. Checked once a day."
-msgstr "Recibe un aviso por email cuando un episodio (con más de 14 días publicado) tenga un pico o una caída de descargas inusual respecto a la semana anterior. Se comprueba una vez al día."
+msgstr "Recibe un correo electrónico cuando un episodio (publicado hace más de 14 días) tenga un pico o una caída de descargas inusual respecto a la semana anterior. Se comprueba una vez al día."
 
 msgid "Destination email"
 msgstr "Correo de destino"
 
 msgid "Required for alerts to be sent. There is no default address."
-msgstr "Obligatorio para que se envíen alertas. No hay un correo por defecto."
+msgstr "Obligatorio para que se envíen las alertas. No hay ninguna dirección por defecto."
 
 msgid "Alert type"
 msgstr "Tipo de alerta"
@@ -179,10 +179,10 @@ msgid "Minimum downloads"
 msgstr "Mínimo de descargas"
 
 msgid "The episode must have at least this many downloads in the previous week to be considered. Avoids alerts for trivial changes (e.g. going from 1 to 2 downloads is already \"+100%\")."
-msgstr "La semana anterior del episodio debe tener al menos este número de descargas para considerarse. Evita avisos por cambios triviales (ej. pasar de 1 a 2 descargas ya es \"+100%\")."
+msgstr "El episodio debe tener al menos este número de descargas en la semana anterior para tenerse en cuenta. Evita avisos por cambios sin importancia (por ejemplo, pasar de 1 a 2 descargas ya es «+100 %»)."
 
 msgid "Monitored podcasts"
-msgstr "Podcasts monitorizados"
+msgstr "Podcasts vigilados"
 
 msgid "No active podcasts configured."
 msgstr "No hay podcasts activos configurados."
