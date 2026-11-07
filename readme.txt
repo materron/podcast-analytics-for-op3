@@ -4,7 +4,7 @@ Tags: podcast, analytics, statistics, op3, feed
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 2.9.2
+Stable tag: 2.9.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -178,6 +178,10 @@ Deleting the plugin from the Plugins screen removes all of its data: settings, c
 The world map used in the country statistics (`admin/img/world-map.svg`) is based on ["Simple SVG World Map"](https://github.com/flekschas/simple-world-map) by Fritz Lekschas, editing original artwork by Al MacDonald, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
 == Changelog ==
+
+= 2.9.3 (2026-11-07) =
+* Fixed: a fatal error ("Cannot use 'true' as class name") that took down the whole site on PHP 8.0 and 8.1. Two methods used `true` as a standalone return type, which only exists from PHP 8.2, while the plugin declares PHP 8.0 as its minimum. They now return `bool`.
+* Improvement: five Spanish strings brought in line with the es_ES glossary of the WordPress translation team.
 
 = 2.9.2 (2026-11-03) =
 * Fixed: country names on the statistics map were hard-coded in Spanish, so an English or French site still read "Alemania" and "Reino Unido". They now come from the intl extension in the language of the site, which also covers every country rather than only the ones on the bundled map. Sites without intl keep the old table. Thanks to [Thomas Khyn](https://github.com/tkhyn) for spotting this and for the fix it is based on.

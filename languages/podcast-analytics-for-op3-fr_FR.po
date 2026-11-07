@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the Podcast Analytics for OP3 plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Podcast Analytics for OP3 2.9.2\n"
+"Project-Id-Version: Podcast Analytics for OP3 2.9.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/podcast-analytics-"
 "for-op3\n"
 "POT-Creation-Date: 2026-07-29 00:00:00+00:00\n"

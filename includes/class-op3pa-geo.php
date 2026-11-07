@@ -118,7 +118,7 @@ class OP3PA_Geo {
 	 *
 	 * @return true|WP_Error
 	 */
-	public static function refresh_database(): true|WP_Error {
+	public static function refresh_database(): bool|WP_Error {
 		$license_key = self::get_license_key();
 		if ( empty( $license_key ) ) {
 			return new WP_Error( 'op3pa_no_license_key', __( 'No MaxMind license key configured.', 'podcast-analytics-for-op3' ) );
@@ -213,7 +213,7 @@ class OP3PA_Geo {
 	 * @param array  $geoname_to_country  Map of geoname_id => country_code.
 	 * @return true|WP_Error
 	 */
-	private static function import_blocks_csv( string $file, array $geoname_to_country ): true|WP_Error {
+	private static function import_blocks_csv( string $file, array $geoname_to_country ): bool|WP_Error {
 		global $wpdb;
 		$charset_collate = $wpdb->get_charset_collate();
 		$staging_table    = self::table() . '_staging';
